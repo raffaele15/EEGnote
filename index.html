@@ -54,6 +54,7 @@ main{display:grid;grid-template-columns:1fr 340px;min-height:0}
 .jbtn{display:flex;gap:2px} .jbtn button{font-size:.72rem;padding:.05rem .32rem;border:1px solid var(--line);background:var(--paper);border-radius:3px;cursor:pointer}
 .jbtn button[aria-pressed=true][data-v=si]{background:var(--yes);border-color:var(--yes);color:#fff} .jbtn button[aria-pressed=true][data-v=no]{background:var(--no);border-color:var(--no);color:#fff}
 .jbtn button[aria-pressed=true][data-v=dubbio]{background:var(--maybe);border-color:var(--maybe);color:#fff}
+textarea.rep{width:100%;min-height:340px;resize:vertical;font:inherit;font-size:.82rem;line-height:1.45;padding:.5rem .6rem;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink)}
 table.cmp{border-collapse:collapse;font-size:.8rem;width:100%} table.cmp td,table.cmp th{border-bottom:1px solid var(--grid);padding:.15rem .3rem;text-align:left} table.cmp th{color:var(--muted);font-weight:500}
 aside{overflow:auto;background:var(--panel);padding:.8rem 1rem 2rem}
 aside h2{font-size:.95rem;font-weight:600;margin:1.2rem 0 .45rem}
@@ -122,6 +123,12 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <aside>
     <h2>Livello decisionale (regole SCORE)</h2>
     <div id="scorebox" class="small">Apri un file per vedere la classificazione.</div>
+    <h2>Referto automatico (bozza)</h2>
+    <div id="repbox">
+      <textarea id="reptext" class="rep" spellcheck="false" placeholder="Apri un file per generare la bozza." aria-label="Bozza di referto modificabile"></textarea>
+      <div class="iedbar"><button class="btn" id="repcopy">Copia</button><button class="btn" id="repdl">Scarica .txt</button><button class="btn" id="repregen" title="Rigenera dal tracciato (perde le modifiche manuali)">Rigenera</button><span class="small" id="repstate"></span></div>
+      <p class="small">Stile dei referti AOPD; ogni frase deriva da una misura dell'app. Il testo è modificabile; si aggiorna da solo dopo la revisione IED finché non lo modifichi.</p>
+    </div>
     <h2>Candidati IED (modello)</h2>
     <div id="iedbox">
       <div class="small" id="iedstatus">Modello non caricato.</div>
@@ -519,13 +526,43 @@ function analyze(rec, opts = {}) {
   for (const b in BANDS) globalRel[b] = mean(good.map(c => relMap[c][b]));
 
   const slow = slowLayer(ep, anns, pdr);
-  return {
+  const out = {
     fs, duration: dur, epoch, epochs: ep, anns, zeros, bad, badWhy, warn, chStats, cmap, present,
     pdr, relMap, globalRel, apGrad, asym, slow,
     counts: { epochs: ep.length, clean: clean.length, flagged: ep.filter(o => o.flag).length,
       flaggedL: ep.filter(o => o.flag === 'lento sx').length, flaggedR: ep.filter(o => o.flag === 'lento dx').length,
       flaggedD: ep.filter(o => o.flag === 'lento diffuso' || o.flag === 'lento bilaterale').length }
   };
+  out.amp = alphaAmplitude(rec, out); out.sli = photicDriving(rec, out);
+  return out;
+}
+
+/* ampiezza picco-picco stimata del ritmo posteriore (8-13 Hz, O1/O2 sul riferimento di registrazione, tratti a occhi chiusi): 2√2·rms */
+function alphaAmplitude(rec, A) {
+  const segs = (A.pdr.ocSegs && A.pdr.ocSegs.length) ? A.pdr.ocSegs : null; if (!segs) return null;
+  const f = makeFilters(A.fs, 8, 13, 0), v = [];
+  // derivazione referenziale (riferimento di registrazione): è la scala su cui il refertatore giudica il voltaggio
+  for (const pr of [['O1', null], ['O2', null]]) { if (A.bad.has(pr[0]) || A.cmap[pr[0]] === undefined) continue;
+    for (const [t0, t1] of segs) { const x = filtfilt(derivation(rec, A.cmap, pr, Math.floor(t0 * A.fs), Math.floor(t1 * A.fs)), f); let s = 0; for (let i = 0; i < x.length; i++) s += x[i] * x[i]; v.push(2 * Math.SQRT2 * Math.sqrt(s / x.length)); } }
+  return v.length ? median(v) : null;
+}
+/* stimolazione luminosa intermittente: trascinamento = picchi posteriori ≥ 6× la potenza basale a frequenze diverse dal ritmo di fondo */
+function photicDriving(rec, A) {
+  const sli = A.anns.find(a => a.code === 'SLI'); if (!sli) return { done: false };
+  const fs = A.fs, N = 1 << Math.round(Math.log2(4 * fs)), pr = [['O1', 'P3'], ['O2', 'P4']].filter(p => !A.bad.has(p[0]) && !A.bad.has(p[1]));
+  if (!pr.length) return { done: true, driving: null };
+  const filt = makeFilters(fs, 1, 40, 0), end = sli.onset + (sli.duration || 150);
+  const spec = t => { const i0 = Math.round(t * fs); let acc = null; for (const p of pr) { const P = spectrum(filtfilt(derivation(rec, A.cmap, p, i0, i0 + N), filt)); if (!acc) acc = Array.from(P); else for (let j = 0; j < P.length; j++) acc[j] += P[j]; } return acc; };
+  const base = A.epochs.filter(o => !o.zero && !o.artifact && !o.annArt && (o.t + A.epoch < sli.onset - 5 || o.t > end + 5)).filter((_, i) => i % 2 === 0).map(o => spec(o.t));
+  if (base.length < 10) return { done: true, driving: null };
+  const med = base[0].map((_, j) => median(base.map(s => s[j]))), df = fs / N, hits = [];
+  let n = 0;
+  for (let t = sli.onset; t + N / fs <= end; t += 2) { n++; const s = spec(t); let best = 0, bf = 0;
+    for (let j = Math.ceil(4 / df); j < 25 / df; j++) { if (A.pdr.freq && Math.abs(j * df - A.pdr.freq) < 1.5) continue;
+      const r = Math.log10((s[j - 1] + s[j] + s[j + 1]) / (med[j - 1] + med[j] + med[j + 1])); if (r > best) { best = r; bf = j * df; } }
+    if (best > 0.8) hits.push(Math.round(bf)); }
+  const freqs = [...new Set(hits)].sort((a, b) => a - b);
+  return { done: true, driving: hits.length >= 8, nHits: hits.length, nWin: n, freqs };
 }
 
 
@@ -624,6 +661,102 @@ function parseLabel(e) {
   const epi = /^epilettiforme|: epilettiforme/.test(sc);
   return { abnormal, borderline, diffuse, focal, side, epi };
 }
+
+/* ---------- referto automatico in stile AOPD (bozza testuale, da rivedere) ----------
+   Ricalca la struttura dei referti EEG di routine: condizioni, ritmo di fondo, organizzazione e anomalie,
+   anomalie epilettiformi, iperpnea, SLI, conclusione. Ogni descrittore deriva da una misura esplicita
+   (vedi `misure`); le soglie sono state confrontate con i 15 referti AOPD (VALIDAZIONE). */
+const LOBE = { 'temporale anteriore': ['F', 'T'], 'temporale medio-posteriore': ['T'], 'temporo-occipitale': ['T', 'O'],
+  'fronto-centrale': ['F', 'C'], 'centro-parietale': ['C', 'P'], 'parieto-occipitale': ['P', 'O'] };
+const LOBE_ORDER = ['F', 'C', 'P', 'T', 'O'], LOBE_PRE = { F: 'fronto', C: 'centro', P: 'parieto', T: 'temporo', O: 'occipito' }, LOBE_ADJ = { F: 'frontali', C: 'centrali', P: 'parietali', T: 'temporali', O: 'occipitali' };
+function lobesText(regions) {
+  const set = new Set(); regions.forEach(r => (LOBE[r] || []).forEach(l => set.add(l)));
+  const ls = LOBE_ORDER.filter(l => set.has(l)); if (!ls.length) return '';
+  return ls.slice(0, -1).map(l => LOBE_PRE[l]).concat(LOBE_ADJ[ls[ls.length - 1]]).join('-');
+}
+function chLobe(ch) { const c = (ch || '').toUpperCase(); const l = /^FP|^F/.test(c) ? 'F' : /^C/.test(c) ? 'C' : /^P/.test(c) ? 'P' : /^T/.test(c) ? 'T' : /^O/.test(c) ? 'O' : null;
+  const side = /Z$/.test(c) ? 'linea mediana' : /[13579]$/.test(c) ? 'sinistra' : 'destra'; return { l, side }; }
+function bandOf(A, derivs) { // banda prevalente delle onde lente (2-4 vs 4-8 Hz) nelle epoche pulite
+  const r = []; for (const o of A.epochs) { if (o.zero || o.artifact || o.annArt || !o.bip || o.hv) continue;
+    let d = 0, t = 0; for (const k of derivs) if (o.bip[k]) { d += o.bip[k].d2; t += o.bip[k].t1 + o.bip[k].t2; } if (t > 0) r.push(d / t); }
+  const m = median(r); return m > 1 ? 'delta' : m > 0.6 ? 'theta-delta' : 'theta';
+}
+function fmtHz(a, b) { const x = Math.round(a), y = Math.round(b); return x === y ? x + ' Hz' : Math.min(x, y) + '-' + Math.max(x, y) + ' Hz'; }
+function generateReport(A, rec, d, ied) {
+  const p = A.pdr || {}, s = A.slow || {}, m = {}, out = [];
+  const has = code => A.anns.some(a => a.code === code);
+  // condizioni
+  const artFrac = A.epochs.filter(o => !o.zero && (o.artifact || o.annArt)).length / Math.max(1, A.epochs.filter(o => !o.zero).length);
+  const nMov = A.anns.filter(a => a.code === 'ART_MOV').length;
+  m.artFrac = artFrac; m.drowsy = has('DROWSY'); m.nocoop = has('NOCOOP');
+  let cond = 'Condizioni di registrazione: esame condotto in veglia' + (m.drowsy ? ', con tratti di sonnolenza' : '') + '. ';
+  cond += m.nocoop ? 'Paziente scarsamente collaborante.' : artFrac > 0.25 ? 'Collaborazione parziale.' : 'Collaborazione buona.';
+  if (artFrac > 0.25 || nMov >= 8) cond += ' Presenti numerosi artefatti' + (nMov >= 4 ? ' da movimento' : '') + '.';
+  out.push(cond);
+  // ritmo di fondo
+  const prom = ((p.sx ? p.sx.prominence : 0) + (p.dx ? p.dx.prominence : 0)) / ((p.sx ? 1 : 0) + (p.dx ? 1 : 0) || 1);
+  m.pdr = p.freq; m.prom = prom; m.react = p.reactivity; m.amp = A.amp;
+  const slowBg = p.freq != null && p.freq < 8, asymF = p.freqDiff != null && Math.abs(p.freqDiff) > 1;
+  const stab = prom >= 12 ? 'stabile' : prom >= 4 ? 'un po’ instabile' : 'instabile';
+  const volt = A.amp == null ? 'medio-voltato' : A.amp < 8 ? 'medio-ipovoltato' : A.amp < 20 ? 'medio-voltato' : 'di medio-ampio voltaggio';
+  const reag = p.reactivity == null ? 'reattività non valutabile (mancano annotazioni O.A./O.C.)' : p.reactivity < 0.35 ? 'scarsamente reagente alla apertura ed alla chiusura degli occhi' : 'reagente alla apertura ed alla chiusura degli occhi';
+  const fr = p.sx && p.dx ? fmtHz(p.sx.freq, p.dx.freq) : p.freq != null ? Math.round(p.freq) + ' Hz' : '–';
+  let desc = 'Descrizione: ' + (slowBg ? 'ritmo di fondo in prevalente banda theta a circa ' + fr : 'ritmo di fondo costituito da alfa bioccipitale a ' + fr) + ', ';
+  desc += asymF ? 'asincrono, asimmetrico per frequenza più lenta a ' + (p.freqDiff < 0 ? 'sinistra' : 'destra') + ', ' : (slowBg ? 'sincrono, simmetrico, ' : 'sincrono, simmetrico, ');
+  desc += stab + (m.drowsy && stab !== 'stabile' ? ' per tendenza all’assopimento' : '') + ', ' + volt + ', ' + reag + '.';
+  out.push(desc);
+  // organizzazione e anomalie lente
+  let org = (slowBg && prom < 4) ? 'scarsamente organizzato' : (slowBg || prom < 6) ? 'discretamente organizzato' : 'ben organizzato';
+  m.org = org;
+  const diff = s.g50 >= SLOW.diffuse || slowBg;
+  const latDer = s.side ? [].concat(...s.latRegions.map(r => [LATREG[r][s.side === 'sx' ? 0 : 1]])) : [];
+  let body = 'Tracciato globalmente ' + org;
+  const parts = [], concl = [];
+  if (diff) { const b = bandOf(A, SALL); parts.push('globalmente rallentato in prevalente banda ' + b); concl.push('anomalie lente diffuse' + (slowBg ? ' nel contesto di un ritmo di fondo rallentato' : '')); }
+  if (s.side) { const mag = median(s.latRegions.map(r => Math.abs(s.latMed[r]))), q = mag >= 0.5 ? 'abbondanti' : mag >= 0.3 ? 'frequenti' : 'occasionali';
+    const two = lobesText(s.latRegions.slice(0, 2)), lob = two.split('-').length > 3 ? lobesText(s.latRegions.slice(0, 1)) : two, lato = s.side === 'sx' ? 'sinistra' : 'destra', b = bandOf(A, latDer);
+    if (diff) parts.push('con anomalie lente in banda ' + b + ' più evidenti sulle regioni ' + lob + ' di ' + lato);
+    else parts.push('con evidenza di ' + q + ' anomalie lente in banda ' + b + ' sulle regioni ' + lob + ' di ' + lato);
+    concl.push('anomalie lente sulle regioni ' + lob + ' di ' + lato); }
+  else if (s.intermittent && !diff) { const pm = Math.max(s.p90.temporale, s.p90['fronto-centrale']), q = pm >= 0.45 ? 'frequenti' : 'occasionali';
+    const temp = s.intRegion === 'temporale', b = bandOf(A, SGRP[s.intRegion]);
+    parts.push('con evidenza di ' + q + ' rallentamenti in banda ' + b + (temp ? ' bitemporali' : ' sulle regioni anteriori (fronto-centrali) bilateralmente'));
+    concl.push(q + ' anomalie lente ' + (temp ? 'bitemporali' : 'anteriori bilaterali')); }
+  if (asymF && !s.side) concl.push('asimmetria del ritmo di fondo (più lento a ' + (p.freqDiff < 0 ? 'sinistra' : 'destra') + ')');
+  body += parts.length ? ', ' + parts.join(', ') + '.' : '.';
+  const ant = ['Fp1', 'Fp2', 'F3', 'F4', 'F7', 'F8', 'Fz'].filter(c => A.relMap[c] && !A.bad.has(c)).map(c => A.relMap[c].beta), beta = ant.length ? ant.reduce((a, b) => a + b, 0) / ant.length : null;
+  m.betaAnt = beta;
+  body += beta == null ? '' : beta > 0.35 ? ' Abbondante attività beta sulle regioni anteriori.' : beta >= 0.05 ? ' Presente attività beta in quantità adeguata sulle regioni anteriori.' : ' Scarsa attività beta.';
+  out.push(body);
+  // anomalie epilettiformi
+  if (ied && ied.confirmed && ied.confirmed.length) {
+    const by = {}; ied.confirmed.forEach(e => { const { l, side } = chLobe(e.ch); const k = side; (by[k] = by[k] || new Set()).add(l); });
+    const where = Object.entries(by).map(([side, ls]) => 'sulle regioni ' + LOBE_ORDER.filter(l => ls.has(l)).map(l => LOBE_ADJ[l]).join(', ') + (side === 'linea mediana' ? ' della linea mediana' : ' di ' + side)).join(' e ');
+    const n = ied.confirmed.length;
+    out.push('Nel corso della registrazione si evidenzia' + (n === 1 ? ' un\u2019anomalia epilettiforme (punta/onda aguzza, confermata in revisione) ' : 'no ' + n + ' anomalie epilettiformi (punte/onde aguzze, confermate in revisione) ') + where + '.');
+    concl.push('anomalie epilettiformi ' + where);
+  } else out.push('Nel corso della registrazione non si evidenziano anomalie epilettiformi' + (ied && ied.pending ? ' (' + ied.pending + ' candidati del rilevatore automatico non ancora rivisti)' : ied ? '' : ' (rilevatore automatico non eseguito)') + '.');
+  // iperpnea
+  if (has('HV')) { if (s.hvEvoked && s.hvEvoked.positive) { out.push('L’iperpnea evoca la comparsa di attività lenta intermittente (' + Math.round(s.hvEvoked.slowFrac * 100) + '% delle epoche più lente del basale): verificare se fisiologica.'); concl.push('anomalie lente evocate dall’iperpnea'); }
+    else out.push('HPN senza modificazioni significative del tracciato.'); }
+  else out.push('HPN non eseguita.');
+  // SLI
+  if (!A.sli || !A.sli.done) out.push('SLI non eseguita.');
+  else if (A.sli.driving) out.push('La SLI tende a trascinare i ritmi ad alcune frequenze' + (A.sli.freqs && A.sli.freqs.length ? ' (circa ' + A.sli.freqs.filter((f, i, a) => a.length < 8 || i % 2 === 0).join(', ') + ' Hz)' : '') + '; non si rilevano risposte fotoparossistiche (da verificare sul tracciato).');
+  else out.push('La SLI non modifica significativamente il tracciato.');
+  // conclusione
+  let c;
+  if (!d.abnormal) c = 'tracciato privo di anomalie significative.';
+  else { c = concl.length ? concl.join('; ') : d.labels.join(', ').toLowerCase(); if (org === 'scarsamente organizzato' && !/contesto/.test(c)) c += ', nel contesto di un tracciato scarsamente organizzato'; c = c.charAt(0).toLowerCase() + c.slice(1) + '.';
+    if (!(ied && ied.confirmed && ied.confirmed.length)) c += ' Non anomalie epilettiformi.'; }
+  out.push('In conclusione: ' + c);
+  m.hv = has('HV') ? (s.hvEvoked && s.hvEvoked.positive ? 'evocato' : 'fisiologica') : 'non eseguita'; m.sli = A.sli && A.sli.done ? (A.sli.driving ? 'trascinamento' : 'senza modifiche') : 'non eseguita';
+  const dt = (rec.startDate || '').split('.'), date = dt.length === 3 ? dt[0] + '/' + dt[1] + '/' + (dt[2].length === 2 ? (+dt[2] > 84 ? '19' : '20') + dt[2] : dt[2]) : '';
+  const head = 'ESAME ELETTROENCEFALOGRAFICO — BOZZA GENERATA AUTOMATICAMENTE (Annotatore EEG v0.2)\nData registrazione: ' + date + ' ' + (rec.startTime || '').replace(/\./g, ':') + ' · durata ' + Math.round(A.duration / 60) + ' min\n';
+  const foot = '\n\nBozza da rivedere sul tracciato e da validare dal medico refertante: non è un referto diagnostico.';
+  return { text: head + '\n' + out.join('\n') + foot, sections: out, measures: m, conclusion: c };
+}
+
 function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
   const pairs = { sx: [['O1', 'P3'], ['O1', 'T5']], dx: [['O2', 'P4'], ['O2', 'T6']] };
   const stopCodes = new Set(['OA', 'ART', 'ART_MOV', 'ART_EYE', 'ART_TALK', 'ART_COUGH', 'ART_SWALLOW', 'ENV', 'SLI', 'HV']);
@@ -636,6 +769,7 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
   });
   const filt = makeFilters(fs, 1, 30, 0);
   const res = { segments: segs.length, source: segs.length ? 'occhi chiusi (O.C.)' : 'intero tracciato' };
+  res.ocSegs = segs;
   const useSegs = segs.length ? segs : [[0, rec.signals[cmap.O1].data.length / fs]];
   const nfft = 512; // 2 s @256 Hz → 0,5 Hz, con interpolazione parabolica
   let both = null; const eoAlpha = [], ecAlpha = [];
@@ -677,7 +811,7 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
-G.EEGCore = { parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+G.EEGCore = { generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script id="iedsrc">/* Annotatore EEG — rilevatore di scariche epilettiformi intercritiche (IED).
@@ -927,7 +1061,7 @@ async function handleFiles(files) {
     S.rec = C.parseEDF(buf);
     const t0 = performance.now(); S.A = C.analyze(S.rec); S.ms = performance.now() - t0;
     const m = edf.name.match(/(\d+)/); S.fileId = m ? String(parseInt(m[1])) : null; S.fname = edf.name;
-    S.t = 0; S.cache = null; S.ied = null; S.iedCur = -1; S.review = loadReview();
+    S.t = 0; S.cache = null; S.ied = null; S.iedCur = -1; S.review = loadReview(); repDirty = false;
     $('drop').style.display = 'none';
     renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll();
     if (S.model) setTimeout(runIED, 50);
@@ -1334,12 +1468,25 @@ function renderScore() {
   if (!S.A) return;
   const d = C.scoreDecision(S.A, iedSummary()), I = iedSummary();
   S.decision = d;
+  setTimeout(() => renderReport(false), 0);
   $('scorebox').innerHTML = `<div class="score ${d.abnormal ? 'abn' : ''}">
     <h3>${d.abnormal ? (d.severity === 'anormale lieve' ? 'Anormale lieve' : 'Anormale') : 'Normale'}${d.labels.length ? ': ' + d.labels.join(' + ') : ''}${d.side && d.categories.includes('nonepi_focale') ? ' (' + d.side + ')' : ''}</h3>
     ${d.why.length ? '<ul>' + d.why.map(w => '<li>' + w + '</li>').join('') + '</ul>' : '<p>Nessuna regola di anomalia attivata.</p>'}
     <p class="small">${I ? `Rilevatore IED: ${I.total} candidati, ${I.confirmed.length} confermati, ${I.pending} da rivedere${I.inArt ? ', ' + I.inArt + ' in tratti con artefatti' : ''}. I candidati non rivisti non modificano la classificazione.` : 'Rilevatore IED non ancora eseguito.'}</p>
     <p class="small">Regole esplicite, soglie calibrate su 15 referti AOPD: proposta da verificare, non diagnosi.</p></div>`;
 }
+/* ---- referto automatico ---- */
+let repDirty = false;
+function renderReport(force) {
+  if (!S.A) return;
+  if (repDirty && !force) { $('repstate').textContent = 'modificato a mano: premi Rigenera per aggiornare'; return; }
+  const r = C.generateReport(S.A, S.rec, S.decision || C.scoreDecision(S.A, iedSummary()), iedSummary());
+  $('reptext').value = r.text; repDirty = false; $('repstate').textContent = '';
+}
+$('reptext').addEventListener('input', () => { repDirty = true; $('repstate').textContent = 'modificato'; });
+$('repregen').onclick = () => renderReport(true);
+$('repcopy').onclick = async () => { try { await navigator.clipboard.writeText($('reptext').value); $('repstate').textContent = 'copiato'; } catch (e) { $('reptext').select(); document.execCommand('copy'); $('repstate').textContent = 'copiato'; } };
+$('repdl').onclick = () => download(base() + '_referto_bozza.txt', $('reptext').value, 'text/plain;charset=utf-8');
 function refCompare(e) {
   const d = S.decision || C.scoreDecision(S.A, iedSummary()), L = C.parseLabel(e), ok = b => b ? '✓' : '<span class="warnline">✗</span>';
   const rows = [];
