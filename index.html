@@ -12,16 +12,16 @@
   --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#CFD8DF;
   --trace:#1C2A38; --accent:#0E6E78; --accentSoft:#D7ECEE;
   --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#7A8791; --zero:#9AA6AF; --flag:#C2410C;
-  --sel:rgba(14,110,120,.14);
+  --sel:rgba(14,110,120,.14); --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg);
   font-variant-numeric:tabular-nums;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0F161C; --panel:#162028; --paper:#121B22; --ink:#E3EAEF; --muted:#93A3AF; --line:#26343F; --grid:#1B2731; --grid2:#2A3946;
-  --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18);}}
+  --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#93A3AF; --maybe:#E0AA3E;}}
 :root[data-theme="dark"]{--bg:#0F161C; --panel:#162028; --paper:#121B22; --ink:#E3EAEF; --muted:#93A3AF; --line:#26343F; --grid:#1B2731; --grid2:#2A3946;
-  --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18);}
+  --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#93A3AF; --maybe:#E0AA3E;}
 *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:var(--bg)}
 button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
@@ -42,7 +42,19 @@ main{display:grid;grid-template-columns:1fr 340px;min-height:0}
 #trace{position:absolute;inset:0;width:100%;height:100%;display:block}
 .tl{background:var(--panel);border-top:1px solid var(--line);padding:.35rem .6rem .5rem}
 .tlhead{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:.2rem}
-#timeline{width:100%;height:132px;display:block;cursor:pointer}
+#timeline{width:100%;height:158px;display:block;cursor:pointer}
+.score{border-left:3px solid var(--accent);padding:.5rem .7rem;background:var(--accentSoft);font-size:.88rem;line-height:1.45;border-radius:0 4px 4px 0}
+.score.abn{border-left-color:var(--flag)} .score h3{margin:0 0 .25rem;font-size:.95rem;font-weight:600} .score p{margin:.12rem 0} .score ul{margin:.2rem 0 .1rem 1rem;padding:0}
+.iedbar{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:.3rem 0 .45rem;font-size:.82rem}
+.iedbar select{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:.1rem .25rem;color:var(--ink)}
+.prog{height:4px;background:var(--grid);border-radius:2px;overflow:hidden;margin:.2rem 0 .4rem} .prog>i{display:block;height:100%;width:0;background:var(--ied)}
+.iedlist{list-style:none;margin:0;padding:0;font-size:.82rem;max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:4px}
+.iedlist li{display:grid;grid-template-columns:3.3rem 2.6rem 2.6rem 1fr auto;gap:.35rem;align-items:center;padding:.22rem .45rem;border-bottom:1px solid var(--grid);cursor:pointer}
+.iedlist li:hover,.iedlist li.cur{background:var(--sel)} .iedlist .t{color:var(--muted)} .iedlist .ctx{color:var(--muted);font-size:.74rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jbtn{display:flex;gap:2px} .jbtn button{font-size:.72rem;padding:.05rem .32rem;border:1px solid var(--line);background:var(--paper);border-radius:3px;cursor:pointer}
+.jbtn button[aria-pressed=true][data-v=si]{background:var(--yes);border-color:var(--yes);color:#fff} .jbtn button[aria-pressed=true][data-v=no]{background:var(--no);border-color:var(--no);color:#fff}
+.jbtn button[aria-pressed=true][data-v=dubbio]{background:var(--maybe);border-color:var(--maybe);color:#fff}
+table.cmp{border-collapse:collapse;font-size:.8rem;width:100%} table.cmp td,table.cmp th{border-bottom:1px solid var(--grid);padding:.15rem .3rem;text-align:left} table.cmp th{color:var(--muted);font-weight:500}
 aside{overflow:auto;background:var(--panel);padding:.8rem 1rem 2rem}
 aside h2{font-size:.95rem;font-weight:600;margin:1.2rem 0 .45rem}
 aside h2:first-child{margin-top:.1rem}
@@ -75,7 +87,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <body>
 <div class="app">
 <header>
-  <h1>Annotatore EEG<small>v0.1 · ritmi di fondo</small></h1>
+  <h1>Annotatore EEG<small>v0.2 · fondo, onde lente, IED, SCORE</small></h1>
   <span class="fname" id="fname">nessun file</span>
   <span class="spacer"></span>
   <label class="ctl">Montaggio <select id="montage"></select></label>
@@ -87,7 +99,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <button class="btn" id="prev" title="Pagina precedente (←)">◀</button>
   <button class="btn" id="next" title="Pagina successiva (→)">▶</button>
   <button class="btn primary" id="open">Apri EDF</button>
-  <input type="file" id="file" accept=".edf,.EDF,.json" multiple hidden>
+  <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors" multiple hidden>
 </header>
 <main>
   <section class="viewer">
@@ -97,6 +109,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
         <h2>Trascina qui un EEG in formato EDF o EDF+</h2>
         <p>Il file viene letto solo in questo browser: nessun dato esce dal computer.</p>
         <p>Per il confronto con il referto trascina anche <i>etichette_referti.json</i>: l'abbinamento avviene dal numero nel nome del file (EEG12.EDF ↔ 12).</p>
+        <p>Il modello IED si carica da solo da <i>modelli/ied_resnet_attention.safetensors</i>; se la pagina è aperta da disco, trascina qui quel file.</p>
         <p class="small">Uso didattico e di ricerca. Non è un dispositivo medico e non fornisce diagnosi.</p>
       </div></div>
       <div class="busy" id="busy">Analisi in corso…</div>
@@ -107,6 +120,24 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     </div>
   </section>
   <aside>
+    <h2>Livello decisionale (regole SCORE)</h2>
+    <div id="scorebox" class="small">Apri un file per vedere la classificazione.</div>
+    <h2>Candidati IED (modello)</h2>
+    <div id="iedbox">
+      <div class="small" id="iedstatus">Modello non caricato.</div>
+      <div class="prog" id="iedprog" hidden><i></i></div>
+      <div class="iedbar">
+        <label>Soglia <select id="iedthr"><option value="0.5">0,50</option><option value="0.6944" selected>0,69 (validazione)</option><option value="0.8">0,80</option><option value="0.9">0,90</option><option value="0.95">0,95</option></select></label>
+        <label>Passo <select id="iedstep"><option value="0.5">0,5 s</option><option value="1" selected>1 s</option><option value="2">2 s</option></select></label>
+        <button class="btn" id="iedrun" disabled>Analizza</button>
+        <button class="btn" id="iedprev" title="Candidato precedente (P)">◀ P</button>
+        <button class="btn" id="iednext" title="Candidato successivo (N)">N ▶</button>
+      </div>
+      <ul class="iedlist" id="iedlist"></ul>
+      <div class="iedbar"><span id="iedcount"></span><span class="spacer"></span>
+        <button class="btn" id="iedcsv">Esporta CSV</button><button class="btn" id="iedjson">Esporta JSON</button></div>
+      <p class="small">Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p>
+    </div>
     <h2>Sintesi automatica</h2>
     <div id="summary" class="small">Apri un file per vedere la sintesi.</div>
     <h2>Confronto con il referto</h2>
@@ -121,7 +152,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <ul class="annlist" id="annlist"></ul>
   </aside>
 </main>
-<footer><span>←/→ pagina · ↑/↓ sensibilità · clic sulla linea del tempo per saltare</span><span>Uso didattico e di ricerca, non diagnostico.</span></footer>
+<footer><span>←/→ pagina · ↑/↓ sensibilità · N/P candidato IED · 1/2/3 giudizio · clic sulla linea del tempo per saltare</span><span>Modello IED: SenuaLab EEG-IED-Detection (resnet_attention, CC BY 4.0, dati vEpiSet)</span><span>Uso didattico e di ricerca, non diagnostico.</span></footer>
 </div>
 <script>/* Annotatore EEG — core (lettore EDF+, filtri, montaggi, analisi spettrale). Nessun dato esce dal browser. */
 (function (G) {
@@ -321,6 +352,16 @@ function welch(sig, fs, nfft) { // media di spettri con sovrapposizione del 50%
 }
 
 const BANDS = { delta: [1, 4], theta: [4, 8], alpha: [8, 13], beta: [13, 30] };
+const FINE = { d1: [1, 2], d2: [2, 4], t1: [4, 6], t2: [6, 8], a: [8, 13], b: [13, 30] };
+// derivazioni bipolari longitudinali e regioni (lato, regione)
+const BIP = [['Fp1','F7'],['F7','T3'],['T3','T5'],['T5','O1'],['Fp1','F3'],['F3','C3'],['C3','P3'],['P3','O1'],
+             ['Fp2','F8'],['F8','T4'],['T4','T6'],['T6','O2'],['Fp2','F4'],['F4','C4'],['C4','P4'],['P4','O2'],['Fz','Cz'],['Cz','Pz']];
+const BIPREG = {
+  'frontale':        { sx: ['Fp1-F3', 'Fp1-F7'], dx: ['Fp2-F4', 'Fp2-F8'] },
+  'fronto-centrale': { sx: ['F3-C3'], dx: ['F4-C4'] },
+  'temporale':       { sx: ['F7-T3', 'T3-T5'], dx: ['F8-T4', 'T4-T6'] },
+  'centro-parietale':{ sx: ['C3-P3'], dx: ['C4-P4'] },
+  'posteriore':      { sx: ['T5-O1', 'P3-O1'], dx: ['T6-O2', 'P4-O2'] } };
 function bandPow(P, fs, nfft, lo, hi) { const df = fs / nfft; let s = 0; for (let k = Math.ceil(lo / df); k < hi / df; k++) s += P[k]; return s; }
 
 /* ---------- analisi ---------- */
@@ -405,6 +446,15 @@ function analyze(rec, opts = {}) {
         o.ch[c] = { abs: r, tot };
       }
       o.artifact = p2pBad >= 3;
+      // potenze per banda fine sulle derivazioni bipolari longitudinali (indici regionali)
+      o.bip = {};
+      for (const [a, b] of BIP) {
+        if (bad.has(a) || bad.has(b) || o.popCh.includes(a) || o.popCh.includes(b) || !raw[a] || !raw[b]) continue;
+        const seg = new Float32Array(L); for (let i = 0; i < L; i++) seg[i] = raw[a][i] - raw[b][i];
+        const P = spectrum(seg), r = {};
+        for (const bnd in FINE) r[bnd] = bandPow(P, fs, L, FINE[bnd][0], FINE[bnd][1]);
+        o.bip[a + '-' + b] = r;
+      }
     }
     ep.push(o);
   }
@@ -443,7 +493,7 @@ function analyze(rec, opts = {}) {
   for (const o of ep) if (!o.zero) {
     o.slowZ = (o.slow - slMed) / slMad;
     o.latZ = (o.lat - ltMed) / ltMad;
-    o.flag = (!o.artifact && !o.annArt) && (o.slowZ > 2.5 ? (Math.abs(o.lat) > 0.25 ? (o.lat > 0 ? 'lento sx' : 'lento dx') : 'lento diffuso') : null);
+
   }
 
   // --- riepilogo potenze (epoche pulite) ---
@@ -468,15 +518,112 @@ function analyze(rec, opts = {}) {
   const globalRel = { delta: 0, theta: 0, alpha: 0, beta: 0 };
   for (const b in BANDS) globalRel[b] = mean(good.map(c => relMap[c][b]));
 
+  const slow = slowLayer(ep, anns, pdr);
   return {
     fs, duration: dur, epoch, epochs: ep, anns, zeros, bad, badWhy, warn, chStats, cmap, present,
-    pdr, relMap, globalRel, apGrad, asym,
+    pdr, relMap, globalRel, apGrad, asym, slow,
     counts: { epochs: ep.length, clean: clean.length, flagged: ep.filter(o => o.flag).length,
       flaggedL: ep.filter(o => o.flag === 'lento sx').length, flaggedR: ep.filter(o => o.flag === 'lento dx').length,
-      flaggedD: ep.filter(o => o.flag === 'lento diffuso').length }
+      flaggedD: ep.filter(o => o.flag === 'lento diffuso' || o.flag === 'lento bilaterale').length }
   };
 }
 
+
+/* ---------- anomalie lente: indici regionali bipolari, soglie calibrate su 15 referti AOPD ----------
+   Indice di rallentamento di una derivazione bipolare: S = log10(P[2-8 Hz] / P[8-30 Hz]) (si esclude <2 Hz, dominato da artefatti oculari e di movimento).
+   Calibrazione (etichette_referti.json, 15 EEG, verifica leave-one-out nel rapporto di validazione):
+   - SLOW.diffuse: mediana di S su tutte le derivazioni e le epoche pulite ≥ 0,15 → rallentamento diffuso/continuo;
+   - SLOW.intermittent: 90° percentile di S nelle derivazioni temporali o fronto-centrali ≥ 0,15 → anomalie lente intermittenti;
+   - SLOW.lat: asimmetria sx−dx di S, corretta per lo scarto medio delle derivazioni (BIAS), ≥ 0,2 in almeno 2 regioni → lateralizzazione. */
+const SLOW = { diffuse: 0.15, intermittent: 0.15, lat: 0.2, pdrSlow: 8, epochLat: 0.4, epochAbs: 0.35, hvWin: 180 };
+const LATREG = { 'temporale anteriore': ['F7-T3', 'F8-T4', -0.022], 'temporale medio-posteriore': ['T3-T5', 'T4-T6', 0.104], 'temporo-occipitale': ['T5-O1', 'T6-O2', -0.046],
+  'fronto-centrale': ['F3-C3', 'F4-C4', -0.033], 'centro-parietale': ['C3-P3', 'C4-P4', -0.002], 'parieto-occipitale': ['P3-O1', 'P4-O2', -0.024] };
+const SGRP = { temporale: ['F7-T3', 'T3-T5', 'F8-T4', 'T4-T6'], 'fronto-centrale': ['F3-C3', 'F4-C4', 'Fz-Cz'], posteriore: ['P3-O1', 'P4-O2', 'T5-O1', 'T6-O2', 'C3-P3', 'C4-P4'] };
+const SALL = [].concat(...Object.values(SGRP));
+function slowIdxBip(b) { return Math.log10((b.d2 + b.t1 + b.t2) / (b.a + b.b + 1e-9)); }
+function pct(a, p) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const i = (v.length - 1) * p / 100, lo = Math.floor(i); return v[lo] + (v[Math.min(lo + 1, v.length - 1)] - v[lo]) * (i - lo); }
+function slowLayer(ep, anns, pdr) {
+  const hv = anns.filter(a => a.code === 'HV').map(a => [a.onset, a.onset + SLOW.hvWin]);
+  const inHV = t => hv.some(([a, b]) => t >= a && t < b);
+  for (const o of ep) {
+    if (o.zero || !o.bip) continue;
+    o.S = {}; for (const k in o.bip) o.S[k] = slowIdxBip(o.bip[k]);
+    const g = SALL.filter(k => o.S[k] !== undefined).map(k => o.S[k]); o.gS = g.length ? g.reduce((a, b) => a + b, 0) / g.length : NaN;
+    o.hv = inHV(o.t);
+    o.lat = {}; for (const r in LATREG) { const [l, d, bias] = LATREG[r]; if (o.S[l] !== undefined && o.S[d] !== undefined) o.lat[r] = o.S[l] - o.S[d] - bias; }
+  }
+  const ok = o => !o.zero && o.S && !o.artifact && !o.annArt;
+  const base = ep.filter(o => ok(o) && !o.hv);
+  const g50 = median(base.map(o => o.gS)), med = {};
+  const grp = {}; for (const gname in SGRP) grp[gname] = pct([].concat(...base.map(o => SGRP[gname].filter(k => o.S[k] !== undefined).map(k => o.S[k]))), 90);
+  for (const k of SALL) med[k] = median(base.map(o => o.S[k]));
+  const latMed = {}; for (const r in LATREG) latMed[r] = median(base.map(o => o.lat[r]));
+  // lateralizzazione: almeno due regioni oltre soglia nello stesso verso
+  const vals = Object.values(latMed).filter(isFinite), pos = vals.slice().sort((a, b) => b - a), neg = vals.slice().sort((a, b) => a - b);
+  let side = null; if (pos[1] >= SLOW.lat && pos[1] > -neg[1]) side = 'sx'; else if (-neg[1] >= SLOW.lat) side = 'dx';
+  const latRegions = side ? Object.keys(latMed).filter(r => (side === 'sx' ? latMed[r] : -latMed[r]) >= SLOW.lat).sort((a, b) => Math.abs(latMed[b]) - Math.abs(latMed[a])) : [];
+  // iperpnea: epoche più lente del 90° percentile basale o scartate per alta ampiezza
+  let hvEvoked = null;
+  const hvEp = ep.filter(o => !o.zero && o.S && o.hv);
+  if (hvEp.length >= 10) { const p90 = pct(base.map(o => o.gS), 90), slowF = hvEp.filter(o => !o.artifact && !o.annArt && o.gS > p90).length / hvEp.length, artF = hvEp.filter(o => o.artifact).length / hvEp.length;
+    hvEvoked = { slowFrac: slowF, artFrac: artF, positive: slowF >= 0.15 || artF >= 0.2 }; }
+  // segnalazioni per epoca (linea del tempo)
+  for (const o of ep) { o.flag = null; if (!ok(o)) continue;
+    let best = null; for (const r in o.lat) { const v = o.lat[r], k0 = LATREG[r][v > 0 ? 0 : 1]; if (Math.abs(v) >= SLOW.epochLat && o.S[k0] - med[k0] > 0.2 && (!best || Math.abs(v) > Math.abs(best.v))) best = { r, v }; }
+    const gmax = Math.max(...['temporale', 'fronto-centrale'].map(g => Math.max(...SGRP[g].filter(k => o.S[k] !== undefined).map(k => o.S[k]))));
+    o.slowAbs = gmax;
+    if (best) { o.flag = best.v > 0 ? 'lento sx' : 'lento dx'; o.flagReg = best.r; }
+    else if (gmax >= SLOW.epochAbs) o.flag = o.gS >= SLOW.diffuse ? 'lento diffuso' : 'lento bilaterale'; }
+  const pdrSlow = pdr && pdr.freq != null && pdr.freq < SLOW.pdrSlow;
+  const diffuse = g50 >= SLOW.diffuse || pdrSlow, intermittent = Math.max(grp.temporale, grp['fronto-centrale']) >= SLOW.intermittent;
+  const intRegion = grp.temporale >= grp['fronto-centrale'] ? 'temporale' : 'fronto-centrale';
+  return { g50, p90: grp, latMed, side, latRegions, hvEvoked, diffuse, pdrSlow, intermittent, intRegion, nBase: base.length };
+}
+
+/* ---------- livello decisionale a regole (categorie SCORE / SCORE-AI, terminologia ACNS) ----------
+   Ingresso: risultato di analyze() + eventuale riepilogo IED rivisto. Uscita: normale/anormale e categorie
+   (epilettiforme focale/generalizzato, non epilettiforme focale/diffuso), con le regole che le hanno attivate.
+   Le anomalie epilettiformi entrano nella decisione solo se confermate nella revisione (giudizio "sì"):
+   i candidati del modello non rivisti sono riportati a parte. */
+function scoreDecision(A, ied) {
+  const p = A.pdr || {}, s = A.slow || {}, cat = [], why = [], mild = [];
+  const f1 = v => v == null || !isFinite(v) ? '–' : v.toFixed(1).replace('.', ',');
+  // ritmo di fondo
+  if (p.freq != null && p.freq < SLOW.pdrSlow) { cat.push('nonepi_diffuso'); why.push('Ritmo dominante posteriore rallentato (' + f1(p.freq) + ' Hz < 8)'); }
+  if (p.freqDiff != null && Math.abs(p.freqDiff) > 1) { cat.push('nonepi_focale'); why.push('Asimmetria di frequenza del ritmo posteriore > 1 Hz (' + (p.freqDiff < 0 ? 'più lento a sx' : 'più lento a dx') + ')'); }
+  // anomalie lente
+  if (s.g50 >= SLOW.diffuse) { cat.push('nonepi_diffuso'); why.push('Onde lente diffuse/continue (indice globale ' + s.g50.toFixed(2) + ' ≥ ' + SLOW.diffuse + ')'); }
+  if (s.side) { cat.push('nonepi_focale'); why.push('Onde lente lateralizzate a ' + s.side + ': ' + s.latRegions.join(', ') + ' (asimmetria ≥ ' + SLOW.lat + ' in ≥ 2 regioni)'); }
+  else if (s.intermittent && !(s.g50 >= SLOW.diffuse)) { cat.push('nonepi_focale'); mild.push(1); why.push('Onde lente intermittenti ' + s.intRegion + ' bilaterali (90° percentile ' + Math.max(s.p90.temporale, s.p90['fronto-centrale']).toFixed(2) + ' ≥ ' + SLOW.intermittent + ')'); }
+  if (s.hvEvoked && s.hvEvoked.positive) { cat.push('nonepi_diffuso'); mild.push(1); why.push('Rallentamento durante l\'iperpnea (' + Math.round(s.hvEvoked.slowFrac * 100) + '% epoche lente, ' + Math.round(s.hvEvoked.artFrac * 100) + '% ad alta ampiezza): verificare se fisiologico'); }
+  // anomalie epilettiformi confermate in revisione
+  if (ied && ied.confirmed && ied.confirmed.length) {
+    const chs = ied.confirmed.map(e => e.ch).filter(Boolean), left = chs.filter(c => /[13579]$/.test(c)).length, right = chs.filter(c => /[2468]$/.test(c)).length, mid = chs.length - left - right;
+    const gen = ied.confirmed.some(e => e.gen) || (left && right && Math.min(left, right) / chs.length > 0.3 && !mid);
+    cat.push(gen ? 'epi_generalizzato' : 'epi_focale');
+    why.push(ied.confirmed.length + ' anomalie epilettiformi confermate in revisione' + (gen ? ' (bilaterali)' : ' (' + (left > right ? 'sx' : right > left ? 'dx' : 'linea mediana') + ')'));
+  }
+  const uniq = [...new Set(cat)], abnormal = uniq.length > 0;
+  const label = { epi_focale: 'Epilettiforme focale', epi_generalizzato: 'Epilettiforme generalizzato', nonepi_focale: 'Non epilettiforme focale', nonepi_diffuso: 'Non epilettiforme diffuso' };
+  const order = ['epi_focale', 'epi_generalizzato', 'nonepi_focale', 'nonepi_diffuso'];
+  const severity = !abnormal ? 'normale' : (mild.length === why.length ? 'anormale lieve' : 'anormale');
+  let side = s.side || null;
+  if (!side && p.freqDiff != null && Math.abs(p.freqDiff) > 1) side = p.freqDiff < 0 ? 'sx' : 'dx';
+  if (!side && uniq.includes('nonepi_focale') && s.intermittent) side = 'bilaterale';
+  return { abnormal, severity, categories: order.filter(c => uniq.includes(c)), labels: order.filter(c => uniq.includes(c)).map(c => label[c]), why, side,
+    pending: ied ? ied.pending || 0 : 0 };
+}
+
+/* etichetta del referto (etichette_referti.json) → categorie confrontabili con scoreDecision */
+function parseLabel(e) {
+  const sc = (e.score || '').toLowerCase(), r = e.rallentamento || {};
+  const borderline = /^limite/.test(sc), abnormal = borderline ? null : !/^normale/.test(sc);
+  const diffuse = /diffus/.test(sc) || /rallentato/.test(e.fondo || '');
+  const focal = /focale|bilaterale|anteriore/.test(sc) && !/diffuso a prevalenza/.test(sc);
+  let side = null; if (focal) side = /^sx/.test(r.lato || '') ? 'sx' : /^dx/.test(r.lato || '') ? 'dx' : 'bilaterale';
+  const epi = /^epilettiforme|: epilettiforme/.test(sc);
+  return { abnormal, borderline, diffuse, focal, side, epi };
+}
 function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
   const pairs = { sx: [['O1', 'P3'], ['O1', 'T5']], dx: [['O2', 'P4'], ['O2', 'T6']] };
   const stopCodes = new Set(['OA', 'ART', 'ART_MOV', 'ART_EYE', 'ART_TALK', 'ART_COUGH', 'ART_SWALLOW', 'ENV', 'SLI', 'HV']);
@@ -530,7 +677,219 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
-G.EEGCore = { parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+G.EEGCore = { parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script id="iedsrc">/* Annotatore EEG — rilevatore di scariche epilettiformi intercritiche (IED).
+   Port JavaScript di SenuaLab EEG-IED-Detection, modello "resnet_attention" (EEGResNetAttention, 4,99 M parametri).
+   Pesi: CC BY 4.0, SenuaLab (https://huggingface.co/SenuaLab/EEG-IED-Detection), addestrati su vEpiSet (CC BY 4.0).
+   Pre-elaborazione identica al contratto pubblicato: Butterworth 1-45 Hz ordine 4 avanti-indietro (come scipy.sosfiltfilt),
+   media comune sui 19 canali, ricampionamento a 250 Hz (come scipy.resample_poly), z-score globale della finestra, taglio a ±8.
+   Uso di ricerca: ogni candidato va rivisto sul tracciato. */
+(function (G) {
+'use strict';
+const IED_CH = ['Fp1','Fp2','F3','F4','C3','C4','P3','P4','O1','O2','F7','F8','T3','T4','T5','T6','Fz','Cz','Pz'];
+const IED_THR = 0.6944227814674377; // soglia F1 scelta sulla validazione (config.json)
+
+/* ---------- safetensors ---------- */
+function f16(h) { const s = (h & 0x8000) ? -1 : 1, e = (h >> 10) & 31, f = h & 1023;
+  return e === 0 ? s * 5.960464477539063e-8 * f : e === 31 ? (f ? NaN : s * Infinity) : s * Math.pow(2, e - 15) * (1 + f / 1024); }
+function readSafetensors(buf) {
+  const dv = new DataView(buf), n = Number(dv.getBigUint64(0, true));
+  const hdr = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 8, n))), base = 8 + n, T = {};
+  for (const k in hdr) { if (k === '__metadata__') continue; const { dtype, shape, data_offsets: [a, b] } = hdr[k];
+    const len = shape.reduce((x, y) => x * y, 1); let arr;
+    if (dtype === 'F32') arr = new Float32Array(buf.slice(base + a, base + b));
+    else if (dtype === 'F16') { const u = new Uint16Array(buf.slice(base + a, base + b)); arr = new Float32Array(len); for (let i = 0; i < len; i++) arr[i] = f16(u[i]); }
+    else if (dtype === 'I64') continue; else throw new Error('dtype non supportato ' + dtype);
+    T[k] = { shape, data: arr }; }
+  return T;
+}
+/* BatchNorm fusa nella convoluzione precedente: w' = w·g/√(v+ε), b' = β − m·g/√(v+ε) */
+function prepareModel(T) {
+  const need = ['stem.branch1.0.weight', 'layer4.1.conv2.weight', 'temporal_attn.qkv.weight', 'fc.weight'];
+  for (const k of need) if (!T[k]) throw new Error('Il file non contiene i pesi di EEGResNetAttention (manca ' + k + ')');
+  const fuse = (cw, bnp) => { const w = T[cw], [O, I, K] = w.shape, g = T[bnp + '.weight'].data, be = T[bnp + '.bias'].data, m = T[bnp + '.running_mean'].data, v = T[bnp + '.running_var'].data;
+    const W = new Float32Array(O * I * K), B = new Float32Array(O);
+    for (let o = 0; o < O; o++) { const sc = g[o] / Math.sqrt(v[o] + 1e-5); B[o] = be[o] - m[o] * sc; for (let j = 0; j < I * K; j++) W[o * I * K + j] = w.data[o * I * K + j] * sc; }
+    return { W, B, O, I, K }; };
+  const M = { stem: [1, 2, 3, 4].map(i => fuse(`stem.branch${i}.0.weight`, `stem.branch${i}.1`)), layers: [] };
+  for (const [L, s] of [['layer1', 1], ['layer2', 2], ['layer3', 2], ['layer4', 2]]) for (const b of [0, 1]) {
+    const p = `${L}.${b}`;
+    M.layers.push({ stride: b ? 1 : s, c1: fuse(p + '.conv1.weight', p + '.bn1'), c2: fuse(p + '.conv2.weight', p + '.bn2'),
+      se1: T[p + '.se.fc.0.weight'], se2: T[p + '.se.fc.2.weight'], ds: T[p + '.downsample.0.weight'] ? fuse(p + '.downsample.0.weight', p + '.downsample.1') : null });
+  }
+  M.ln = [T['temporal_attn.norm.weight'].data, T['temporal_attn.norm.bias'].data];
+  M.qkv = T['temporal_attn.qkv.weight'].data; M.proj = [T['temporal_attn.proj.weight'].data, T['temporal_attn.proj.bias'].data];
+  M.fc = [T['fc.weight'].data, T['fc.bias'].data];
+  return M;
+}
+
+/* ---------- strati ---------- */
+// x: Float32Array C×T (riga per canale). Convoluzione 1D con padding simmetrico, bias, ReLU opzionale.
+// pesi riordinati per blocchi di 4 uscite: [o/4][c][k][4] (calcolato una volta)
+function packW(cv) { if (cv.P) return cv.P; const { W, O, I, K } = cv, nb = Math.ceil(O / 4), P = new Float32Array(nb * I * K * 4);
+  for (let o = 0; o < O; o++) for (let c = 0; c < I; c++) for (let k = 0; k < K; k++) P[(((o >> 2) * I + c) * K + k) * 4 + (o & 3)] = W[(o * I + c) * K + k];
+  return (cv.P = P); }
+function conv(x, C, T, cv, stride, pad, relu, out, outOff) {
+  const { B, O, K } = cv, P = packW(cv), To = Math.floor((T + 2 * pad - K) / stride) + 1, Tp = T + 2 * pad;
+  // input con padding, scomposto in fasi polifase se stride > 1 (accessi contigui)
+  const Tq = Math.ceil(Tp / stride) + 4, ph = [];
+  for (let s = 0; s < stride; s++) { const p = new Float32Array(C * Tq);
+    for (let c = 0; c < C; c++) for (let j = 0; j * stride + s < Tp; j++) { const i = j * stride + s - pad; p[c * Tq + j] = (i >= 0 && i < T) ? x[c * T + i] : 0; }
+    ph.push(p); }
+  const y = out || new Float32Array(O * To), off = outOff || 0, CK = C * K;
+  for (let ob = 0; ob * 4 < O; ob++) {
+    const b0 = B[ob * 4] || 0, b1 = B[ob * 4 + 1] || 0, b2 = B[ob * 4 + 2] || 0, b3 = B[ob * 4 + 3] || 0, pb = ob * CK * 4;
+    for (let t = 0; t < To; t += 4) {
+      // 4 uscite × 4 istanti accumulati in variabili locali
+      let a00 = b0, a01 = b0, a02 = b0, a03 = b0, a10 = b1, a11 = b1, a12 = b1, a13 = b1, a20 = b2, a21 = b2, a22 = b2, a23 = b2, a30 = b3, a31 = b3, a32 = b3, a33 = b3;
+      for (let c = 0; c < C; c++) for (let k = 0; k < K; k++) {
+        const xs = ph[k % stride], xi = c * Tq + ((k / stride) | 0) + t, pi = pb + (c * K + k) * 4;
+        const x0 = xs[xi], x1 = xs[xi + 1], x2 = xs[xi + 2], x3 = xs[xi + 3], w0 = P[pi], w1 = P[pi + 1], w2 = P[pi + 2], w3 = P[pi + 3];
+        a00 += w0 * x0; a01 += w0 * x1; a02 += w0 * x2; a03 += w0 * x3;
+        a10 += w1 * x0; a11 += w1 * x1; a12 += w1 * x2; a13 += w1 * x3;
+        a20 += w2 * x0; a21 += w2 * x1; a22 += w2 * x2; a23 += w2 * x3;
+        a30 += w3 * x0; a31 += w3 * x1; a32 += w3 * x2; a33 += w3 * x3;
+      }
+      const A = [[a00, a01, a02, a03], [a10, a11, a12, a13], [a20, a21, a22, a23], [a30, a31, a32, a33]];
+      for (let q = 0; q < 4 && ob * 4 + q < O; q++) { const yb = (off + ob * 4 + q) * To;
+        for (let u = 0; u < 4 && t + u < To; u++) { const v = A[q][u]; y[yb + t + u] = relu ? (v > 0 ? v : 0) : v; } }
+    }
+  }
+  return { y, T: To };
+}
+function block(x, C, T, L) {
+  const a = conv(x, C, T, L.c1, L.stride, 1, true), O = L.c1.O;
+  const b = conv(a.y, O, a.T, L.c2, 1, 1, false), To = b.T, y = b.y;
+  // squeeze-excitation
+  const m = new Float32Array(O); for (let o = 0; o < O; o++) { let s = 0; for (let t = 0; t < To; t++) s += y[o * To + t]; m[o] = s / To; }
+  const R = L.se1.shape[0], h = new Float32Array(R);
+  for (let r = 0; r < R; r++) { let s = 0; for (let o = 0; o < O; o++) s += L.se1.data[r * O + o] * m[o]; h[r] = s > 0 ? s : 0; }
+  const idt = L.ds ? conv(x, C, T, L.ds, L.stride, 0, false).y : x;
+  for (let o = 0; o < O; o++) { let s = 0; for (let r = 0; r < R; r++) s += L.se2.data[o * R + r] * h[r]; const g = 1 / (1 + Math.exp(-s));
+    for (let t = 0; t < To; t++) { const v = y[o * To + t] * g + idt[o * To + t]; y[o * To + t] = v > 0 ? v : 0; } }
+  return { y, C: O, T: To };
+}
+// Y[t][j] = bias[j] + Σ_c A[t][c]·W[j][c]  (A: T×C, W: J×C), blocchi 4×4 in registri
+function matTB(A, T, C, W, J, bias, Y) {
+  for (let t0 = 0; t0 < T; t0 += 4) { const r0 = t0 * C, r1 = Math.min(t0 + 1, T - 1) * C, r2 = Math.min(t0 + 2, T - 1) * C, r3 = Math.min(t0 + 3, T - 1) * C;
+    for (let j0 = 0; j0 < J; j0 += 4) { const w0 = j0 * C, w1 = (j0 + 1) * C, w2 = (j0 + 2) * C, w3 = (j0 + 3) * C;
+      let s00 = 0, s01 = 0, s02 = 0, s03 = 0, s10 = 0, s11 = 0, s12 = 0, s13 = 0, s20 = 0, s21 = 0, s22 = 0, s23 = 0, s30 = 0, s31 = 0, s32 = 0, s33 = 0;
+      for (let c = 0; c < C; c++) { const a0 = A[r0 + c], a1 = A[r1 + c], a2 = A[r2 + c], a3 = A[r3 + c], b0 = W[w0 + c], b1 = W[w1 + c], b2 = W[w2 + c], b3 = W[w3 + c];
+        s00 += a0 * b0; s01 += a0 * b1; s02 += a0 * b2; s03 += a0 * b3; s10 += a1 * b0; s11 += a1 * b1; s12 += a1 * b2; s13 += a1 * b3;
+        s20 += a2 * b0; s21 += a2 * b1; s22 += a2 * b2; s23 += a2 * b3; s30 += a3 * b0; s31 += a3 * b1; s32 += a3 * b2; s33 += a3 * b3; }
+      const S = [s00, s01, s02, s03, s10, s11, s12, s13, s20, s21, s22, s23, s30, s31, s32, s33];
+      for (let u = 0; u < 4 && t0 + u < T; u++) for (let v = 0; v < 4; v++) Y[(t0 + u) * J + j0 + v] = S[u * 4 + v] + (bias ? bias[j0 + v] : 0);
+    } }
+}
+function attention(x, C, T, M, heads) {
+  // x C×T → X T×C
+  const X = new Float32Array(T * C); for (let c = 0; c < C; c++) for (let t = 0; t < T; t++) X[t * C + c] = x[c * T + t];
+  const Hn = new Float32Array(T * C), [g, b] = M.ln;
+  for (let t = 0; t < T; t++) { let m = 0, v = 0; for (let c = 0; c < C; c++) m += X[t * C + c]; m /= C;
+    for (let c = 0; c < C; c++) v += (X[t * C + c] - m) ** 2; v /= C; const s = 1 / Math.sqrt(v + 1e-5);
+    for (let c = 0; c < C; c++) Hn[t * C + c] = (X[t * C + c] - m) * s * g[c] + b[c]; }
+  const Q = new Float32Array(T * 3 * C), Wq = M.qkv;
+  matTB(Hn, T, C, Wq, 3 * C, null, Q);
+  const hd = C / heads, sc = 1 / Math.sqrt(hd), O = new Float32Array(T * C), a = new Float32Array(T);
+  for (let h = 0; h < heads; h++) for (let i = 0; i < T; i++) {
+    let mx = -Infinity; for (let j = 0; j < T; j++) { let s = 0; for (let d = 0; d < hd; d++) s += Q[i * 3 * C + h * hd + d] * Q[j * 3 * C + C + h * hd + d]; a[j] = s * sc; if (a[j] > mx) mx = a[j]; }
+    let z = 0; for (let j = 0; j < T; j++) { a[j] = Math.exp(a[j] - mx); z += a[j]; }
+    for (let d = 0; d < hd; d++) { let s = 0; for (let j = 0; j < T; j++) s += a[j] * Q[j * 3 * C + 2 * C + h * hd + d]; O[i * C + h * hd + d] = s / z; } }
+  // proiezione + residuo, poi media temporale
+  const [Wp, bp] = M.proj, pooled = new Float64Array(C), PO = new Float32Array(T * C);
+  matTB(O, T, C, Wp, C, bp, PO);
+  for (let t = 0; t < T; t++) for (let j = 0; j < C; j++) pooled[j] += PO[t * C + j] + X[t * C + j];
+  for (let j = 0; j < C; j++) pooled[j] /= T;
+  return pooled;
+}
+function forward(M, x) { // x Float32Array 19×1000 già pre-elaborato → probabilità IED
+  const T0 = x.length / 19, st = new Float32Array(64 * T0);
+  M.stem.forEach((cv, i) => conv(x, 19, T0, cv, 1, cv.K >> 1, true, st, i * 16));
+  let T = T0 >> 1, C = 64, y = new Float32Array(C * T);
+  for (let c = 0; c < C; c++) for (let t = 0; t < T; t++) { const a = st[c * T0 + 2 * t], b = st[c * T0 + 2 * t + 1]; y[c * T + t] = a > b ? a : b; }
+  for (const L of M.layers) { const r = block(y, C, T, L); y = r.y; C = r.C; T = r.T; }
+  const p = attention(y, C, T, M, 8), [Wf, bf] = M.fc;
+  let l0 = bf[0], l1 = bf[1]; for (let c = 0; c < C; c++) { l0 += Wf[c] * p[c]; l1 += Wf[C + c] * p[c]; }
+  return 1 / (1 + Math.exp(l0 - l1));
+}
+
+/* ---------- pre-elaborazione (scipy-compatibile) ---------- */
+// Butterworth passa-banda: prototipo analogico → lp2bp → bilineare, sezioni del secondo ordine
+function butterBandSOS(N, lo, hi, fs) {
+  const fs2 = 2 * fs, w1 = fs2 * Math.tan(Math.PI * lo / fs), w2 = fs2 * Math.tan(Math.PI * hi / fs), bw = w2 - w1, w0 = Math.sqrt(w1 * w2);
+  const poles = []; for (let k = 0; k < N; k++) { const th = Math.PI * (2 * k + 1 + N) / (2 * N); poles.push([Math.cos(th), Math.sin(th)]); }
+  const cm = (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]], cd = (a, b) => { const d = b[0] * b[0] + b[1] * b[1]; return [(a[0] * b[0] + a[1] * b[1]) / d, (a[1] * b[0] - a[0] * b[1]) / d]; };
+  const csqrt = a => { const r = Math.hypot(a[0], a[1]), re = Math.sqrt((r + a[0]) / 2), im = Math.sign(a[1] || 1) * Math.sqrt((r - a[0]) / 2); return [re, im]; };
+  const bpP = [];
+  for (const p of poles) { const pl = [p[0] * bw / 2, p[1] * bw / 2], d = csqrt([pl[0] * pl[0] - pl[1] * pl[1] - w0 * w0, 2 * pl[0] * pl[1]]);
+    bpP.push([pl[0] + d[0], pl[1] + d[1]], [pl[0] - d[0], pl[1] - d[1]]); }
+  const zP = bpP.map(p => cd([fs2 + p[0], p[1]], [fs2 - p[0], -p[1]]));
+  // guadagno: k_analog = bw^N; bilineare: k·Re(prod(fs2 - z)/prod(fs2 - p)), zeri analogici N in 0 → (fs2)^N
+  let num = [1, 0], den = [1, 0]; for (let i = 0; i < N; i++) num = cm(num, [fs2, 0]); for (const p of bpP) den = cm(den, [fs2 - p[0], -p[1]]);
+  const k = Math.pow(bw, N) * cd(num, den)[0];
+  // coppie coniugate (parte immaginaria > 0), ordinate per vicinanza al cerchio unitario (come zpk2sos: ultima la più vicina)
+  const pp = zP.filter(p => p[1] > 0).sort((a, b) => Math.hypot(a[0], a[1]) - Math.hypot(b[0], b[1]));
+  const sos = pp.map((p, i) => { const a1 = -2 * p[0], a2 = p[0] * p[0] + p[1] * p[1]; return [1, 0, -1, 1, a1, a2]; });
+  // zeri digitali: N in +1, N in −1 → ogni sezione (1 − z⁻²) = (1 − z⁻¹)(1 + z⁻¹)
+  sos[0] = sos[0].map((v, j) => j < 3 ? v * k : v);
+  return sos;
+}
+function sosfiltZi(sos) { // stato iniziale stazionario per un gradino unitario (scipy.sosfilt_zi)
+  let scale = 1; return sos.map(([b0, b1, b2, , a1, a2]) => { const G = (b0 + b1 + b2) / (1 + a1 + a2), z1 = b2 - a2 * G, z0 = b1 - a1 * G + z1;
+    const r = [z0 * scale, z1 * scale]; scale *= G; return r; });
+}
+function sosfilt(sos, x, zi, x0) { // filtro diretto forma II trasposta (come scipy)
+  const n = x.length, y = Float64Array.from(x);
+  sos.forEach((s, i) => { const [b0, b1, b2, , a1, a2] = s; let z0 = zi[i][0] * x0, z1 = zi[i][1] * x0;
+    for (let t = 0; t < n; t++) { const xi = y[t], yi = b0 * xi + z0; z0 = b1 * xi - a1 * yi + z1; z1 = b2 * xi - a2 * yi; y[t] = yi; } });
+  return y;
+}
+function makeFiltfilt(fs) {
+  const sos = butterBandSOS(4, 1, 45, fs), zi = sosfiltZi(sos);
+  const nz = Math.min(sos.filter(s => s[2] === 0).length, sos.filter(s => s[5] === 0).length), padlen = 3 * (2 * sos.length + 1 - nz);
+  return x => { // padding dispari, come scipy
+    const n = x.length, e = new Float64Array(n + 2 * padlen);
+    for (let i = 0; i < padlen; i++) { e[i] = 2 * x[0] - x[padlen - i]; e[n + padlen + i] = 2 * x[n - 1] - x[n - 2 - i]; }
+    for (let i = 0; i < n; i++) e[padlen + i] = x[i];
+    let y = sosfilt(sos, e, zi, e[0]); y.reverse(); y = sosfilt(sos, y, zi, y[0]); y.reverse();
+    return y.subarray(padlen, padlen + n);
+  };
+}
+function besselI0(x) { let s = 1, t = 1; for (let k = 1; k < 50; k++) { t *= (x / (2 * k)) ** 2; s += t; if (t < 1e-17 * s) break; } return s; }
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+function makeResampler(fsIn, fsOut) { // scipy.signal.resample_poly, finestra di Kaiser β=5
+  const g = gcd(Math.round(fsOut), Math.round(fsIn)), up = Math.round(fsOut) / g, down = Math.round(fsIn) / g;
+  if (up === 1 && down === 1) return x => Float64Array.from(x);
+  const mr = Math.max(up, down), half = 10 * mr, N = 2 * half + 1, fc = 1 / mr, h = new Float64Array(N);
+  let sum = 0; const i0b = besselI0(5);
+  for (let i = 0; i < N; i++) { const m = i - half, sinc = m === 0 ? 1 : Math.sin(Math.PI * fc * m) / (Math.PI * fc * m), r = 2 * i / (N - 1) - 1;
+    h[i] = fc * sinc * besselI0(5 * Math.sqrt(Math.max(0, 1 - r * r))) / i0b; sum += h[i]; }
+  for (let i = 0; i < N; i++) h[i] = h[i] / sum * up;
+  const pre = down - half % down, preRemove = Math.floor((half + pre) / down), H = new Float64Array(N + pre); H.set(h, pre);
+  return x => { const n = x.length, nOut = Math.ceil(n * up / down), y = new Float64Array(nOut);
+    for (let k = 0; k < nOut; k++) { const p = (k + preRemove) * down; let s = 0;
+      let i = Math.max(0, Math.ceil((p - H.length + 1) / up)); const iMax = Math.min(n - 1, Math.floor(p / up));
+      for (; i <= iMax; i++) s += x[i] * H[p - i * up]; y[k] = s; }
+    return y; };
+}
+function makePreprocessor(fs) {
+  const ff = makeFiltfilt(fs), rs = makeResampler(fs, 250);
+  return win => { // win: array di 19 Float32Array (stesso ordine di IED_CH), 4 s
+    const n = win[0].length, F = win.map(ff), car = new Float64Array(n);
+    for (const f of F) for (let i = 0; i < n; i++) car[i] += f[i] / 19;
+    const R = F.map(f => { const z = new Float32Array(n); for (let i = 0; i < n; i++) z[i] = f[i] - car[i]; return rs(z); });
+    const T = 1000; if (R[0].length !== T) throw new Error('Ricampionamento: ' + R[0].length + ' campioni invece di 1000');
+    const out = new Float32Array(19 * T); let m = 0;
+    R.forEach((r, c) => { for (let t = 0; t < T; t++) { out[c * T + t] = r[t]; m += r[t]; } }); m /= out.length;
+    let v = 0; for (let i = 0; i < out.length; i++) v += (out[i] - m) ** 2; const sd = Math.sqrt(v / out.length);
+    if (!(sd > 1e-7)) return null;
+    for (let i = 0; i < out.length; i++) { const z = (out[i] - m) / sd; out[i] = z > 8 ? 8 : z < -8 ? -8 : z; }
+    return out; };
+}
+
+G.EEGIED = { IED_CH, IED_THR, readSafetensors, prepareModel, forward, makePreprocessor, makeFiltfilt, makeResampler, butterBandSOS };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>
@@ -539,7 +898,7 @@ G.EEGCore = { parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, deriv
 const C = window.EEGCore;
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const S = { rec: null, A: null, t: 0, labels: null, fileId: null, band: 'alpha', cache: null };
+const S = window.__EEG = { rec: null, A: null, t: 0, labels: null, fileId: null, band: 'alpha', cache: null, fname: null, model: null, ied: null, iedCur: -1, review: {} };
 const GROUPCOL = { stato: '--stato', stimolazione: '--stim', artefatto: '--art', tecnico: '--tec', ambiente: '--art', 'da chiarire': '--tec', altro: '--tec' };
 const fmtT = s => { const m = Math.floor(s / 60), x = Math.floor(s % 60); return m + ':' + String(x).padStart(2, '0'); };
 
@@ -555,7 +914,9 @@ const tw = $('traceWrap');
 document.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 async function handleFiles(files) {
   for (const f of files) {
-    if (/\.json$/i.test(f.name)) { try { S.labels = JSON.parse(await f.text()); renderRef(); } catch (err) { $('refbox').textContent = 'Il file JSON non è leggibile: ' + err.message; } }
+    if (/\.safetensors$/i.test(f.name)) { await loadModel(await f.arrayBuffer(), f.name); continue; }
+    if (/\.json$/i.test(f.name)) { try { const j = JSON.parse(await f.text());
+      if (j && j.tipo === 'revisione-ied') importReview(j); else { S.labels = j; renderRef(); renderScore(); } } catch (err) { $('refbox').textContent = 'Il file JSON non è leggibile: ' + err.message; } }
   }
   const edf = [...files].find(f => /\.(edf|rec)$/i.test(f.name));
   if (!edf) return;
@@ -565,10 +926,11 @@ async function handleFiles(files) {
     const buf = await edf.arrayBuffer();
     S.rec = C.parseEDF(buf);
     const t0 = performance.now(); S.A = C.analyze(S.rec); S.ms = performance.now() - t0;
-    const m = edf.name.match(/(\d+)/); S.fileId = m ? String(parseInt(m[1])) : null;
-    S.t = 0; S.cache = null;
+    const m = edf.name.match(/(\d+)/); S.fileId = m ? String(parseInt(m[1])) : null; S.fname = edf.name;
+    S.t = 0; S.cache = null; S.ied = null; S.iedCur = -1; S.review = loadReview();
     $('drop').style.display = 'none';
-    renderSummary(); renderRef(); renderAnn(); drawTopo(); drawSpec(); drawAll();
+    renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll();
+    if (S.model) setTimeout(runIED, 50);
   } catch (err) {
     $('summary').innerHTML = '<p class="warnline">Il file non è un EDF valido o è danneggiato (' + err.message + '). Controllalo con EDFbrowser.</p>';
   } finally { $('busy').style.display = 'none'; }
@@ -639,6 +1001,12 @@ function drawTrace() {
     }
     tctx.stroke();
   });
+  // candidati IED: banda colorata sulla finestra di 4 s del picco
+  if (S.ied) S.ied.events.forEach((ev, i) => { if (ev.t1 < S.t || ev.t0 > S.t + sec) return;
+    const x0 = lab + Math.max(0, ev.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, ev.t1 - S.t) / sec * plotW, j = S.review[evKey(ev)];
+    tctx.fillStyle = css('--ied'); tctx.globalAlpha = i === S.iedCur ? .16 : .08; tctx.fillRect(x0, 16, x1 - x0, H - 34); tctx.globalAlpha = 1;
+    const xp = lab + (ev.tp - S.t) / sec * plotW; tctx.fillStyle = css('--ied'); tctx.font = '600 11px IBM Plex Sans, system-ui';
+    tctx.fillText('IED ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : '') + (j ? ' · ' + j : ''), Math.max(lab + 2, x0 + 3), H - 22); });
   // barra di calibrazione 50 µV
   const cal = 50 * pxPerUv; tctx.strokeStyle = css('--accent'); tctx.lineWidth = 2; tctx.beginPath(); tctx.moveTo(W - 14, H - 26); tctx.lineTo(W - 14, H - 26 - cal); tctx.stroke();
   tctx.fillStyle = css('--accent'); tctx.font = '10px IBM Plex Sans, system-ui'; tctx.textAlign = 'right'; tctx.fillText('50 µV', W - 18, H - 28 - cal / 2); tctx.textAlign = 'left';
@@ -646,7 +1014,7 @@ function drawTrace() {
 
 /* ---- linea del tempo ---- */
 const tl = $('timeline'), lctx = tl.getContext('2d');
-const TLROWS = ['Annotazioni', 'Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni'];
+const TLROWS = ['Annotazioni', 'Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni', 'IED (modello)'];
 function drawTimeline() {
   const r = tl.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   tl.width = r.width * dpr; tl.height = r.height * dpr; lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -662,13 +1030,19 @@ function drawTimeline() {
   for (const o of A.epochs) {
     if (o.zero) continue; const x = X(o.t);
     if (o.artifact || o.annArt || (o.popCh && o.popCh.length)) { lctx.fillStyle = css('--art'); lctx.globalAlpha = o.artifact ? 1 : o.annArt ? .55 : .3; lctx.fillRect(x, rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
-    // onde lente: z robusto rispetto al tracciato stesso
-    const z = Math.max(0, Math.min(1, (o.slowZ + 0.5) / 3.5));
-    lctx.fillStyle = heat(z); lctx.fillRect(x, 2 * rh + 3, ew, rh - 6);
-    // lateralità: rosso = più lento a sx, blu = più lento a dx
-    const l = Math.max(-1, Math.min(1, o.latZ / 3)); if (Math.abs(l) > .25) { lctx.fillStyle = l > 0 ? css('--flag') : css('--stato'); lctx.globalAlpha = Math.abs(l); lctx.fillRect(x, 3 * rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
-    if (o.flag) { lctx.fillStyle = o.flag === 'lento sx' ? css('--flag') : o.flag === 'lento dx' ? css('--stato') : css('--ink'); lctx.fillRect(x, 4 * rh + 3, ew, rh - 6); }
+    // onde lente: indice assoluto log10(2-8 Hz / 8-30 Hz) nelle derivazioni bipolari temporali e fronto-centrali
+    if (o.slowAbs != null && isFinite(o.slowAbs)) { const z = Math.max(0, Math.min(1, (o.slowAbs + 0.6) / 1.4)); lctx.fillStyle = heat(z); lctx.fillRect(x, 2 * rh + 3, ew, rh - 6); }
+    // lateralità: asimmetria regionale massima corretta (rosso = più lento a sx, blu = più lento a dx)
+    if (o.lat) { let m = 0; for (const r in o.lat) if (Math.abs(o.lat[r]) > Math.abs(m)) m = o.lat[r];
+      const l = Math.max(-1, Math.min(1, m / 0.8)); if (Math.abs(m) >= C.SLOW.epochLat) { lctx.fillStyle = l > 0 ? css('--flag') : css('--stato'); lctx.globalAlpha = Math.abs(l); lctx.fillRect(x, 3 * rh + 3, ew, rh - 6); lctx.globalAlpha = 1; } }
+    if (o.flag) { lctx.fillStyle = o.flag === 'lento sx' ? css('--flag') : o.flag === 'lento dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = o.flag === 'lento bilaterale' ? .5 : 1; lctx.fillRect(x, 4 * rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
   }
+  // IED: punteggio per finestra (sopra 0,5) e candidati
+  if (S.ied) { const thr = +$('iedthr').value, sw = S.ied.step / D * pw + .6;
+    S.ied.t.forEach((t, i) => { const p = S.ied.p[i]; if (!(p >= 0.5)) return; lctx.fillStyle = css('--ied'); lctx.globalAlpha = p >= thr ? 1 : .25; lctx.fillRect(X(t + 1.5), 5 * rh + 3, sw, rh - 6); });
+    lctx.globalAlpha = 1;
+    S.ied.events.forEach((ev, i) => { const j = S.review[evKey(ev)]; if (!j && i !== S.iedCur) return; lctx.fillStyle = j === 'si' ? css('--yes') : j === 'no' ? css('--no') : j ? css('--maybe') : css('--ink');
+      lctx.fillRect(X(ev.tp) - 1, 5 * rh + 1, 3, rh - 2); }); }
   // finestra visibile
   lctx.fillStyle = css('--sel'); lctx.strokeStyle = css('--accent'); const vx = X(S.t), vw = Math.max(3, pageLen() / D * pw);
   lctx.fillRect(vx, 0, vw, H - 14); lctx.strokeRect(vx + .5, .5, vw, H - 15);
@@ -748,7 +1122,7 @@ function renderSummary() {
   if (A.apGrad < 1) lines.push('Gradiente antero-posteriore non mantenuto');
   const asy = Object.entries(A.asym).filter(([k, v]) => v != null && Math.abs(v) >= 0.5);
   if (asy.length) lines.push('Possibile asimmetria delle onde lente: ' + asy.map(([k, v]) => k + (v > 0 ? ' (sx>dx)' : ' (dx>sx)')).join(', ') + ' — indice sperimentale');
-  const ctr = A.counts;
+  const ctr = A.counts, sl = A.slow;
   const verdict = abn.length ? '<p><b>Ritmo di fondo: possibili alterazioni</b></p>' + abn.map(x => '<p>• ' + x + '</p>').join('') : '<p><b>Ritmo di fondo: nessuna alterazione evidente con le regole attuali</b></p>';
   const chW = Object.keys(A.warn);
   const pops = {}; A.epochs.forEach(o => (o.popCh || []).forEach(c => pops[c] = (pops[c] || 0) + 1));
@@ -774,8 +1148,17 @@ function renderSummary() {
       <dt>Rete 50 Hz</dt><dd>${chW.length ? chW.join(', ') : 'trascurabile'}</dd>
       <dt>Tratti a zero</dt><dd>${A.zeros.length ? A.zeros.map(([a, b]) => fmtT(a) + '–' + fmtT(b)).join(', ') : 'nessuno'}</dd>
     </dl>
-    <h2>Tratti con più onde lente</h2>
-    <p class="small">${ctr.flagged} epoche su ${ctr.clean} più lente del resto del tracciato (sx ${ctr.flaggedL}, dx ${ctr.flaggedR}, diffuse ${ctr.flaggedD}). È un confronto interno al tracciato: non distingue ancora anomalie lente, sonnolenza e artefatti residui.</p>
+    <h2>Anomalie lente (indici regionali bipolari)</h2>
+    <dl class="kv">
+      <dt>Indice globale (mediana)</dt><dd>${sl.g50.toFixed(2)} ${sl.g50 >= C.SLOW.diffuse ? '⚠ ≥ ' + C.SLOW.diffuse : ''}</dd>
+      <dt>90° perc. temporale</dt><dd>${sl.p90.temporale.toFixed(2)}</dd>
+      <dt>90° perc. fronto-centrale</dt><dd>${sl.p90['fronto-centrale'].toFixed(2)}</dd>
+      <dt>90° perc. posteriore</dt><dd>${sl.p90.posteriore.toFixed(2)}</dd>
+      <dt>Lateralizzazione</dt><dd>${sl.side ? 'più lento a ' + sl.side : 'nessuna'}</dd>
+      ${Object.entries(sl.latMed).map(([r, v]) => `<dt>&nbsp;&nbsp;${r}</dt><dd>${isFinite(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '–'}</dd>`).join('')}
+      <dt>Iperpnea</dt><dd>${sl.hvEvoked ? (sl.hvEvoked.positive ? '⚠ ' : '') + Math.round(sl.hvEvoked.slowFrac * 100) + '% epoche lente' : 'non annotata'}</dd>
+    </dl>
+    <p class="small">Indice = log10 potenza 2–8 Hz / 8–30 Hz su derivazioni bipolari longitudinali (esclusi gli elettrodi Fp, contaminati dai movimenti oculari). Asimmetria sx−dx corretta per lo scarto medio di ogni regione; positivo = più lento a sx. Soglie calibrate sui 15 referti AOPD. Epoche segnalate: sx ${ctr.flaggedL}, dx ${ctr.flaggedR}, bilaterali/diffuse ${ctr.flaggedD} su ${ctr.clean}.</p>
     <p class="small">File: ${rec.signals.length} segnali a ${A.fs} Hz, ${rec.type || 'EDF'}, inizio ${rec.startTime.replace(/\./g, ':')}. Analisi in ${Math.round(S.ms)} ms.</p>`;
 }
 function renderRef() {
@@ -788,7 +1171,8 @@ function renderRef() {
     <p>${e.conclusione}</p>
     <p>Ritmo dominante posteriore nel referto: ${e.pdr_hz[0] === e.pdr_hz[1] ? e.pdr_hz[0] : e.pdr_hz.join('–')} Hz; stimato: ${p && p.freq ? p.freq.toFixed(1) : '–'} Hz ${p ? (ok ? '✓ concordante (±1 Hz)' : '<span class="warnline">✗ discordante</span>') : ''}</p>
     ${e.rallentamento ? `<p>Onde lente nel referto: ${e.rallentamento.banda}, ${e.rallentamento.sede}, lato ${e.rallentamento.lato}, ${e.rallentamento.quantita}${e.rallentamento.parossistico ? ', con aspetti parossistici' : ''}.</p>` : '<p>Nessuna anomalia lenta di rilievo nel referto.</p>'}
-    ${e.note ? `<p class="small">${e.note}</p>` : ''}</div>`;
+    ${e.note ? `<p class="small">${e.note}</p>` : ''}
+    ${S.A ? refCompare(e) : ''}</div>`;
 }
 function renderAnn() {
   const ul = $('annlist'); ul.innerHTML = '';
@@ -808,10 +1192,165 @@ $('prev').onclick = () => goTo(S.t - pageLen()); $('next').onclick = () => goTo(
 document.addEventListener('keydown', e => {
   if (/INPUT|SELECT/.test(document.activeElement.tagName)) return;
   if (e.key === 'ArrowRight') { goTo(S.t + pageLen()); e.preventDefault(); }
+  if (/^[nN]$/.test(e.key)) { stepIED(1); e.preventDefault(); }
+  if (/^[pP]$/.test(e.key)) { stepIED(-1); e.preventDefault(); }
+  if (S.iedCur >= 0 && ['1', '2', '3'].includes(e.key)) { judge(S.iedCur, ['si', 'no', 'dubbio'][+e.key - 1]); e.preventDefault(); }
   if (e.key === 'ArrowLeft') { goTo(S.t - pageLen()); e.preventDefault(); }
   const s = $('sens'); if (e.key === 'ArrowUp' && s.selectedIndex > 0) { s.selectedIndex--; drawTrace(); e.preventDefault(); }
   if (e.key === 'ArrowDown' && s.selectedIndex < s.options.length - 1) { s.selectedIndex++; drawTrace(); e.preventDefault(); }
 });
+
+/* ---- modello IED: caricamento, worker, scansione ---- */
+const IED = window.EEGIED;
+let POOL = [];
+async function loadModel(buf, name) {
+  try {
+    const T = IED.readSafetensors(buf); IED.prepareModel(T); // verifica struttura
+    S.model = { buf, name };
+    POOL.forEach(w => w.terminate()); POOL = [];
+    $('iedstatus').textContent = 'Modello caricato: ' + name + ' (' + (buf.byteLength / 1048576).toFixed(1) + ' MB).';
+    $('iedrun').disabled = false;
+    if (S.A && !S.ied) runIED();
+  } catch (err) { $('iedstatus').innerHTML = '<span class="warnline">File del modello non valido: ' + err.message + '</span>'; }
+}
+(async () => { // caricamento automatico dalla cartella modelli/ (GitHub Pages o server locale)
+  try { const r = await fetch('modelli/ied_resnet_attention.safetensors'); if (r.ok) await loadModel(await r.arrayBuffer(), 'ied_resnet_attention.safetensors');
+    else $('iedstatus').textContent = 'Modello non trovato in modelli/: trascina qui ied_resnet_attention.safetensors.'; }
+  catch (e) { $('iedstatus').textContent = 'Pagina aperta da disco: trascina qui ied_resnet_attention.safetensors per attivare il rilevatore IED.'; }
+})();
+function makePool(fs) {
+  const n = Math.max(1, Math.min(8, (navigator.hardwareConcurrency || 4) - 1));
+  const src = document.getElementById('iedsrc').textContent + `
+    let M = null, pre = null;
+    self.onmessage = e => { const d = e.data;
+      if (d.type === 'init') { M = EEGIED.prepareModel(EEGIED.readSafetensors(d.buf)); pre = EEGIED.makePreprocessor(d.fs); postMessage({ type: 'ready' }); return; }
+      const out = [];
+      for (const off of d.offs) {
+        const win = d.seg.map(ch => ch.subarray(off, off + d.win));
+        if (win.some(w => { let mn = Infinity, mx = -Infinity; for (let i = 0; i < w.length; i++) { if (w[i] < mn) mn = w[i]; if (w[i] > mx) mx = w[i]; } return mx - mn === 0; })) { out.push(null); continue; }
+        const x = pre(win); if (!x) { out.push(null); continue; }
+        // canale con l'ampiezza massima nella finestra pre-elaborata (media comune, 1-45 Hz)
+        let best = 0, bc = 0; for (let c = 0; c < 19; c++) { let m = 0; for (let t = 0; t < 1000; t++) { const v = Math.abs(x[c * 1000 + t]); if (v > m) m = v; } if (m > best) { best = m; bc = c; } }
+        out.push([EEGIED.forward(M, x), bc]);
+      }
+      postMessage({ type: 'res', id: d.id, out });
+    };`;
+  const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+  const ws = []; for (let i = 0; i < n; i++) ws.push(new Worker(url));
+  return Promise.all(ws.map(w => new Promise(res => { w.onmessage = e => e.data.type === 'ready' && res(); w.postMessage({ type: 'init', buf: S.model.buf.slice(0), fs }); }))).then(() => ws);
+}
+let iedRun = 0;
+async function runIED() {
+  if (!S.model || !S.A) return;
+  const run = ++iedRun, A = S.A, rec = S.rec, fs = A.fs, win = Math.round(4 * fs), step = +$('iedstep').value, hop = Math.round(step * fs);
+  const missing = IED.IED_CH.filter(c => A.cmap[c] === undefined);
+  if (missing.length) { $('iedstatus').innerHTML = '<span class="warnline">Mancano gli elettrodi ' + missing.join(', ') + ': il modello richiede i 19 canali 10-20.</span>'; return; }
+  const N = rec.signals[A.cmap.Fp1].data.length, starts = []; for (let s = 0; s + win <= N; s += hop) starts.push(s);
+  if (!POOL.length || POOL.fs !== fs) { $('iedstatus').textContent = 'Avvio dei worker…'; POOL.forEach(w => w.terminate()); POOL = await makePool(fs); POOL.fs = fs; }
+  const chunks = []; for (let i = 0; i < starts.length; i += 24) chunks.push(starts.slice(i, i + 24));
+  const p = new Array(starts.length).fill(null), chn = new Array(starts.length).fill(null), t0 = performance.now(); let done = 0, next = 0;
+  $('iedprog').hidden = false; $('iedrun').disabled = true;
+  await new Promise(resolve => {
+    const feed = w => { if (run !== iedRun) return resolve(); if (next >= chunks.length) { if (done >= starts.length) resolve(); return; }
+      const ci = next++, ch = chunks[ci], a = ch[0], b = ch[ch.length - 1] + win;
+      const seg = IED.IED_CH.map(c => rec.signals[A.cmap[c]].data.slice(a, b));
+      w.onmessage = e => { const base = ci * 24; e.data.out.forEach((r, j) => { if (r) { p[base + j] = r[0]; chn[base + j] = IED.IED_CH[r[1]]; } }); done += e.data.out.length;
+        $('iedprog').firstChild.style.width = (100 * done / starts.length) + '%';
+        $('iedstatus').textContent = 'Analisi IED: ' + done + '/' + starts.length + ' finestre (' + POOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
+        if (done >= starts.length) resolve(); else feed(w); };
+      w.postMessage({ type: 'job', id: ci, seg, offs: ch.map(s => s - a), win }, seg.map(x => x.buffer)); };
+    POOL.forEach(feed);
+  });
+  if (run !== iedRun) return;
+  S.ied = { t: starts.map(s => s / fs), p, ch: chn, step, sec: (performance.now() - t0) / 1000, workers: POOL.length };
+  $('iedprog').hidden = true; $('iedrun').disabled = false;
+  buildEvents(); renderIED(); renderScore(); renderRef(); drawAll();
+}
+$('iedrun').onclick = runIED;
+$('iedstep').onchange = () => { if (S.ied) runIED(); };
+$('iedthr').onchange = () => { if (S.ied) { buildEvents(); renderIED(); renderScore(); drawAll(); } };
+function buildEvents() {
+  const I = S.ied, thr = +$('iedthr').value, A = S.A, ev = [];
+  I.t.forEach((t, i) => { const p = I.p[i]; if (!(p >= thr)) return; const last = ev[ev.length - 1];
+    if (last && t <= last.tLast + I.step + 0.01) { last.tLast = t; last.t1 = t + 4; if (p > last.pmax) { last.pmax = p; last.tp = t + 2; last.ch = I.ch[i]; } last.n++; }
+    else ev.push({ t0: t, t1: t + 4, tLast: t, tp: t + 2, pmax: p, ch: I.ch[i], n: 1 }); });
+  for (const e of ev) {
+    const eps = A.epochs.filter(o => o.t < e.t1 && o.t + A.epoch > e.t0 && !o.zero);
+    e.art = eps.length && eps.filter(o => o.artifact || o.annArt).length / eps.length >= 0.5;
+    const ctx = [];
+    for (const a of A.anns) { if (a.code === 'HV' && e.tp >= a.onset && e.tp < a.onset + 180) ctx.push('iperpnea');
+      if (a.code === 'SLI' && e.tp >= a.onset - 1 && e.tp <= a.onset + (a.duration || 0) + 1) ctx.push('SLI');
+      if (a.group === 'artefatto' && Math.abs(a.onset - e.tp) < 4) ctx.push(a.label); if (a.code === 'DROWSY' && e.tp >= a.onset) ctx.push('sonnolenza'); }
+    if (e.t0 < 4) ctx.unshift('inizio registrazione');
+    e.ctx = [...new Set(ctx)].join(', ');
+  }
+  I.events = ev; I.thr = thr; if (S.iedCur >= ev.length) S.iedCur = -1;
+}
+const evKey = ev => (Math.round(ev.tp * 2) / 2).toFixed(1);
+function storeKey() { return 'ied-review:' + (S.fname || ''); }
+function loadReview() { try { return JSON.parse(localStorage.getItem(storeKey()) || '{}') || {}; } catch (e) { return {}; } }
+function saveReview() { try { localStorage.setItem(storeKey(), JSON.stringify(S.review)); } catch (e) { /* archiviazione non disponibile */ } }
+function renderIED() {
+  const ul = $('iedlist'); ul.innerHTML = '';
+  if (!S.ied) { $('iedcount').textContent = ''; return; }
+  const I = S.ied, ev = I.events, nJ = ev.filter(e => S.review[evKey(e)]).length;
+  $('iedstatus').textContent = `${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker.`;
+  $('iedcount').textContent = `Rivisti ${nJ}/${ev.length} · sì ${ev.filter(e => S.review[evKey(e)] === 'si').length} · no ${ev.filter(e => S.review[evKey(e)] === 'no').length} · dubbi ${ev.filter(e => S.review[evKey(e)] === 'dubbio').length}`;
+  ev.forEach((e, i) => {
+    const li = document.createElement('li'), j = S.review[evKey(e)]; li.tabIndex = 0; if (i === S.iedCur) li.className = 'cur';
+    li.innerHTML = `<span class="t">${fmtT(e.tp)}</span><span>${e.pmax.toFixed(2)}</span><span>${e.ch || ''}</span><span class="ctx">${e.art ? '⚠ artefatto ' : ''}${e.ctx}</span>
+      <span class="jbtn">${['si', 'no', 'dubbio'].map(v => `<button data-v="${v}" aria-pressed="${j === v}" title="${v}">${v === 'si' ? 'sì' : v === 'no' ? 'no' : '?'}</button>`).join('')}</span>`;
+    li.onclick = ev2 => { const b = ev2.target.closest('button'); if (b) { judge(i, b.dataset.v); ev2.stopPropagation(); return; } selectIED(i); };
+    ul.appendChild(li);
+  });
+}
+function selectIED(i) { if (!S.ied || !S.ied.events[i]) return; S.iedCur = i; const e = S.ied.events[i]; goTo(e.tp - pageLen() / 2); renderIED();
+  const li = $('iedlist').children[i]; if (li) li.scrollIntoView({ block: 'nearest' }); }
+function stepIED(d) { if (!S.ied || !S.ied.events.length) return; const n = S.ied.events.length; selectIED(S.iedCur < 0 ? (d > 0 ? 0 : n - 1) : (S.iedCur + d + n) % n); }
+function judge(i, v) { const e = S.ied.events[i], k = evKey(e); if (S.review[k] === v) delete S.review[k]; else S.review[k] = v; saveReview(); S.iedCur = i; renderIED(); renderScore(); renderRef(); drawAll(); }
+$('iednext').onclick = () => stepIED(1); $('iedprev').onclick = () => stepIED(-1);
+function download(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+const base = () => (S.fname || 'eeg').replace(/\.[^.]+$/, '');
+$('iedcsv').onclick = () => { if (!S.ied) return;
+  const rows = [['eeg', 'inizio_s', 'fine_s', 'picco_s', 'picco_mm:ss', 'p_max', 'finestre', 'canale_piu_ampio', 'contesto', 'in_artefatto', 'giudizio', 'soglia', 'modello']];
+  S.ied.events.forEach(e => rows.push([base(), e.t0.toFixed(1), e.t1.toFixed(1), e.tp.toFixed(1), fmtT(e.tp), e.pmax.toFixed(3), e.n, e.ch || '', e.ctx, e.art ? 'sì' : 'no', S.review[evKey(e)] || '', S.ied.thr, 'SenuaLab resnet_attention']));
+  download(base() + '_ied_revisione.csv', '﻿' + rows.map(r => r.map(v => /[;"\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(';')).join('\r\n'), 'text/csv'); };
+$('iedjson').onclick = () => { if (!S.ied) return;
+  const out = { tipo: 'revisione-ied', file: S.fname, modello: 'SenuaLab EEG-IED-Detection resnet_attention', soglia: S.ied.thr, passo_s: S.ied.step, data: new Date().toISOString(),
+    giudizi: S.review, candidati: S.ied.events.map(e => ({ inizio: +e.t0.toFixed(1), fine: +e.t1.toFixed(1), picco: +e.tp.toFixed(1), p_max: +e.pmax.toFixed(4), canale: e.ch, contesto: e.ctx, artefatto: e.art, giudizio: S.review[evKey(e)] || null })) };
+  download(base() + '_ied_revisione.json', JSON.stringify(out, null, 1), 'application/json'); };
+function importReview(j) {
+  S.review = Object.assign({}, j.giudizi || {}); saveReview();
+  $('iedstatus').textContent = 'Revisione importata (' + Object.keys(S.review).length + ' giudizi' + (j.file && j.file !== S.fname ? ', file originale ' + j.file : '') + ').';
+  renderIED(); renderScore(); drawAll();
+}
+function iedSummary() {
+  if (!S.ied) return null; const ev = S.ied.events;
+  return { confirmed: ev.filter(e => S.review[evKey(e)] === 'si'), pending: ev.filter(e => !S.review[evKey(e)]).length, total: ev.length, inArt: ev.filter(e => e.art).length };
+}
+
+/* ---- livello decisionale ---- */
+function renderScore() {
+  if (!S.A) return;
+  const d = C.scoreDecision(S.A, iedSummary()), I = iedSummary();
+  S.decision = d;
+  $('scorebox').innerHTML = `<div class="score ${d.abnormal ? 'abn' : ''}">
+    <h3>${d.abnormal ? (d.severity === 'anormale lieve' ? 'Anormale lieve' : 'Anormale') : 'Normale'}${d.labels.length ? ': ' + d.labels.join(' + ') : ''}${d.side && d.categories.includes('nonepi_focale') ? ' (' + d.side + ')' : ''}</h3>
+    ${d.why.length ? '<ul>' + d.why.map(w => '<li>' + w + '</li>').join('') + '</ul>' : '<p>Nessuna regola di anomalia attivata.</p>'}
+    <p class="small">${I ? `Rilevatore IED: ${I.total} candidati, ${I.confirmed.length} confermati, ${I.pending} da rivedere${I.inArt ? ', ' + I.inArt + ' in tratti con artefatti' : ''}. I candidati non rivisti non modificano la classificazione.` : 'Rilevatore IED non ancora eseguito.'}</p>
+    <p class="small">Regole esplicite, soglie calibrate su 15 referti AOPD: proposta da verificare, non diagnosi.</p></div>`;
+}
+function refCompare(e) {
+  const d = S.decision || C.scoreDecision(S.A, iedSummary()), L = C.parseLabel(e), ok = b => b ? '✓' : '<span class="warnline">✗</span>';
+  const rows = [];
+  rows.push(['Normale / anormale', L.borderline ? 'limite' : L.abnormal ? 'anormale' : 'normale', d.abnormal ? 'anormale' : 'normale', L.borderline ? '–' : ok(L.abnormal === d.abnormal)]);
+  rows.push(['Non epilettiforme diffuso', L.diffuse ? 'sì' : 'no', d.categories.includes('nonepi_diffuso') ? 'sì' : 'no', ok(L.diffuse === d.categories.includes('nonepi_diffuso'))]);
+  rows.push(['Non epilettiforme focale', L.focal ? 'sì' + (L.side ? ' (' + L.side + ')' : '') : 'no', d.categories.includes('nonepi_focale') ? 'sì' + (d.side ? ' (' + d.side + ')' : '') : 'no',
+    ok(L.focal === d.categories.includes('nonepi_focale')) + (L.focal && d.categories.includes('nonepi_focale') ? ' ' + (L.side === d.side ? 'lato ✓' : 'lato ✗') : '')]);
+  rows.push(['Epilettiforme', L.epi ? 'sì' : 'no', d.categories.some(c => c.startsWith('epi')) ? 'sì' : 'no', ok(L.epi === d.categories.some(c => c.startsWith('epi')))]);
+  return `<table class="cmp"><tr><th>Categoria SCORE</th><th>Referto</th><th>Regole</th><th></th></tr>${rows.map(r => '<tr>' + r.map(x => '<td>' + x + '</td>').join('') + '</tr>').join('')}</table>`;
+}
+
 new ResizeObserver(() => { drawAll(); drawTopo(); drawSpec(); }).observe(document.body);
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawAll(); drawTopo(); drawSpec(); });
 })();
