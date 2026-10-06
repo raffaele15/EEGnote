@@ -22,6 +22,9 @@
   --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#93A3AF; --maybe:#E0AA3E;}}
 :root[data-theme="dark"]{--bg:#0F161C; --panel:#162028; --paper:#121B22; --ink:#E3EAEF; --muted:#93A3AF; --line:#26343F; --grid:#1B2731; --grid2:#2A3946;
   --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#93A3AF; --maybe:#E0AA3E;}
+/* tema chiaro: sfondo bianco, tracciato nero (come la carta EEG) */
+:root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
+  --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
 *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:var(--bg)}
 button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
@@ -96,6 +99,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <label class="ctl">LP <input id="lp" type="number" step="1" min="0" value="70"> Hz</label>
   <label class="ctl"><input id="notch" type="checkbox" checked> Notch 50</label>
   <label class="ctl">Sensibilità <select id="sens"><option>3</option><option>5</option><option selected>7</option><option>10</option><option>15</option><option>20</option><option>30</option><option>50</option></select> µV/mm</label>
+  <label class="ctl">Tema <select id="theme"><option value="auto">automatico</option><option value="light">chiaro (bianco)</option><option value="dark">scuro</option></select></label>
   <label class="ctl">Pagina <select id="page"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select> s</label>
   <button class="btn" id="prev" title="Pagina precedente (←)">◀</button>
   <button class="btn" id="next" title="Pagina successiva (→)">▶</button>
@@ -1500,6 +1504,12 @@ function refCompare(e) {
 
 new ResizeObserver(() => { drawAll(); drawTopo(); drawSpec(); }).observe(document.body);
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawAll(); drawTopo(); drawSpec(); });
+/* ---- tema: automatico (segue il sistema), chiaro (bianco/nero), scuro; scelta ricordata nel browser ---- */
+function setTheme(v) { if (v === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = v;
+  try { localStorage.setItem('eeg-theme', v); } catch (e) { /* archiviazione non disponibile */ }
+  S.cache = null; drawAll(); drawTopo(); drawSpec(); }
+$('theme').onchange = e => setTheme(e.target.value);
+try { const t = localStorage.getItem('eeg-theme'); if (t && ['auto', 'light', 'dark'].includes(t)) { $('theme').value = t; setTheme(t); } } catch (e) { /* ignora */ }
 })();
 </script>
 </body>
