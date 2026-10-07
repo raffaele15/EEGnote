@@ -147,7 +147,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       <ul class="iedlist" id="iedlist"></ul>
       <div class="iedbar"><span id="iedcount"></span><span class="spacer"></span>
         <button class="btn" id="iedcsv">Esporta CSV</button><button class="btn" id="iedjson">Esporta JSON</button></div>
-      <p class="small">Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p>
+      <p class="small">Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p>
     </div>
     <h2>Sintesi automatica</h2>
     <div id="summary" class="small">Apri un file per vedere la sintesi.</div>
@@ -643,7 +643,7 @@ function scoreDecision(A, ied) {
   if (s.sideWeak) possible.push('lieve prevalenza di onde lente a ' + s.sideWeak + ' (' + s.latRegions.slice(0, 2).join(', ') + ')');
   if (s.weakIntermittent && !s.side && !s.intermittent) possible.push('occasionali rallentamenti theta ' + (s.intRegion === 'temporale' ? 'bitemporali' : 'anteriori bilaterali'));
   if (p.freqDiff != null && Math.abs(p.freqDiff) > 1) possible.push('asimmetria di frequenza del ritmo posteriore > 1 Hz (' + (p.freqDiff < 0 ? 'più lento a sx' : 'più lento a dx') + ')');
-  // candidati IED frequenti (≥ 1/min alla soglia di validazione): su 49 EEG AOPD 5/7 esami con IED franche e 5/42 senza (tutti con onde aguzze/trifasiche non franche)
+  // candidati IED frequenti (≥ 1/min alla soglia di validazione): su 49 EEG AOPD 4/7 esami con IED franche e 5/42 senza (tutti con onde aguzze/trifasiche non franche)
   if (ied && ied.total != null && A.duration > 60) { const rate = ied.total / (A.duration / 60);
     if (rate >= 1 && !(ied.confirmed && ied.confirmed.length)) possible.push('frequenti candidati IED (' + rate.toFixed(1).replace('.', ',') + '/min): rivederli, possibili anomalie aguzze o epilettiformi'); }
   // anomalie epilettiformi confermate in revisione
@@ -773,6 +773,69 @@ function generateReport(A, rec, d, ied) {
   return { text: head + '\n' + out.join('\n') + foot, sections: out, measures: m, conclusion: c };
 }
 
+
+/* ---------- localizzazione fine dei candidati IED ----------
+   Il modello giudica finestre di 4 s. Per ogni candidato:
+   1) zona: profilo dei punteggi (somma di p − soglia delle finestre che coprono ogni istante); si tiene la parte ≥ 80% del massimo
+      (per una punta isolata è l'intersezione delle finestre positive, ~1 s col passo di 1 s);
+   2) transiente: media comune 1-45 Hz (come il modello); in ogni canale i picchi con ampiezza ≥ 3 DS del tratto circostante
+      e fase di durata 20-200 ms; punteggio = √ampiezza (DS) × contrasto con i picchi dello stesso canale nel secondo circostante
+      × √(70 ms / durata); si sceglie il migliore nella zona;
+   3) campo: canali con deflessione della stessa polarità ≥ 50% entro ±30 ms.
+   Durata della fase: tra i due attraversamenti della linea di base locale (media su ±250 ms) attorno al picco. */
+function localizeIED(rec, A, wins, thr, opts = {}) {
+  if (!wins || !wins.length) return null;
+  const fs = A.fs, W = 4, t0 = Math.min(...wins.map(w => w.t)), t1 = Math.max(...wins.map(w => w.t)) + W;
+  // 1) zona dal profilo dei punteggi
+  const dt = 0.05, nG = Math.round((t1 - t0) / dt) + 1, prof = new Float64Array(nG);
+  for (const w of wins) { const g0 = Math.round((w.t - t0) / dt), g1 = Math.round((w.t + W - t0) / dt); for (let g = g0; g < g1 && g < nG; g++) prof[g] += Math.max(0, w.p - thr) + 1e-6; }
+  const pm = Math.max(...prof); let a = -1, b = -1;
+  for (let g = 0; g < nG; g++) if (prof[g] >= 0.8 * pm) { if (a < 0) a = g; b = g; }
+  const zone = [t0 + a * dt - 0.2, t0 + (b + 1) * dt + 0.2];
+  // 2) segnale: media comune dei canali buoni, 1-45 Hz, con 3 s di margine per filtri e linea di base
+  const chs = STD19.filter(c => A.cmap[c] !== undefined && !A.bad.has(c)); if (chs.length < 8) return { zone, found: false };
+  const N = rec.signals[A.cmap[chs[0]]].data.length, i0 = Math.max(0, Math.floor((zone[0] - 3) * fs)), i1 = Math.min(N, Math.ceil((zone[1] + 3) * fs)), L = i1 - i0;
+  const avg = new Float64Array(L); for (const c of chs) { const d = rec.signals[A.cmap[c]].data; for (let i = 0; i < L; i++) avg[i] += d[i0 + i] / chs.length; }
+  const filt = makeFilters(fs, 1, 45, 0), X = {}, SD = {};
+  for (const c of chs) { const d = rec.signals[A.cmap[c]].data, x = new Float32Array(L); for (let i = 0; i < L; i++) x[i] = d[i0 + i] - avg[i];
+    filtfilt(x, filt); X[c] = x; const v = Array.from(x).map(Math.abs).sort((p, q) => p - q); SD[c] = (v[v.length >> 1] || 1) * 1.4826; }
+  const half = Math.round(0.25 * fs), z0 = Math.max(1, Math.floor((zone[0]) * fs) - i0), z1 = Math.min(L - 2, Math.ceil(zone[1] * fs) - i0);
+  const phase = (x, i) => { // durata della fase che contiene il picco i (ms) rispetto alla linea di base locale
+    let m = 0, n = 0; for (let k = Math.max(0, i - half); k < Math.min(L, i + half); k++) { m += x[k]; n++; } m /= n;
+    const s = Math.sign(x[i] - m); let l = i, r = i; while (l > 0 && Math.sign(x[l] - m) === s && i - l < fs * 0.3) l--; while (r < L - 1 && Math.sign(x[r] - m) === s && r - i < fs * 0.3) r++;
+    return { dur: (r - l) / fs * 1000, amp: Math.abs(x[i] - m), pol: s, l, r }; };
+  const cand = [];
+  for (const c of chs) { const x = X[c], sd = SD[c];
+    for (let i = z0; i <= z1; i++) { const v = Math.abs(x[i]); if (v < 3 * sd || v < Math.abs(x[i - 1]) || v < Math.abs(x[i + 1])) continue;
+      const ph = phase(x, i); if (ph.dur < 20 || ph.dur > 200) continue;
+      const zA = ph.amp / sd; cand.push({ i, c, zA, dur: ph.dur, pol: ph.pol, amp: ph.amp }); } }
+  // contrasto locale: il transiente deve emergere dagli altri picchi dello stesso canale nel secondo circostante (esclude il ritmo alfa e l'attività di fondo)
+  const w1 = Math.round(fs), w100 = Math.round(0.1 * fs);
+  for (const q of cand) { const x = X[q.c], pk = [];
+    for (let k = Math.max(1, q.i - w1); k < Math.min(L - 1, q.i + w1); k++) { if (Math.abs(k - q.i) < w100) continue; const v = x[k] * q.pol; if (v > 0 && v >= x[k - 1] * q.pol && v >= x[k + 1] * q.pol) pk.push(v); }
+    pk.sort((u, v) => u - v); const ref = pk.length ? pk[Math.floor(pk.length * 0.75)] : SD[q.c];
+    q.contrast = Math.abs(X[q.c][q.i]) / Math.max(ref, 0.5 * SD[q.c]);
+    q.score = Math.sqrt(q.zA) * q.contrast * Math.sqrt(70 / Math.max(q.dur, 20)); }
+  if (!cand.length) return { zone, found: false };
+  cand.sort((p, q) => q.score - p.score); const best = cand[0];
+  // 3) campo: stessa polarità, ≥ 50% dell'ampiezza, entro ±30 ms
+  const w30 = Math.round(0.03 * fs), field = [];
+  for (const c of chs) { const x = X[c]; let bv = 0; for (let k = best.i - w30; k <= best.i + w30; k++) if (k >= 0 && k < L && x[k] * best.pol > bv) bv = x[k] * best.pol;
+    if (bv >= 0.5 * Math.abs(X[best.c][best.i])) field.push([c, bv]); }
+  field.sort((p, q) => q[1] - p[1]);
+  // transienti distinti nella zona (≥ 150 ms di distanza) con punteggio ≥ 60% del migliore
+  const sep = [], minGap = 0.15 * fs; for (const q of cand) { if (q.score < 0.6 * best.score) break; if (sep.every(s => Math.abs(s.i - q.i) >= minGap)) sep.push(q); }
+  // qualità (regole verificate a vista su 20 candidati di 15 EEG, vedi VALIDAZIONE_v0.3): artefatto probabile / incerta / buona
+  const amp = best.amp, nf = field.length, dur = best.dur; let quality = 'buona', why = '';
+  if (amp > 500 || (amp > 300 && nf <= 2)) { quality = 'artefatto'; why = 'ampiezza ' + Math.round(amp) + ' µV' + (nf <= 2 ? ' su un solo elettrodo' : ''); }
+  else if (amp > 200 && nf >= 15) { quality = 'artefatto'; why = 'deflessione simultanea su quasi tutti i canali'; }
+  else if (best.zA > 60 && amp < 100) { quality = 'artefatto'; why = 'tratto piatto o saturato'; }
+  else if (dur < 25) { quality = 'artefatto'; why = 'durata < 25 ms'; }
+  else if (amp < 25 || best.zA < 4 || (nf >= 9 && amp < 60)) { quality = 'incerta'; why = amp < 25 ? 'ampiezza < 25 µV' : best.zA < 4 ? 'poco sopra il fondo' : 'campo diffuso di bassa ampiezza'; }
+  return { zone, found: true, quality, qualityWhy: why, t: (i0 + best.i) / fs, ch: best.c, durMs: Math.round(best.dur), type: best.dur < 70 ? 'punta' : 'onda aguzza', ampUv: Math.round(best.amp),
+    z: +best.zA.toFixed(1), polarity: best.pol < 0 ? 'negativa' : 'positiva', field: field.map(f => f[0]), n: sep.length, all: sep.map(q => (i0 + q.i) / fs).sort((p, q) => p - q) };
+}
+
 function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
   const pairs = { sx: [['O1', 'P3'], ['O1', 'T5']], dx: [['O2', 'P4'], ['O2', 'T6']] };
   const stopCodes = new Set(['OA', 'ART', 'ART_MOV', 'ART_EYE', 'ART_TALK', 'ART_COUGH', 'ART_SWALLOW', 'ENV', 'SLI', 'HV']);
@@ -831,7 +894,7 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
-G.EEGCore = { generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+G.EEGCore = { localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script id="iedsrc">/* Annotatore EEG — rilevatore di scariche epilettiformi intercritiche (IED).
@@ -1158,9 +1221,13 @@ function drawTrace() {
   // candidati IED: banda colorata sulla finestra di 4 s del picco
   if (S.ied) S.ied.events.forEach((ev, i) => { if (ev.t1 < S.t || ev.t0 > S.t + sec) return;
     const x0 = lab + Math.max(0, ev.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, ev.t1 - S.t) / sec * plotW, j = S.review[evKey(ev)];
-    tctx.fillStyle = css('--ied'); tctx.globalAlpha = i === S.iedCur ? .16 : .08; tctx.fillRect(x0, 16, x1 - x0, H - 34); tctx.globalAlpha = 1;
-    const xp = lab + (ev.tp - S.t) / sec * plotW; tctx.fillStyle = css('--ied'); tctx.font = '600 11px IBM Plex Sans, system-ui';
-    tctx.fillText('IED ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : '') + (j ? ' · ' + j : ''), Math.max(lab + 2, x0 + 3), H - 22); });
+    if (i === S.iedCur) { tctx.fillStyle = css('--ied'); tctx.globalAlpha = .05; tctx.fillRect(x0, 16, x1 - x0, H - 34); tctx.globalAlpha = 1; } // finestre del modello solo per il candidato selezionato
+    const L = ev.loc; let lx = x0 + 3, txt = 'IED ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : '');
+    if (L && L.zone) { const z0 = lab + Math.max(0, L.zone[0] - S.t) / sec * plotW, z1 = lab + Math.min(sec, L.zone[1] - S.t) / sec * plotW; if (z1 > z0) { tctx.fillStyle = css('--ied'); tctx.globalAlpha = i === S.iedCur ? .16 : .1; tctx.fillRect(z0, 16, z1 - z0, H - 34); tctx.globalAlpha = 1; } }
+    if (L && L.found && L.t >= S.t && L.t <= S.t + sec) { const xl = lab + (L.t - S.t) / sec * plotW; tctx.strokeStyle = css('--ied'); tctx.lineWidth = 1.5; tctx.setLineDash(L.quality === 'buona' ? [] : [3, 3]);
+      tctx.beginPath(); tctx.moveTo(xl + .5, 16); tctx.lineTo(xl + .5, H - 34); tctx.stroke(); tctx.setLineDash([]); tctx.lineWidth = 1; lx = xl + 3;
+      txt = (L.quality === 'artefatto' ? 'artefatto? ' : '') + L.type + ' ' + L.ch + ' ' + L.durMs + ' ms · p ' + ev.pmax.toFixed(2) + (L.quality === 'incerta' ? ' (incerta)' : ''); }
+    tctx.fillStyle = css('--ied'); tctx.font = '600 11px IBM Plex Sans, system-ui'; tctx.fillText(txt + (j ? ' · ' + j : ''), Math.max(lab + 2, lx), H - 22); });
   // barra di calibrazione 50 µV
   const cal = 50 * pxPerUv; tctx.strokeStyle = css('--accent'); tctx.lineWidth = 2; tctx.beginPath(); tctx.moveTo(W - 14, H - 26); tctx.lineTo(W - 14, H - 26 - cal); tctx.stroke();
   tctx.fillStyle = css('--accent'); tctx.font = '10px IBM Plex Sans, system-ui'; tctx.textAlign = 'right'; tctx.fillText('50 µV', W - 18, H - 28 - cal / 2); tctx.textAlign = 'left';
@@ -1426,8 +1493,10 @@ $('iedthr').onchange = () => { if (S.ied) { buildEvents(); renderIED(); renderSc
 function buildEvents() {
   const I = S.ied, thr = +$('iedthr').value, A = S.A, ev = [];
   I.t.forEach((t, i) => { const p = I.p[i]; if (!(p >= thr)) return; const last = ev[ev.length - 1];
-    if (last && t <= last.tLast + I.step + 0.01) { last.tLast = t; last.t1 = t + 4; if (p > last.pmax) { last.pmax = p; last.tp = t + 2; last.ch = I.ch[i]; } last.n++; }
-    else ev.push({ t0: t, t1: t + 4, tLast: t, tp: t + 2, pmax: p, ch: I.ch[i], n: 1 }); });
+    if (last && t <= last.tLast + I.step + 0.01) { last.tLast = t; last.t1 = t + 4; last.wins.push({ t, p }); if (p > last.pmax) { last.pmax = p; last.tp = t + 2; last.ch = I.ch[i]; } last.n++; }
+    else ev.push({ t0: t, t1: t + 4, tLast: t, tp: t + 2, pmax: p, ch: I.ch[i], n: 1, wins: [{ t, p }] }); });
+  // localizzazione fine: zona dal profilo dei punteggi, transiente più aguzzo, canale, durata, qualità
+  for (const e of ev) { try { e.loc = C.localizeIED(S.rec, A, e.wins, thr); } catch (err) { e.loc = null; } }
   for (const e of ev) {
     const eps = A.epochs.filter(o => o.t < e.t1 && o.t + A.epoch > e.t0 && !o.zero);
     e.art = eps.length && eps.filter(o => o.artifact || o.annArt).length / eps.length >= 0.5;
@@ -1452,13 +1521,15 @@ function renderIED() {
   $('iedcount').textContent = `Rivisti ${nJ}/${ev.length} · sì ${ev.filter(e => S.review[evKey(e)] === 'si').length} · no ${ev.filter(e => S.review[evKey(e)] === 'no').length} · dubbi ${ev.filter(e => S.review[evKey(e)] === 'dubbio').length}`;
   ev.forEach((e, i) => {
     const li = document.createElement('li'), j = S.review[evKey(e)]; li.tabIndex = 0; if (i === S.iedCur) li.className = 'cur';
-    li.innerHTML = `<span class="t">${fmtT(e.tp)}</span><span>${e.pmax.toFixed(2)}</span><span>${e.ch || ''}</span><span class="ctx">${e.art ? '⚠ artefatto ' : ''}${e.ctx}</span>
+    const L = e.loc && e.loc.found ? e.loc : null, q = L ? (L.quality === 'artefatto' ? '⚠ artefatto? ' + L.qualityWhy + ' · ' : L.quality === 'incerta' ? 'incerta · ' : '') : 'non localizzato · ';
+    li.title = L ? `${L.type} ${L.polarity}, ${L.durMs} ms, ${L.ampUv} µV (${L.z} DS), campo ${L.field.join(' ')}${L.n > 1 ? ', ' + L.n + ' transienti nella zona' : ''}` : 'nessun transiente netto nella zona';
+    li.innerHTML = `<span class="t">${fmtT(L ? L.t : e.tp)}</span><span>${e.pmax.toFixed(2)}</span><span>${L ? L.ch : (e.ch || '')}</span><span class="ctx">${q}${L ? L.type + ' ' + L.durMs + ' ms ' : ''}${e.art ? '⚠ epoca con artefatti ' : ''}${e.ctx}</span>
       <span class="jbtn">${['si', 'no', 'dubbio'].map(v => `<button data-v="${v}" aria-pressed="${j === v}" title="${v}">${v === 'si' ? 'sì' : v === 'no' ? 'no' : '?'}</button>`).join('')}</span>`;
     li.onclick = ev2 => { const b = ev2.target.closest('button'); if (b) { judge(i, b.dataset.v); ev2.stopPropagation(); return; } selectIED(i); };
     ul.appendChild(li);
   });
 }
-function selectIED(i) { if (!S.ied || !S.ied.events[i]) return; S.iedCur = i; const e = S.ied.events[i]; goTo(e.tp - pageLen() / 2); renderIED();
+function selectIED(i) { if (!S.ied || !S.ied.events[i]) return; S.iedCur = i; const e = S.ied.events[i]; goTo((e.loc && e.loc.found ? e.loc.t : e.tp) - pageLen() / 2); renderIED();
   const li = $('iedlist').children[i]; if (li) li.scrollIntoView({ block: 'nearest' }); }
 function stepIED(d) { if (!S.ied || !S.ied.events.length) return; const n = S.ied.events.length; selectIED(S.iedCur < 0 ? (d > 0 ? 0 : n - 1) : (S.iedCur + d + n) % n); }
 function judge(i, v) { const e = S.ied.events[i], k = evKey(e); if (S.review[k] === v) delete S.review[k]; else S.review[k] = v; saveReview(); S.iedCur = i; renderIED(); renderScore(); renderRef(); drawAll(); }
@@ -1466,12 +1537,15 @@ $('iednext').onclick = () => stepIED(1); $('iedprev').onclick = () => stepIED(-1
 function download(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
 const base = () => (S.fname || 'eeg').replace(/\.[^.]+$/, '');
 $('iedcsv').onclick = () => { if (!S.ied) return;
-  const rows = [['eeg', 'inizio_s', 'fine_s', 'picco_s', 'picco_mm:ss', 'p_max', 'finestre', 'canale_piu_ampio', 'contesto', 'in_artefatto', 'giudizio', 'soglia', 'modello']];
-  S.ied.events.forEach(e => rows.push([base(), e.t0.toFixed(1), e.t1.toFixed(1), e.tp.toFixed(1), fmtT(e.tp), e.pmax.toFixed(3), e.n, e.ch || '', e.ctx, e.art ? 'sì' : 'no', S.review[evKey(e)] || '', S.ied.thr, 'SenuaLab resnet_attention']));
+  const rows = [['eeg', 'istante_s', 'istante_mm:ss', 'canale', 'tipo', 'durata_ms', 'ampiezza_uV', 'polarita', 'campo', 'transienti_in_zona', 'qualita_localizzazione', 'zona_inizio_s', 'zona_fine_s', 'finestre_inizio_s', 'finestre_fine_s', 'p_max', 'finestre', 'contesto', 'epoca_con_artefatti', 'giudizio', 'soglia', 'modello']];
+  S.ied.events.forEach(e => { const L = e.loc && e.loc.found ? e.loc : null, z = e.loc && e.loc.zone;
+    rows.push([base(), L ? L.t.toFixed(2) : '', L ? fmtT(L.t) + '.' + String(Math.floor((L.t % 1) * 10)) : '', L ? L.ch : '', L ? L.type : '', L ? L.durMs : '', L ? L.ampUv : '', L ? L.polarity : '', L ? L.field.join(' ') : '', L ? L.n : '',
+      L ? L.quality + (L.qualityWhy ? ' (' + L.qualityWhy + ')' : '') : 'non localizzato', z ? z[0].toFixed(2) : '', z ? z[1].toFixed(2) : '', e.t0.toFixed(1), e.t1.toFixed(1), e.pmax.toFixed(3), e.n, e.ctx, e.art ? 'sì' : 'no', S.review[evKey(e)] || '', S.ied.thr, 'SenuaLab resnet_attention']); });
   download(base() + '_ied_revisione.csv', '﻿' + rows.map(r => r.map(v => /[;"\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(';')).join('\r\n'), 'text/csv'); };
 $('iedjson').onclick = () => { if (!S.ied) return;
   const out = { tipo: 'revisione-ied', file: S.fname, modello: 'SenuaLab EEG-IED-Detection resnet_attention', soglia: S.ied.thr, passo_s: S.ied.step, data: new Date().toISOString(),
-    giudizi: S.review, candidati: S.ied.events.map(e => ({ inizio: +e.t0.toFixed(1), fine: +e.t1.toFixed(1), picco: +e.tp.toFixed(1), p_max: +e.pmax.toFixed(4), canale: e.ch, contesto: e.ctx, artefatto: e.art, giudizio: S.review[evKey(e)] || null })) };
+    giudizi: S.review, candidati: S.ied.events.map(e => ({ inizio: +e.t0.toFixed(1), fine: +e.t1.toFixed(1), picco: +e.tp.toFixed(1), p_max: +e.pmax.toFixed(4), canale: e.ch, contesto: e.ctx, artefatto: e.art, giudizio: S.review[evKey(e)] || null,
+      localizzazione: e.loc && e.loc.found ? { istante: +e.loc.t.toFixed(3), canale: e.loc.ch, tipo: e.loc.type, durata_ms: e.loc.durMs, ampiezza_uV: e.loc.ampUv, polarita: e.loc.polarity, campo: e.loc.field, transienti: e.loc.all.map(x => +x.toFixed(3)), qualita: e.loc.quality, motivo: e.loc.qualityWhy, zona: e.loc.zone.map(x => +x.toFixed(2)) } : null })) };
   download(base() + '_ied_revisione.json', JSON.stringify(out, null, 1), 'application/json'); };
 function importReview(j) {
   S.review = Object.assign({}, j.giudizi || {}); saveReview();
@@ -1480,7 +1554,7 @@ function importReview(j) {
 }
 function iedSummary() {
   if (!S.ied) return null; const ev = S.ied.events;
-  return { confirmed: ev.filter(e => S.review[evKey(e)] === 'si'), pending: ev.filter(e => !S.review[evKey(e)]).length, total: ev.length, inArt: ev.filter(e => e.art).length };
+  return { confirmed: ev.filter(e => S.review[evKey(e)] === 'si').map(e => Object.assign({}, e, { ch: e.loc && e.loc.found ? e.loc.ch : e.ch })), pending: ev.filter(e => !S.review[evKey(e)]).length, total: ev.length, inArt: ev.filter(e => e.art).length };
 }
 
 /* ---- livello decisionale ---- */
