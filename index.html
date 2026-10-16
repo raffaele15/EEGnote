@@ -135,7 +135,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <div id="repbox">
       <textarea id="reptext" class="rep" spellcheck="false" placeholder="Apri un file per generare la bozza." aria-label="Bozza di referto modificabile"></textarea>
       <div class="iedbar"><button class="btn" id="repcopy">Copia</button><button class="btn" id="repdl">Scarica .txt</button><select id="repfmt" aria-label="Formato del referto"><option value="aopd">Stile AOPD</option><option value="score">Strutturato SCORE/IFCN</option></select><button class="btn" id="repregen" title="Rigenera dal tracciato (perde le modifiche manuali)">Rigenera</button><span class="small" id="repstate"></span></div>
-      <p class="small">Stile AOPD o strutturato SCORE/IFCN (sezioni, prevalenza ACNS, incidenza SCORE, significato diagnostico); ogni frase deriva da una misura dell'app. Il testo è modificabile; si aggiorna da solo dopo la revisione IED finché non lo modifichi.</p>
+      <p class="small">Stile AOPD o strutturato SCORE/IFCN (sezioni, prevalenza e incidenza ACNS 2021, significato diagnostico); ogni frase deriva da una misura dell'app. Il testo è modificabile; si aggiorna da solo dopo la revisione IED finché non lo modifichi.</p>
     </div>
     <h2>Candidati IED (modello)</h2>
     <div id="iedbox">
@@ -541,7 +541,7 @@ function analyze(rec, opts = {}) {
       flaggedL: ep.filter(o => o.flag === 'lento sx').length, flaggedR: ep.filter(o => o.flag === 'lento dx').length,
       flaggedD: ep.filter(o => o.flag === 'lento diffuso' || o.flag === 'lento bilaterale').length }
   };
-  out.amp = alphaAmplitude(rec, out); out.sli = photicDriving(rec, out);
+  out.amp = alphaAmplitude(rec, out); out.voltACNS = bgVoltage(rec, out); out.sli = photicDriving(rec, out);
   try { out.rpp = rhythmicPeriodic(rec, out); } catch (e) { out.rpp = { patterns: [], summary: {}, error: String(e) }; }
   out.standards = recordingStandards(rec, out);
   return out;
@@ -555,6 +555,21 @@ function alphaAmplitude(rec, A) {
   for (const pr of [['O1', null], ['O2', null]]) { if (A.bad.has(pr[0]) || A.cmap[pr[0]] === undefined) continue;
     for (const [t0, t1] of segs) { const x = filtfilt(derivation(rec, A.cmap, pr, Math.floor(t0 * A.fs), Math.floor(t1 * A.fs)), f); let s = 0; for (let i = 0; i < x.length; i++) s += x[i] * x[i]; v.push(2 * Math.SQRT2 * Math.sqrt(s / x.length)); } }
   return v.length ? median(v) : null;
+}
+/* voltaggio del fondo secondo ACNS 2021 (A8): ampiezza picco-picco della maggior parte dell'attività sulle derivazioni bipolari
+   longitudinali 10-20 (epoche pulite, 1-30 Hz, massimo-minimo in finestre di 1 s, mediana per derivazione e poi tra derivazioni).
+   Alto ≥ 150 µV, basso < 20 µV, soppresso: tutta l'attività < 10 µV. */
+function bgVoltage(rec, A) {
+  const fs = A.fs, f = makeFilters(fs, 1, 30, 0), w = Math.round(fs), per = [];
+  const clean = A.epochs.filter(o => !o.zero && !o.artifact && !o.annArt); if (!clean.length) return null;
+  for (const pr of BIP) { if (A.bad.has(pr[0]) || A.bad.has(pr[1]) || A.cmap[pr[0]] === undefined || A.cmap[pr[1]] === undefined) continue;
+    const N = rec.signals[A.cmap[pr[0]]].data.length, x = filtfilt(derivation(rec, A.cmap, pr, 0, N), f), v = [];
+    for (const o of clean) { const i0 = Math.round(o.t * fs), i1 = Math.min(N, Math.round((o.t + A.epoch) * fs));
+      for (let i = i0; i + w <= i1; i += w) { let mn = Infinity, mx = -Infinity; for (let k = i; k < i + w; k++) { const y = x[k]; if (y < mn) mn = y; if (y > mx) mx = y; } v.push(mx - mn); } }
+    if (v.length) per.push(median(v)); }
+  if (!per.length) return null;
+  const uv = median(per), hi = Math.max(...per);
+  return { uv, max: hi, nDer: per.length, cat: hi < 10 ? 'soppresso' : uv < 20 ? 'basso' : uv >= 150 ? 'alto' : 'normale' };
 }
 /* stimolazione luminosa intermittente: trascinamento = picchi posteriori ≥ 6× la potenza basale a frequenze diverse dal ritmo di fondo */
 function photicDriving(rec, A) {
@@ -710,7 +725,7 @@ function bandOf(A, derivs) { // banda prevalente delle onde lente (2-4 vs 4-8 Hz
     let d = 0, t = 0; for (const k of derivs) if (o.bip[k]) { d += o.bip[k].d2; t += o.bip[k].t1 + o.bip[k].t2; } if (t > 0) r.push(d / t); }
   const m = median(r); return m > 1 ? 'delta' : m > 0.6 ? 'theta-delta' : 'theta';
 }
-function fmtHz(a, b) { const x = Math.round(a), y = Math.round(b); return x === y ? x + ' Hz' : Math.min(x, y) + '-' + Math.max(x, y) + ' Hz'; }
+function fmtHz(a, b) { const x = Math.round(a * 2) / 2, y = Math.round(b * 2) / 2; return x === y ? hz05(x) + ' Hz' : hz05(Math.min(x, y)) + '-' + hz05(Math.max(x, y)) + ' Hz'; }
 const prevQ = pct => ({ continua: 'continue', abbondante: 'abbondanti', frequente: 'frequenti', occasionale: 'occasionali', rara: 'rare' })[prevalenceTerm(pct)];
 function iedText(ied, A) {
   const ev = ied.confirmed, n = ev.length, min = A.duration / 60, by = {};
@@ -720,7 +735,7 @@ function iedText(ied, A) {
   const mc = {}; ev.forEach(e => { const m = e.loc && e.loc.found ? (e.loc.morph || e.loc.type) : 'punta/onda aguzza'; mc[m] = (mc[m] || 0) + 1; });
   const morph = Object.entries(mc).sort((a, b) => b[1] - a[1]).map(x => x[0]).join(', ');
   const rev = [...new Set(ev.filter(e => e.loc && e.loc.reversal).map(e => e.loc.reversal))];
-  const inc = incidenceTerm(n, min), incPl = { rara: 'rare', 'non comune': 'non comuni', occasionale: 'occasionali', frequente: 'frequenti', abbondante: 'abbondanti' }[inc] || inc;
+  const inc = incidenceTerm(n, min), incPl = { rara: 'rare', occasionale: 'occasionali', frequente: 'frequenti', abbondante: 'abbondanti' }[inc] || inc;
   return { n, where, morph, rev, inc, incPl, rate: n / min, gen };
 }
 function generateReport(A, rec, d, ied, format) {
@@ -740,11 +755,16 @@ function generateReport(A, rec, d, ied, format) {
   m.pdr = p.freq; m.prom = prom; m.react = p.reactivity; m.amp = A.amp;
   const slowBg = p.freq != null && p.freq < 8, asymF = p.freqDiff != null && Math.abs(p.freqDiff) > 1;
   const stab = prom >= 12 ? 'stabile' : prom >= 4 ? 'un po’ instabile' : 'instabile';
+  // voltaggio: aggettivo calibrato sui referti AOPD; la categoria ACNS 2021 (pensata per l'EEG in area critica) è riportata a parte,
+  // perché su 49 EEG AOPD classifica "basso" 26 tracciati refertati come medio-voltati
+  m.volt = A.voltACNS;
   const volt = A.amp == null ? 'medio-voltato' : A.amp < 8 ? 'medio-ipovoltato' : A.amp < 20 ? 'medio-voltato' : 'di medio-ampio voltaggio';
+  const asymV = p.ampAsym != null && Math.abs(p.ampAsym) >= 2; // ACNS: asimmetria marcata di voltaggio ≥ 50% (rapporto di potenza ≥ 4)
   const reag = p.reactivity == null ? 'reattività non valutabile (mancano annotazioni O.A./O.C.)' : p.reactivity < 0.35 ? 'scarsamente reagente alla apertura ed alla chiusura degli occhi' : 'reagente alla apertura ed alla chiusura degli occhi';
-  const fr = p.sx && p.dx && p.sx.defined && p.dx.defined && Math.abs(p.sx.freq - p.dx.freq) <= 1.5 ? fmtHz(p.sx.freq, p.dx.freq) : p.freq != null ? Math.round(p.freq) + ' Hz' + (p.freqFrom ? ' (più netto a ' + (p.freqFrom === 'sx' ? 'sinistra' : 'destra') + ')' : '') : '–';
+  const fr = p.freq != null ? hz05(p.freq) + ' Hz' + (p.status === 'non chiaro' ? ' (RPD non chiaro: ' + p.statusWhy + ')' : '') : '–';
   let desc = 'Descrizione: ' + (slowBg ? 'ritmo di fondo in prevalente banda theta a circa ' + fr : 'ritmo di fondo costituito da alfa bioccipitale a ' + fr) + ', ';
-  desc += asymF ? 'asincrono, asimmetrico per frequenza più lenta a ' + (p.freqDiff < 0 ? 'sinistra' : 'destra') + ', ' : (slowBg ? 'sincrono, simmetrico, ' : 'sincrono, simmetrico, ');
+  desc += asymF ? 'asincrono, asimmetrico per frequenza più lenta a ' + (p.freqDiff < 0 ? 'sinistra' : 'destra') + ', '
+    : asymV ? 'asimmetrico per voltaggio minore a ' + (p.ampAsym < 0 ? 'sinistra' : 'destra') + ' (≥ 50%, da verificare sugli elettrodi), ' : 'sincrono, simmetrico, ';
   desc += stab + (m.drowsy && stab !== 'stabile' ? ' per tendenza all’assopimento' : '') + ', ' + volt + ', ' + reag + '.';
   out.push(desc);
   // organizzazione e anomalie lente
@@ -804,7 +824,7 @@ function generateReport(A, rec, d, ied, format) {
 
 function rppText(A) {
   const names = { LPD: 'scariche periodiche lateralizzate (LPD)', GPD: 'scariche periodiche generalizzate (GPD)', LRDA: 'attività delta ritmica lateralizzata (LRDA)', GRDA: 'attività delta ritmica generalizzata (GRDA)' };
-  const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary) : [], f = r => (names[r.name] || r.name) + (r.side === 'G' ? '' : ' a ' + (r.side === 'sx' ? 'sinistra' : 'destra')) + ', ' + (/PD$/.test(r.name) ? prevQ(r.pct) : r.prevalence) + ' (' + Math.round(r.pct) + '% della registrazione), ' + (r.freq != null ? r.freq.toFixed(1).replace('.', ',') : '?') + ' Hz';
+  const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary) : [], f = r => (names[r.name] || r.name) + (r.side === 'G' ? '' : ' a ' + (r.side === 'sx' ? 'sinistra' : 'destra')) + ', ' + (/PD$/.test(r.name) ? prevQ(r.pct) : r.prevalence) + ' (' + Math.round(r.pct) + '% della registrazione), ' + (r.freq != null ? hz05(r.freq) : '?') + ' Hz';
   return { present: rp.filter(r => r.pct >= 10).map(f), possible: rp.filter(r => r.pct >= 1 && r.pct < 10).map(f) };
 }
 /* referto strutturato SCORE / IFCN: stesse misure del referto AOPD, ordinate per sezioni */
@@ -817,6 +837,8 @@ function generateReportSCORE(A, rec, d, ied) {
   L.push('', '2. CONDIZIONI', '   ' + cap(base.sections[0].replace(/^Condizioni di registrazione: /, '')));
   L.push('', '3. ATTIVITÀ DI FONDO', '   ' + cap(base.sections[1].replace(/^Descrizione: /, '')));
   L.push('   ' + base.sections[2]);
+  if (A.voltACNS) L.push('   Voltaggio (ACNS 2021): ' + A.voltACNS.cat + ' (circa ' + Math.round(A.voltACNS.uv) + ' µV picco-picco sulle derivazioni bipolari longitudinali; soglie ACNS pensate per l\u2019EEG in area critica).');
+  if (p.freq != null) L.push('   Ritmo dominante posteriore (ACNS 2021): ' + (p.status === 'presente' ? 'presente, ' + hz05(p.freq) + ' Hz' : 'non chiaro (' + p.statusWhy + ')') + (p.freqDiff != null && Math.abs(p.freqDiff) >= 0.5 ? '; asimmetria di frequenza ' + (Math.abs(p.freqDiff) > 1 ? 'marcata' : 'lieve') + ', più lento a ' + (p.freqDiff < 0 ? 'sinistra' : 'destra') : '') + '.');
   L.push('', '4. REPERTI INTERCRITICI NON EPILETTIFORMI');
   const nf = [];
   if (s.diffuse || (p.freq != null && p.freq < 8)) nf.push('rallentamento diffuso, ' + prevalenceTerm(s.prev ? s.prev.diffuse : 0) + ' (' + Math.round(s.prev ? s.prev.diffuse : 0) + '% delle epoche)');
@@ -929,7 +951,7 @@ function localizeIED(rec, A, wins, thr, opts = {}) {
 /* ---------- pattern ritmici e periodici (terminologia ACNS 2021) ----------
    Definizioni ACNS usate:
    - scariche periodiche (PD): forma d'onda ripetuta con intervallo chiaramente riconoscibile tra le scariche, a intervalli quasi
-     regolari (lunghezza del ciclo che varia < 50% tra cicli consecutivi in > 80% delle coppie), almeno 6 cicli, ≤ 4 Hz;
+     regolari (lunghezza del ciclo che varia < 50% tra cicli consecutivi nella maggioranza, > 50%, delle coppie: 3 su 4 per ogni 6 scariche), almeno 6 cicli, ≤ 4 Hz;
    - attività delta ritmica (RDA): forma d'onda ripetuta senza intervallo tra le onde, 0,5-4 Hz, stessa regola di regolarità, ≥ 6 cicli;
    - G = bilaterale sincrona e simmetrica; L = unilaterale o bilaterale asimmetrica;
    - prevalenza: continua ≥ 90%, abbondante 50-89%, frequente 10-49%, occasionale 1-9%, rara < 1%.
@@ -1054,10 +1076,12 @@ function rhythmicPeriodic(rec, A) {
 }
 
 
-/* incidenza SCORE dei reperti intercritici (eventi nel tempo): una sola volta, rara < 1/h, non comune 1/h-1/5 min,
-   occasionale 1/5 min-1/min, frequente 1/min-1/10 s, abbondante > 1/10 s (Beniczky et al. 2013) */
-function incidenceTerm(n, minutes) { if (!n) return 'assente'; if (n === 1) return 'una sola volta'; const r = n / minutes;
-  return r < 1 / 60 ? 'rara' : r < 1 / 5 ? 'non comune' : r < 1 ? 'occasionale' : r < 6 ? 'frequente' : 'abbondante'; }
+/* incidenza delle scariche epilettiformi sporadiche (ACNS 2021, Hirsch et al., p. 8): abbondante >= 1/10 s,
+   frequente >= 1/min e < 1/10 s, occasionale >= 1/h e < 1/min, rara < 1/h */
+function incidenceTerm(n, minutes) { if (!n) return 'assente'; const r = n / minutes;
+  return r >= 6 ? 'abbondante' : r >= 1 ? 'frequente' : r >= 1 / 60 ? 'occasionale' : 'rara'; }
+/* frequenza del ritmo dominante posteriore arrotondata a 0,5 Hz (ACNS 2021, p. 3) */
+const hz05 = f => (Math.round(f * 2) / 2).toLocaleString('it-IT');
 /* requisiti minimi di registrazione dell'EEG di routine (ILAE-IFCN, Peltola et al. 2023): ≥ 20 min tecnicamente validi,
    19 elettrodi 10-20, canale ECG, iperpnea (se non controindicata), stimolazione luminosa, sonno se possibile */
 function recordingStandards(rec, A) {
@@ -1102,15 +1126,15 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
   res.ocSegs = segs;
   const useSegs = segs.length ? segs : [[0, rec.signals[cmap.O1].data.length / fs]];
   const nfft = 512; // 2 s @256 Hz → 0,5 Hz, con interpolazione parabolica
-  let both = null; const eoAlpha = [], ecAlpha = [];
+  let both = null; const eoAlpha = [], ecAlpha = [], segP = {};
   for (const side of ['sx', 'dx']) {
     const pr = pairs[side].find(([a, b]) => !bad.has(a) && !bad.has(b) && cmap[a] !== undefined && cmap[b] !== undefined);
     if (!pr) { res[side] = null; continue; }
     let acc = null, n = 0;
-    for (const [t0, t1] of useSegs) {
+    for (let si = 0; si < useSegs.length; si++) { const [t0, t1] = useSegs[si];
       const i0 = Math.floor(t0 * fs), i1 = Math.floor(t1 * fs);
       const x = filtfilt(derivation(rec, cmap, pr, i0, i1), filt);
-      const P = welch(x, fs, nfft); if (!P) continue;
+      const P = welch(x, fs, nfft); if (!P) continue; (segP[side] = segP[side] || []).push({ i: si, P });
       if (!acc) acc = new Float64Array(P.length); for (let k = 0; k < P.length; k++) acc[k] += P[k]; n++;
     }
     if (!acc) { res[side] = null; continue; }
@@ -1132,6 +1156,17 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
   if (def.length === 2 && Math.abs(res.sx.freq - res.dx.freq) <= 1.5) res.freq = (res.sx.freq + res.dx.freq) / 2;
   else { const pick = (def.length ? def : ['sx', 'dx'].filter(sd => res[sd])).sort((x, y) => res[y].prominence - res[x].prominence)[0]; res.freq = pick ? res[pick].freq : undefined; res.freqFrom = pick; }
   if (res.sx && res.dx && res.sx.defined && res.dx.defined && res.sx.prominence >= 3 && res.dx.prominence >= 3) res.freqDiff = res.sx.freq - res.dx.freq;
+  // frequenza "migliore" (ACNS Guideline 7: best PDR nello stato di massima vigilanza): picco di ogni finestra a occhi chiusi
+  // (lato con il picco più netto, prominenza ≥ 3); si prende il 75° percentile dei picchi (almeno 3 finestre), robusto alle
+  // finestre isolate con beta o artefatti. Scelto su 49 EEG AOPD: ±1 Hz dal referto 41/49 (media 39/49; massimo ripetuto 36/49).
+  // La media dello spettro resta in freqMean.
+  res.freqMean = res.freq; const pk = [];
+  if (segs.length) for (let si = 0; si < useSegs.length; si++) { let bs = null;
+    for (const sd of ['sx', 'dx']) { const e = (segP[sd] || []).find(q => q.i === si); if (!e) continue; const q = pdrPeak(e.P, fs, nfft); if (q.defined && q.prominence >= 3 && (!bs || q.prominence > bs.prominence)) bs = q; }
+    if (bs) pk.push(bs.freq); }
+  pk.sort((a, b) => b - a); res.segPeaks = pk;
+  const best = pk.length >= 3 ? pct(pk, 75) : null;
+  if (best != null && res.freq != null && best > res.freq) { res.freq = best; res.freqBest = true; }
   // reattività: potenza alfa posteriore OC vs OA (medie su finestre di 2 s)
   const oaSegs = [];
   anns.forEach((a, i) => { if (a.code !== 'OA') return; const nxt = anns.slice(i + 1).find(b => b.code === 'OC' || stopCodes.has(b.code));
@@ -1141,7 +1176,20 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
     const ap = list => { let s = 0, n = 0; for (const [t0, t1] of list) { const x = filtfilt(derivation(rec, cmap, pr, Math.floor(t0 * fs), Math.floor(t1 * fs)), filt); const P = welch(x, fs, nfft); if (P) { s += bandPow(P, fs, nfft, res.freq - 1.5, res.freq + 1.5); n++; } } return n ? s / n : NaN; };
     res.reactivity = 1 - ap(oaSegs) / ap(segs); // frazione di attenuazione all'apertura
   }
+  // ACNS 2021 (A3): RPD presente solo se il picco è definito e si attenua all'apertura degli occhi; altrimenti "non chiaro"
+  const anyDef = ['sx', 'dx'].some(sd => res[sd] && res[sd].defined), noAtt = res.reactivity != null && res.reactivity < 0.1;
+  res.status = anyDef && !noAtt ? 'presente' : 'non chiaro';
+  res.statusWhy = !anyDef ? 'picco posteriore non definito' : noAtt ? 'non si attenua all\u2019apertura degli occhi' : res.reactivity == null ? 'attenuazione all\u2019apertura non verificabile (mancano O.A./O.C.)' : '';
   return res;
+}
+/* picco alfa posteriore di uno spettro (stessa regola di estimatePDR): massimo locale 5-13,5 Hz, interpolazione parabolica, prominenza sul livello 1/f */
+function pdrPeak(acc, fs, nfft) {
+  const df = fs / nfft, k0 = Math.ceil(5 / df), k1 = Math.floor(13.5 / df);
+  let kb = -1; for (let k = k0 + 1; k < k1; k++) if (acc[k] > acc[k - 1] && acc[k] >= acc[k + 1] && (kb < 0 || acc[k] > acc[kb])) kb = k;
+  if (kb < 0) return { defined: false };
+  const a = acc[kb - 1], b = acc[kb], c = acc[kb + 1], d0 = (a - c) / (2 * (a - 2 * b + c)), d = isFinite(d0) ? Math.max(-0.5, Math.min(0.5, d0)) : 0;
+  const base = (bandPow(acc, fs, nfft, 3.5, 5) / (1.5 / df) + bandPow(acc, fs, nfft, 14, 16) / (2 / df)) / 2;
+  return { freq: (kb + d) * df, prominence: b / base, defined: b / base >= 2 };
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
@@ -1589,7 +1637,8 @@ function renderSummary() {
     if (p.freq < 8) abn.push('Ritmo dominante posteriore rallentato (' + f1(p.freq) + ' Hz)');
     else if (p.freq < 8.5) lines.push('Ritmo dominante posteriore ai limiti inferiori (' + f1(p.freq) + ' Hz)');
     if (p.freqDiff != null && Math.abs(p.freqDiff) > 1) abn.push('Asimmetria di frequenza: ' + (p.freqDiff < 0 ? 'più lento a sx' : 'più lento a dx') + ' (' + f1(Math.abs(p.freqDiff)) + ' Hz)');
-    if (p.ampAsym != null && Math.abs(p.ampAsym) > 1) lines.push('Ampiezza alfa asimmetrica: ' + (p.ampAsym < 0 ? 'minore a sx' : 'minore a dx') + ' (verificare elettrodi)');
+    if (p.ampAsym != null && Math.abs(p.ampAsym) >= 2) lines.push('Asimmetria marcata di voltaggio alfa (≥ 50%, ACNS): ' + (p.ampAsym < 0 ? 'minore a sx' : 'minore a dx') + ' (verificare elettrodi)');
+    if (p.freqDiff != null && Math.abs(p.freqDiff) >= 0.5 && Math.abs(p.freqDiff) <= 1) lines.push('Lieve asimmetria di frequenza (0,5-1 Hz, ACNS): ' + (p.freqDiff < 0 ? 'più lento a sx' : 'più lento a dx'));
     const prom = Math.max(p.sx ? p.sx.prominence : 0, p.dx ? p.dx.prominence : 0);
     if (prom < 3) lines.push('Picco posteriore poco definito: ritmo di fondo poco organizzato o instabile');
   }
@@ -1605,7 +1654,8 @@ function renderSummary() {
     <div class="verdict">${verdict}${lines.map(x => '<p>• ' + x + '</p>').join('')}</div>
     <h2>Ritmo dominante posteriore</h2>
     <dl class="kv">
-      <dt>Frequenza</dt><dd>${f1(p.freq)} Hz</dd>
+      <dt>Frequenza</dt><dd>${p.freq != null ? (Math.round(p.freq * 2) / 2).toLocaleString('it-IT') : '–'} Hz${p.freqBest ? ' (migliore; media ' + f1(p.freqMean) + ' Hz)' : ''}${p.status && p.status !== 'presente' ? ' — RPD non chiaro: ' + p.statusWhy : ''}</dd>
+      <dt>Voltaggio (ACNS)</dt><dd>${A.voltACNS ? A.voltACNS.cat + ', ' + Math.round(A.voltACNS.uv) + ' µV picco-picco' : '–'}</dd>
       <dt>Sinistra / destra</dt><dd>${p.sx ? (p.sx.defined ? f1(p.sx.freq) : 'non definito') : '–'} / ${p.dx ? (p.dx.defined ? f1(p.dx.freq) : 'non definito') : '–'}${p.sx && p.dx && p.sx.defined && p.dx.defined ? ' Hz' : ''}</dd>
       <dt>Derivazioni</dt><dd>${[p.sx && p.sx.pair, p.dx && p.dx.pair].filter(Boolean).join(', ')}</dd>
       <dt>Calcolato su</dt><dd>${p.segments ? p.segments + ' tratti a occhi chiusi' : p.source}</dd>
