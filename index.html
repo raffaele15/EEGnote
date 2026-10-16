@@ -62,6 +62,8 @@ table.cmp{border-collapse:collapse;font-size:.8rem;width:100%} table.cmp td,tabl
 aside{overflow:auto;background:var(--panel);padding:.8rem 1rem 2rem}
 aside h2{font-size:.95rem;font-weight:600;margin:1.2rem 0 .45rem}
 aside h2:first-child{margin-top:.1rem}
+details.fold{margin:.9rem 0 .2rem} details.fold>summary{cursor:pointer;font-size:.88rem;font-weight:400}
+details.fold>summary .cnt{color:var(--muted);font-size:.8rem} details.fold[open]>summary{margin-bottom:.35rem}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:.15rem .8rem;font-size:.86rem;margin:0}
 .kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right}
 .verdict{border-left:3px solid var(--accent);padding:.45rem .7rem;background:var(--accentSoft);font-size:.88rem;line-height:1.45;border-radius:0 4px 4px 0}
@@ -127,10 +129,8 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <aside>
     <h2>Livello decisionale (regole SCORE)</h2>
     <div id="scorebox" class="small">Apri un file per vedere la classificazione.</div>
-    <h2>Requisiti minimi di registrazione (ILAE-IFCN 2023)</h2>
-    <div id="stdbox" class="small">Apri un file.</div>
-    <h2>Pattern ritmici e periodici (ACNS 2021)</h2>
-    <div id="rppbox" class="small">Apri un file.</div>
+    <details class="fold"><summary>Requisiti minimi di registrazione (ILAE-IFCN 2023) <span class="cnt" id="stdcnt"></span></summary><div id="stdbox" class="small">Apri un file.</div></details>
+    <details class="fold"><summary title="Rilevamento automatico: LPD/GPD con ≥ 6 scariche a intervallo regolare, LRDA/GRDA 1–4 Hz; esclusi ECG e ammiccamenti">Pattern ritmici e periodici (ACNS 2021) <span class="cnt" id="rppcnt"></span></summary><div id="rppbox" class="small">Apri un file.</div></details>
     <h2>Referto automatico (bozza)</h2>
     <div id="repbox">
       <textarea id="reptext" class="rep" spellcheck="false" placeholder="Apri un file per generare la bozza." aria-label="Bozza di referto modificabile"></textarea>
@@ -532,11 +532,16 @@ function analyze(rec, opts = {}) {
   }
   const globalRel = { delta: 0, theta: 0, alpha: 0, beta: 0 };
   for (const b in BANDS) globalRel[b] = mean(good.map(c => relMap[c][b]));
+  // potenza relativa sulle derivazioni bipolari longitudinali senza Fp (la media comune diffonde gli artefatti oculari a tutti i canali)
+  const relBip = { d1: 0, d2: 0, theta: 0, alpha: 0, beta: 0 }; { let n = 0;
+    for (const o of clean) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; const x = o.bip[k], t = x.d1 + x.d2 + x.t1 + x.t2 + x.a + x.b; if (!(t > 0)) continue;
+      relBip.d1 += x.d1 / t; relBip.d2 += x.d2 / t; relBip.theta += (x.t1 + x.t2) / t; relBip.alpha += x.a / t; relBip.beta += x.b / t; n++; }
+    for (const k in relBip) relBip[k] = n ? relBip[k] / n : NaN; }
 
   const slow = slowLayer(ep, anns, pdr);
   const out = {
     fs, duration: dur, epoch, epochs: ep, anns, zeros, bad, badWhy, warn, chStats, cmap, present,
-    pdr, relMap, globalRel, apGrad, asym, slow,
+    pdr, relMap, globalRel, relBip, apGrad, asym, slow,
     counts: { epochs: ep.length, clean: clean.length, flagged: ep.filter(o => o.flag).length,
       flaggedL: ep.filter(o => o.flag === 'lento sx').length, flaggedR: ep.filter(o => o.flag === 'lento dx').length,
       flaggedD: ep.filter(o => o.flag === 'lento diffuso' || o.flag === 'lento bilaterale').length }
@@ -804,7 +809,7 @@ function generateReport(A, rec, d, ied, format) {
   else out.push('HPN non eseguita.');
   // SLI
   if (!A.sli || !A.sli.done) out.push('SLI non eseguita.');
-  else if (A.sli.driving) out.push('La SLI tende a trascinare i ritmi ad alcune frequenze' + (A.sli.freqs && A.sli.freqs.length ? ' (circa ' + A.sli.freqs.filter((f, i, a) => a.length < 8 || i % 2 === 0).join(', ') + ' Hz)' : '') + '; non si rilevano risposte fotoparossistiche (da verificare sul tracciato).');
+  else if (A.sli.driving) out.push('La SLI tende a trascinare i ritmi ad alcune frequenze; non si rilevano risposte fotoparossistiche (da verificare sul tracciato).');
   else out.push('La SLI non modifica significativamente il tracciato.');
   // conclusione
   let c;
@@ -1662,9 +1667,14 @@ function renderSummary() {
       <dt>Reattività (O.A.)</dt><dd>${p.reactivity == null ? '–' : Math.round(p.reactivity * 100) + '% di attenuazione'}</dd>
       <dt>Gradiente A-P alfa</dt><dd>${f1(A.apGrad)}×</dd>
     </dl>
+    <details class="fold"><summary>Stimolazione luminosa (dettagli)</summary><dl class="kv">
+      <dt>Esito</dt><dd>${!A.sli || !A.sli.done ? 'non eseguita' : A.sli.driving == null ? 'non valutabile' : A.sli.driving ? 'trascinamento' : 'senza modificazioni'}</dd>
+      <dt>Frequenze di trascinamento</dt><dd>${A.sli && A.sli.freqs && A.sli.freqs.length ? A.sli.freqs.join(', ') + ' Hz' : '–'}</dd>
+      <dt>Finestre con trascinamento</dt><dd>${A.sli && A.sli.nWin ? A.sli.nHits + ' / ' + A.sli.nWin : '–'}</dd></dl></details>
     <h2>Potenza relativa globale</h2>
-    <dl class="kv">${['delta', 'theta', 'alpha', 'beta'].map(b => `<dt>${b}</dt><dd>${Math.round(A.globalRel[b] * 100)}%</dd>`).join('')}</dl>
-    <p class="small">La banda delta include anche artefatti oculari e di movimento: interpretarla con cautela.</p>
+    <dl class="kv">${A.relBip ? [['delta 1–2 Hz', 'd1'], ['delta 2–4 Hz', 'd2'], ['theta', 'theta'], ['alfa', 'alpha'], ['beta', 'beta']].map(([l, k]) => `<dt>${l}</dt><dd>${Math.round(A.relBip[k] * 100)}%</dd>`).join('')
+      : ['delta', 'theta', 'alpha', 'beta'].map(b => `<dt>${b}</dt><dd>${Math.round(A.globalRel[b] * 100)}%</dd>`).join('')}</dl>
+    <p class="small">Derivazioni bipolari longitudinali senza Fp, epoche pulite, quota sul totale 1–30 Hz. La parte 1–2 Hz raccoglie soprattutto movimenti oculari residui, sudore e deriva della linea di base: gli indici di rallentamento dell'app partono da 2 Hz.</p>
     <h2>Qualità del segnale</h2>
     <dl class="kv">
       <dt>Durata</dt><dd>${fmtT(A.duration)} (${ctr.clean}/${ctr.epochs} epoche pulite)</dd>
@@ -1869,11 +1879,15 @@ function renderScore() {
   setTimeout(() => renderReport(false), 0);
   const A = S.A, mk = x => x.ok === true ? '✓' : x.ok === false ? '<span class="warnline">✗</span>' : '–';
   $('stdbox').innerHTML = '<ul>' + (A.standards || []).map(x => '<li>' + mk(x) + ' ' + x.label + ': ' + x.value + '</li>').join('') + '</ul>';
+  const nko = (A.standards || []).filter(x => x.ok === false).length;
+  $('stdcnt').textContent = nko ? '· ' + nko + (nko === 1 ? ' non soddisfatto' : ' non soddisfatti') : '· soddisfatti';
   const R = C.rppText(A), pats = (A.rpp && A.rpp.patterns) || [];
-  $('rppbox').innerHTML = (R.present.length ? '<p><b>Presenti (≥ 10%)</b></p><ul>' + R.present.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '<p>Nessun pattern con prevalenza ≥ 10%.</p>')
+  const nm = x => x.split(',')[0];
+  $('rppcnt').textContent = R.present.length ? '· ' + R.present.map(nm).join('; ') : R.possible.length ? '· solo possibili, da verificare' : '· nessuno rilevato';
+  $('rppbox').innerHTML = (R.present.length ? '<p>Presenti (≥ 10% della registrazione):</p><ul>' + R.present.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '')
     + (R.possible.length ? '<p>Possibili (1–10%), da verificare:</p><ul>' + R.possible.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '')
     + (pats.length ? '<p>Tratti: ' + pats.slice(0, 30).map((p, i) => `<a href="#" data-rt="${p.t0}">${p.name}${p.side === 'G' ? '' : ' ' + p.side} ${fmtT(p.t0)}</a>`).join(', ') + (pats.length > 30 ? '…' : '') + '</p>' : '')
-    + '<p class="small">Rilevamento automatico (LPD/GPD: ≥ 6 scariche a intervallo regolare; LRDA/GRDA: 0,5–4 Hz) con esclusione di ECG e ammiccamenti; riga “Pattern ACNS” sulla linea del tempo.</p>';
+    + (!R.present.length && !R.possible.length ? '<p>Nessun pattern rilevato.</p>' : '');
   $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); goTo(+a.dataset.rt - 2); });
   $('scorebox').innerHTML = `<div class="score ${d.abnormal ? 'abn' : ''}">
     <h3>${d.abnormal ? (d.severity === 'anormale lieve' ? 'Anormale lieve' : 'Anormale') : d.possible.length ? 'Normale, con reperti da verificare' : 'Normale'}${d.labels.length ? ': ' + d.labels.join(' + ') : ''}${d.side && d.categories.includes('nonepi_focale') ? ' (' + d.side + ')' : ''}</h3>
