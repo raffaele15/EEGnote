@@ -28,7 +28,7 @@
 *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:var(--bg)}
 button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
-header{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;padding:.55rem 1rem;background:var(--panel);border-bottom:1px solid var(--line)}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .75rem;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line)}
 header h1{font-size:1.05rem;font-weight:600;margin:0 .5rem 0 0;letter-spacing:.01em}
 header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ctl{display:flex;align-items:center;gap:.35rem;font-size:.85rem;color:var(--muted)}
@@ -39,9 +39,18 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .spacer{flex:1}
 .fname{font-size:.85rem;color:var(--muted);max-width:22rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-main{display:grid;grid-template-columns:1fr 340px;min-height:0}
-body.noside main{grid-template-columns:1fr 0} body.noside main>aside{display:none}
+main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
+main.closed{grid-template-columns:1fr 0 40px} main.closed>aside{display:none}
+aside .sec{display:none} aside .sec.on{display:block} aside .sec+.sec.on{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.1rem}
+#rail{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.4rem 0;background:var(--panel);border-left:1px solid var(--line)}
+#rail hr{width:24px;border:0;border-top:1px solid var(--line);margin:.2rem 0}
+.rb{width:32px;height:32px;display:grid;place-items:center;border:1px solid transparent;border-radius:6px;background:none;color:var(--muted);cursor:pointer;padding:0}
+.rb:hover{color:var(--ink);border-color:var(--line)} .rb[aria-pressed=true]{color:var(--accent);background:var(--accentSoft);border-color:var(--accent)}
 body.notl #timeline{display:none} .tlhead button{font-size:.75rem;padding:0 .4rem;margin-left:.5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.25rem;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:.25rem;font-size:.74rem;border:1px solid var(--line);border-radius:999px;padding:.05rem .5rem;background:var(--paper);color:var(--muted);cursor:pointer}
+.chip[aria-pressed=true]{color:var(--ink);border-color:var(--accent);background:var(--accentSoft)}
+.tllegend span[hidden]{display:none}
 .tllegend{font-size:.74rem;color:var(--muted);margin-top:.15rem} .tllegend i{display:inline-block;width:.8em;height:.6em;margin:0 .2em 0 .7em;vertical-align:baseline}
 .viewer{display:grid;grid-template-rows:1fr auto;min-height:0;border-right:1px solid var(--line)}
 #traceWrap{position:relative;min-height:0;background:var(--paper)}
@@ -90,14 +99,14 @@ details.fold>summary .cnt{color:var(--muted);font-size:.8rem} details.fold[open]
 #drop.over .box{border-color:var(--accent)}
 footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px solid var(--line);background:var(--panel);display:flex;gap:1rem;flex-wrap:wrap}
 .busy{position:absolute;right:1rem;top:1rem;background:var(--panel);border:1px solid var(--line);padding:.35rem .7rem;border-radius:4px;font-size:.85rem;display:none}
-@media (max-width:900px){main{grid-template-columns:1fr} aside{border-top:1px solid var(--line)} .viewer{min-height:70vh}}
+@media (max-width:900px){main,main.closed{grid-template-columns:1fr} #rail{flex-direction:row;justify-content:center} aside{border-top:1px solid var(--line)} .viewer{min-height:70vh}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <h1>Annotatore EEG<small>v0.3 · fondo, onde lente, IED, SCORE, referto</small></h1>
+  <h1>Annotatore EEG</h1>
   <span class="fname" id="fname">nessun file</span>
   <span class="spacer"></span>
   <label class="ctl">Montaggio <select id="montage"></select></label>
@@ -105,11 +114,10 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <label class="ctl">LP <input id="lp" type="number" step="1" min="0" value="70"> Hz</label>
   <label class="ctl"><input id="notch" type="checkbox" checked> Notch 50</label>
   <label class="ctl">Sensibilità <select id="sens"><option>3</option><option>5</option><option selected>7</option><option>10</option><option>15</option><option>20</option><option>30</option><option>50</option></select> µV/mm</label>
-  <label class="ctl">Tema <select id="theme"><option value="auto">automatico</option><option value="light">chiaro (bianco)</option><option value="dark">scuro</option></select></label>
+  <label class="ctl">Tema <select id="theme"><option value="auto">auto</option><option value="light">chiaro</option><option value="dark">scuro</option></select></label>
   <label class="ctl">Pagina <select id="page"><option>5</option><option>10</option><option>15</option><option selected>20</option><option>30</option></select> s</label>
   <button class="btn" id="prev" title="Pagina precedente (PagSu)">◀</button>
   <button class="btn" id="next" title="Pagina successiva (PagGiù)">▶</button>
-  <button class="btn" id="sidetog" title="Mostra o nascondi il pannello laterale" aria-pressed="true">Pannello</button>
   <button class="btn primary" id="open">Apri EDF</button>
   <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors" multiple hidden>
 </header>
@@ -127,22 +135,37 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       <div class="busy" id="busy">Analisi in corso…</div>
     </div>
     <div class="tl">
-      <div class="tlhead"><span>Tutto il tracciato per epoche di 4 s (clic per saltare)<button class="btn" id="tltog" aria-pressed="true">Nascondi</button></span><span id="tpos"></span></div>
+      <div class="tlhead"><span class="chips"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Mostra o nascondi la riga Annotazioni"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button><button class="chip" data-row="Artefatti" aria-pressed="true" title="Mostra o nascondi la riga Artefatti"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="chip" data-row="Onde lente" aria-pressed="true" title="Mostra o nascondi la riga Onde lente"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Onde lente</span></button><button class="chip" data-row="Lateralità" aria-pressed="true" title="Mostra o nascondi la riga Lateralità"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M2 6h11l-2.5-2.5M14 10H3l2.5 2.5"/></svg><span>Lateralità</span></button><button class="chip" data-row="Segnalazioni" aria-pressed="true" title="Mostra o nascondi la riga Segnalazioni"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M8 2l6.5 11.5h-13z"/><path d="M8 6.5v3.5M8 12v.1"/></svg><span>Segnalazioni</span></button><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Mostra o nascondi la riga Pattern ACNS"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="chip" data-row="IED (modello)" aria-pressed="true" title="Mostra o nascondi la riga IED (modello)"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button><button class="btn" id="tltog" aria-pressed="true" title="Nascondi o mostra la panoramica">Nascondi</button></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
       <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div>
-      <div class="tllegend" id="tllegend">Annotazioni: del tecnico (EDF). Artefatti: rilevati dall'app<i style="background:var(--art)"></i>ampiezza &gt; 350 µV su ≥ 3 canali o annotati, <i style="background:var(--stim);opacity:.45"></i>delta solo frontopolare (oculare). Onde lente: indice lento/veloce per epoca (colore da 0,2). Lateralità: <i style="background:var(--flag)"></i>più lento a sx, <i style="background:var(--stato)"></i>più lento a dx. Segnalazioni: epoche oltre soglia (sx, dx, <i style="background:var(--ink)"></i>diffuse); compaiono anche come striscia sotto il tracciato.</div>
+      <div class="tllegend" id="tllegend">Ogni cella = epoca di 4 s dell'intera registrazione; passa il mouse per i dettagli, clic per andarci.
+ <span data-row="Annotazioni">Annotazioni: quelle del tecnico nell'EDF.</span>
+ <span data-row="Artefatti">Artefatti (calcolati dall'app):<i style="background:var(--art)"></i>&gt; 350 µV su ≥ 3 canali o annotati, <i style="background:var(--stim);opacity:.45"></i>delta solo frontopolare (oculare).</span>
+ <span data-row="Onde lente">Onde lente: indice lento/veloce per epoca, colorato da 0,2.</span>
+ <span data-row="Lateralità">Lateralità:<i style="background:var(--flag)"></i>più lento a sx,<i style="background:var(--stato)"></i>più lento a dx.</span>
+ <span data-row="Segnalazioni">Segnalazioni: epoche oltre soglia (sx, dx,<i style="background:var(--ink)"></i>diffuse), anche come striscia sotto il tracciato.</span>
+ <span data-row="Pattern ACNS">Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati.</span>
+ <span data-row="IED (modello)">IED: probabilità del modello e candidati.</span></div>
     </div>
   </section>
-  <aside>
-    <h2>Livello decisionale (regole SCORE)</h2>
-    <div id="scorebox" class="small">Apri un file per vedere la classificazione.</div>
+  <aside id="side">
+   <section class="sec" data-sec="score">
+    <details class="fold"><summary>Livello decisionale (regole SCORE) <span class="cnt" id="scorecnt"></span></summary><div id="scorebox" class="small">Apri un file per vedere la classificazione.</div></details>
+   </section>
+   <section class="sec" data-sec="ilae">
     <details class="fold"><summary>Requisiti minimi di registrazione (ILAE-IFCN 2023) <span class="cnt" id="stdcnt"></span></summary><div id="stdbox" class="small">Apri un file.</div></details>
+   </section>
+   <section class="sec" data-sec="acns">
     <details class="fold"><summary title="Rilevamento automatico: LPD/GPD con ≥ 6 scariche a intervallo regolare, LRDA/GRDA 1–4 Hz; esclusi ECG e ammiccamenti">Pattern ritmici e periodici (ACNS 2021) <span class="cnt" id="rppcnt"></span></summary><div id="rppbox" class="small">Apri un file.</div></details>
+   </section>
+   <section class="sec" data-sec="rep">
     <h2>Referto automatico (bozza)</h2>
     <div id="repbox">
       <textarea id="reptext" class="rep" spellcheck="false" placeholder="Apri un file per generare la bozza." aria-label="Bozza di referto modificabile"></textarea>
       <div class="iedbar"><button class="btn" id="repcopy">Copia</button><button class="btn" id="repdl">Scarica .txt</button><select id="repfmt" aria-label="Formato del referto"><option value="aopd">Stile AOPD</option><option value="score">Strutturato SCORE/IFCN</option></select><button class="btn" id="repregen" title="Rigenera dal tracciato (perde le modifiche manuali)">Rigenera</button><span class="small" id="repstate"></span></div>
       <p class="small">Stile AOPD o strutturato SCORE/IFCN (sezioni, prevalenza e incidenza ACNS 2021, significato diagnostico); ogni frase deriva da una misura dell'app. Il testo è modificabile; si aggiorna da solo dopo la revisione IED finché non lo modifichi.</p>
     </div>
+   </section>
+   <section class="sec" data-sec="ied">
     <h2>Candidati IED (modello)</h2>
     <div id="iedbox">
       <div class="small" id="iedstatus">Modello non caricato.</div>
@@ -159,19 +182,45 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
         <button class="btn" id="iedcsv">Esporta CSV</button><button class="btn" id="iedjson">Esporta JSON</button></div>
       <p class="small">Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p>
     </div>
+   </section>
+   <section class="sec" data-sec="sum">
     <h2>Sintesi automatica</h2>
     <div id="summary" class="small">Apri un file per vedere la sintesi.</div>
+   </section>
+   <section class="sec" data-sec="cmp">
     <h2>Confronto con il referto</h2>
     <div id="refbox" class="small">Trascina etichette_referti.json (resta in locale).</div>
+   </section>
+   <section class="sec" data-sec="map">
     <h2>Mappa delle bande</h2>
     <div class="bandsel" id="bandsel"></div>
     <canvas id="topo" height="250"></canvas>
     <p class="small">Potenza relativa, media comune, epoche senza artefatti. Le croci indicano gli elettrodi esclusi.</p>
+   </section>
+   <section class="sec" data-sec="spec">
     <h2>Spettro posteriore a occhi chiusi</h2>
     <canvas id="spec" height="150"></canvas>
+   </section>
+   <section class="sec" data-sec="ann">
     <h2>Annotazioni</h2>
     <ul class="annlist" id="annlist"></ul>
+   </section>
   </aside>
+  <nav id="rail" aria-label="Sezioni del pannello">
+    <button class="rb" id="railclose" title="Chiudi il pannello"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    <button class="rb" id="railall" title="Mostra o nascondi tutte le sezioni" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg></button>
+    <hr>
+    <button class="rb" data-sec="score" title="Livello decisionale (regole SCORE)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12M4 14h8M3 4h10M3 4l-2 5h4zM13 4l-2 5h4z"/></svg></button>
+    <button class="rb" data-sec="ilae" title="Requisiti minimi ILAE-IFCN" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2.5" width="10" height="12" rx="1"/><path d="M6 2.5h4v2H6zM5.5 9.5l2 2 3-4"/></svg></button>
+    <button class="rb" data-sec="acns" title="Pattern ritmici e periodici ACNS" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg></button>
+    <button class="rb" data-sec="rep" title="Referto automatico" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5.5L12 4v10.5H4z"/><path d="M6 7h4M6 9.5h4M6 12h3"/></svg></button>
+    <button class="rb" data-sec="ied" title="Candidati IED" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg></button>
+    <button class="rb" data-sec="sum" title="Sintesi automatica" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14h12M4 12V8M8 12V4M12 12V6"/></svg></button>
+    <button class="rb" data-sec="cmp" title="Confronto con il referto" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h10l-2.5-2.5M14 11H4l2.5 2.5"/></svg></button>
+    <button class="rb" data-sec="map" title="Mappa delle bande" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="9" r="5.5"/><path d="M6.8 3.6L8 1.5l1.2 2.1"/><circle cx="6" cy="8" r=".6" fill="currentColor"/><circle cx="10" cy="10" r=".6" fill="currentColor"/></svg></button>
+    <button class="rb" data-sec="spec" title="Spettro posteriore" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 14h14M1.5 13c2 0 3-.5 4-3s1.5-7 2.5-7 1.5 4.5 2.5 7 2 3 4 3"/></svg></button>
+    <button class="rb" data-sec="ann" title="Annotazioni" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg></button>
+  </nav>
 </main>
 <footer><span>PagSu/PagGiù pagina · ←/→ 1 s · ↑/↓ sensibilità · N/P candidato IED · 1/2/3 giudizio · clic sulla linea del tempo per saltare</span><span>Modello IED: SenuaLab EEG-IED-Detection (resnet_attention, CC BY 4.0, dati vEpiSet)</span><span>Uso didattico e di ricerca, non diagnostico.</span></footer>
 </div>
@@ -1565,7 +1614,8 @@ function drawTrace() {
 /* ---- linea del tempo ---- */
 const tl = $('timeline'), lctx = tl.getContext('2d');
 const TLROWS = ['Annotazioni', 'Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni', 'Pattern ACNS', 'IED (modello)'];
-function tlRows() { const A = S.A; return TLROWS.filter(n => n === 'Pattern ACNS' ? !!(A && A.rpp && A.rpp.patterns && A.rpp.patterns.length) : n === 'IED (modello)' ? !!S.ied : true); }
+const TLOFF = new Set(); // righe nascoste dall'utente
+function tlRows() { const A = S.A; const r = TLROWS.filter(n => !TLOFF.has(n) && (n === 'Pattern ACNS' ? !!(A && A.rpp && A.rpp.patterns && A.rpp.patterns.length) : n === 'IED (modello)' ? !!S.ied : true)); return r.length ? r : ['Annotazioni']; }
 function drawTimeline() {
   const r = tl.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   tl.width = r.width * dpr; tl.height = r.height * dpr; lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1576,27 +1626,28 @@ function drawTimeline() {
   lctx.font = '11px IBM Plex Sans, system-ui';
   rows.forEach((n, i) => { lctx.fillStyle = css('--muted'); lctx.fillText(n, 4, i * rh + rh * .62); lctx.fillStyle = css('--grid'); lctx.fillRect(lab, i * rh + 2, pw, rh - 4); });
   // annotazioni
-  for (const a of A.anns) { lctx.fillStyle = css(GROUPCOL[a.group] || '--tec'); const w = Math.max(2, (a.duration || 0) / D * pw); lctx.fillRect(X(a.onset), 3, w, rh - 6); }
+  const yA = RI('Annotazioni') * rh, yR = RI('Artefatti') * rh, yS = RI('Onde lente') * rh, yL = RI('Lateralità') * rh, yF = RI('Segnalazioni') * rh;
+  if (yA >= 0) for (const a of A.anns) { lctx.fillStyle = css(GROUPCOL[a.group] || '--tec'); const w = Math.max(2, (a.duration || 0) / D * pw); lctx.fillRect(X(a.onset), yA + 3, w, rh - 6); }
   for (const [a, b] of A.zeros) { lctx.fillStyle = css('--zero'); lctx.fillRect(X(a), 0, Math.max(2, X(b) - X(a)), H - 16); }
   const ew = A.epoch / D * pw + .6;
   for (const o of A.epochs) {
     if (o.zero) continue; const x = X(o.t);
-    if (o.artifact || o.annArt || (o.popCh && o.popCh.length)) { lctx.fillStyle = css('--art'); lctx.globalAlpha = o.artifact ? 1 : o.annArt ? .55 : .3; lctx.fillRect(x, rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
-    else if (o.eyeDelta) { lctx.fillStyle = css('--stim'); lctx.globalAlpha = .45; lctx.fillRect(x, rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
+    if (o.artifact || o.annArt || (o.popCh && o.popCh.length)) { lctx.fillStyle = css('--art'); lctx.globalAlpha = o.artifact ? 1 : o.annArt ? .55 : .3; if (yR >= 0) lctx.fillRect(x, yR + 3, ew, rh - 6); lctx.globalAlpha = 1; }
+    else if (o.eyeDelta && yR >= 0) { lctx.fillStyle = css('--stim'); lctx.globalAlpha = .45; lctx.fillRect(x, yR + 3, ew, rh - 6); lctx.globalAlpha = 1; }
     // onde lente: indice log10(2-8 Hz / 8-30 Hz), massimo tra le derivazioni bipolari temporali e fronto-centrali; colorato solo da 0,2
     // (sotto: valori comuni anche nei tracciati normali AOPD), pieno da 1,0
-    if (o.slowAbs != null && isFinite(o.slowAbs) && o.slowAbs >= 0.2) { const z = Math.max(0.15, Math.min(1, (o.slowAbs - 0.2) / 0.8)); lctx.fillStyle = heat(z); lctx.fillRect(x, 2 * rh + 3, ew, rh - 6); }
+    if (o.slowAbs != null && isFinite(o.slowAbs) && o.slowAbs >= 0.2) { const z = Math.max(0.15, Math.min(1, (o.slowAbs - 0.2) / 0.8)); lctx.fillStyle = heat(z); if (yS >= 0) lctx.fillRect(x, yS + 3, ew, rh - 6); }
     // lateralità: asimmetria regionale massima corretta (rosso = più lento a sx, blu = più lento a dx)
     if (o.lat) { let m = 0; for (const r in o.lat) if (Math.abs(o.lat[r]) > Math.abs(m)) m = o.lat[r];
-      const l = Math.max(-1, Math.min(1, m / 0.8)); if (Math.abs(m) >= C.SLOW.epochLat) { lctx.fillStyle = l > 0 ? css('--flag') : css('--stato'); lctx.globalAlpha = Math.abs(l); lctx.fillRect(x, 3 * rh + 3, ew, rh - 6); lctx.globalAlpha = 1; } }
-    if (o.flag) { lctx.fillStyle = o.flag === 'lento sx' ? css('--flag') : o.flag === 'lento dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = o.flag === 'lento bilaterale' ? .5 : 1; lctx.fillRect(x, 4 * rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
+      const l = Math.max(-1, Math.min(1, m / 0.8)); if (Math.abs(m) >= C.SLOW.epochLat) { lctx.fillStyle = l > 0 ? css('--flag') : css('--stato'); lctx.globalAlpha = Math.abs(l); if (yL >= 0) lctx.fillRect(x, yL + 3, ew, rh - 6); lctx.globalAlpha = 1; } }
+    if (o.flag) { lctx.fillStyle = o.flag === 'lento sx' ? css('--flag') : o.flag === 'lento dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = o.flag === 'lento bilaterale' ? .5 : 1; if (yF >= 0) lctx.fillRect(x, yF + 3, ew, rh - 6); lctx.globalAlpha = 1; }
   }
   const yP = RI('Pattern ACNS') * rh, yI = RI('IED (modello)') * rh;
   // pattern ritmici/periodici ACNS (rosso = sx, blu = dx, nero = generalizzato; RDA più chiari)
-  if (A.rpp && A.rpp.patterns) for (const p of A.rpp.patterns) { lctx.fillStyle = p.side === 'sx' ? css('--flag') : p.side === 'dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = p.kind === 'PD' ? 1 : .55;
+  if (A.rpp && A.rpp.patterns && yP >= 0) for (const p of A.rpp.patterns) { lctx.fillStyle = p.side === 'sx' ? css('--flag') : p.side === 'dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = p.kind === 'PD' ? 1 : .55;
     lctx.fillRect(X(p.t0), yP + 3, Math.max(2, (p.t1 - p.t0) / D * pw), rh - 6); lctx.globalAlpha = 1; }
   // IED: punteggio per finestra (sopra 0,5) e candidati
-  if (S.ied) { const thr = +$('iedthr').value, sw = S.ied.step / D * pw + .6;
+  if (S.ied && yI >= 0) { const thr = +$('iedthr').value, sw = S.ied.step / D * pw + .6;
     S.ied.t.forEach((t, i) => { const p = S.ied.p[i]; if (!(p >= 0.5)) return; lctx.fillStyle = css('--ied'); lctx.globalAlpha = p >= thr ? 1 : .25; lctx.fillRect(X(t + 1.5), yI + 3, sw, rh - 6); });
     lctx.globalAlpha = 1;
     S.ied.events.forEach((ev, i) => { const j = S.review[evKey(ev)]; if (!j && i !== S.iedCur) return; lctx.fillStyle = j === 'si' ? css('--yes') : j === 'no' ? css('--no') : j ? css('--maybe') : css('--ink');
@@ -1641,6 +1692,7 @@ function drawTopo() {
   const cv = $('topo'), r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1, W = r.width, H = 250;
   cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
   if (!S.A) return;
+  if (W < 80) return; // sezione nascosta
   const { A } = S, R = Math.min(W, H) / 2 - 22, cx = W / 2, cy = H / 2 + 6;
   const pts = A.present.filter(c => !A.bad.has(c) && C.POS[c]).map(c => [C.POS[c][0], C.POS[c][1], A.relMap[c][S.band]]);
   const vals = pts.map(p => p[2]), vmin = Math.min(...vals), vmax = Math.max(...vals);
@@ -1670,7 +1722,7 @@ function viridis(t) { const s = [[68, 1, 84], [59, 82, 139], [33, 145, 140], [94
 function drawSpec() {
   const cv = $('spec'), r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1, W = r.width, H = 150;
   cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
-  const p = S.A && S.A.pdr; if (!p || !p.spectrum) return;
+  const p = S.A && S.A.pdr; if (!p || !p.spectrum || W < 80) return;
   const sp = p.spectrum, df = p.df, fmax = 25, L = 30, B = H - 18, PW = W - L - 6;
   const lg = sp.map(v => Math.log10(v + 1e-9)), k0 = Math.ceil(1 / df), lo = Math.min(...lg.slice(k0, Math.ceil(fmax / df))), hi = Math.max(...lg.slice(k0, Math.ceil(fmax / df)));
   const X = f => L + f / fmax * PW, Y = v => B - (v - lo) / (hi - lo || 1) * (B - 8);
@@ -1773,15 +1825,31 @@ function renderAnn() {
 /* ---- navigazione ---- */
 function goTo(t) { if (!S.A) return; S.t = Math.max(0, Math.min(S.A.duration - pageLen(), t)); S.cache = null; drawAll(); }
 function drawAll() { drawTrace(); drawTimeline(); }
-(function () { // pannello laterale e linea del tempo collassabili (preferenza ricordata nel browser)
+(function () { // pannello laterale a sezioni, panoramica collassabile e righe attivabili (preferenze ricordate nel browser)
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-  const apply = () => { const ns = document.body.classList.contains('noside'), nt = document.body.classList.contains('notl');
-    $('sidetog').setAttribute('aria-pressed', String(!ns)); $('tltog').setAttribute('aria-pressed', String(!nt)); $('tltog').textContent = nt ? 'Mostra' : 'Nascondi';
-    $('tllegend').style.display = nt ? 'none' : ''; requestAnimationFrame(() => { drawAll(); if (!ns) { drawTopo(); drawSpec(); } }); };
-  if (get('eeg.noside') === '1') document.body.classList.add('noside'); if (get('eeg.notl') === '1') document.body.classList.add('notl');
-  $('sidetog').onclick = () => { set('eeg.noside', document.body.classList.toggle('noside') ? '1' : '0'); apply(); };
-  $('tltog').onclick = () => { set('eeg.notl', document.body.classList.toggle('notl') ? '1' : '0'); apply(); };
-  apply();
+  const secs = [...document.querySelectorAll('#side .sec')].map(x => x.dataset.sec);
+  let on = new Set((get('eeg.secs') || 'score,rep').split(',').filter(k => secs.includes(k)));
+  const redraw = () => requestAnimationFrame(() => { drawAll(); drawTopo(); drawSpec(); });
+  const applySide = () => {
+    document.querySelectorAll('#side .sec').forEach(x => x.classList.toggle('on', on.has(x.dataset.sec)));
+    document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.setAttribute('aria-pressed', String(on.has(b.dataset.sec))));
+    $('railall').setAttribute('aria-pressed', String(on.size === secs.length));
+    document.querySelector('main').classList.toggle('closed', !on.size); set('eeg.secs', [...on].join(',')); redraw(); };
+  document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.onclick = () => { on.has(b.dataset.sec) ? on.delete(b.dataset.sec) : on.add(b.dataset.sec); applySide();
+    const el = document.querySelector('#side .sec[data-sec="' + b.dataset.sec + '"]'); if (on.has(b.dataset.sec) && el) el.scrollIntoView({ block: 'nearest' }); });
+  $('railall').onclick = () => { on = on.size === secs.length ? new Set() : new Set(secs); applySide(); };
+  $('railclose').onclick = () => { on = new Set(); applySide(); };
+  applySide();
+  // panoramica
+  const applyTl = () => { const nt = document.body.classList.contains('notl'); $('tltog').setAttribute('aria-pressed', String(!nt)); $('tltog').textContent = nt ? 'Mostra' : 'Nascondi';
+    $('tllegend').style.display = nt ? 'none' : ''; document.querySelectorAll('.chip').forEach(c => c.hidden = nt); redraw(); };
+  if (get('eeg.notl') === '1') document.body.classList.add('notl');
+  $('tltog').onclick = () => { set('eeg.notl', document.body.classList.toggle('notl') ? '1' : '0'); applyTl(); };
+  (get('eeg.tloff') || '').split('|').filter(Boolean).forEach(n => TLOFF.add(n));
+  const applyRows = () => { document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(!TLOFF.has(c.dataset.row))));
+    document.querySelectorAll('#tllegend span[data-row]').forEach(x => x.hidden = TLOFF.has(x.dataset.row)); set('eeg.tloff', [...TLOFF].join('|')); drawTimeline(); };
+  document.querySelectorAll('.chip').forEach(c => c.onclick = () => { TLOFF.has(c.dataset.row) ? TLOFF.delete(c.dataset.row) : TLOFF.add(c.dataset.row); applyRows(); });
+  applyTl(); applyRows();
 })();
 $('prev').onclick = () => goTo(S.t - pageLen()); $('next').onclick = () => goTo(S.t + pageLen());
 ['montage', 'hp', 'lp', 'notch', 'sens', 'page'].forEach(id => $(id).addEventListener('change', () => { S.cache = null; drawAll(); }));
@@ -1952,6 +2020,7 @@ function renderScore() {
     + (pats.length ? '<p>Tratti: ' + pats.slice(0, 30).map((p, i) => `<a href="#" data-rt="${p.t0}">${p.name}${p.side === 'G' ? '' : ' ' + p.side} ${fmtT(p.t0)}</a>`).join(', ') + (pats.length > 30 ? '…' : '') + '</p>' : '')
     + (!R.present.length && !R.possible.length ? '<p>Nessun pattern rilevato.</p>' : '');
   $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); goTo(+a.dataset.rt - 2); });
+  setTimeout(() => { const h3 = $('scorebox').querySelector('h3'); $('scorecnt').textContent = h3 ? '· ' + h3.textContent : ''; }, 0);
   $('scorebox').innerHTML = `<div class="score ${d.abnormal ? 'abn' : ''}">
     <h3>${d.abnormal ? (d.severity === 'anormale lieve' ? 'Anormale lieve' : 'Anormale') : d.possible.length ? 'Normale, con reperti da verificare' : 'Normale'}${d.labels.length ? ': ' + d.labels.join(' + ') : ''}${d.side && d.categories.includes('nonepi_focale') ? ' (' + d.side + ')' : ''}</h3>
     <p><b>Significato diagnostico (SCORE):</b> ${d.significance.label}${d.significance.code === 'anormale' && d.significance.detail ? ' — ' + d.significance.detail : ''}</p>
