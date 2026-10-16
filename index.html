@@ -12,16 +12,16 @@
   --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#CFD8DF;
   --trace:#1C2A38; --accent:#0E6E78; --accentSoft:#D7ECEE;
   --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#7A8791; --zero:#9AA6AF; --flag:#C2410C;
-  --sel:rgba(14,110,120,.14); --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00;
+  --sel:rgba(14,110,120,.14); --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00; --ecg:#D00000;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg);
   font-variant-numeric:tabular-nums;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E;}}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B;}}
 :root[data-theme="dark"]{--bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E;}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B;}
 /* tema chiaro: sfondo bianco, tracciato nero (come la carta EEG) */
 :root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
   --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
@@ -49,6 +49,7 @@ body.notl #timeline{display:none} .tlhead button{font-size:.75rem;padding:0 .4re
 .tl{background:var(--panel);border-top:1px solid var(--line);padding:.35rem .6rem .5rem}
 .tlhead{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:.2rem}
 #timeline{width:100%;height:180px;display:block;cursor:pointer}
+.tl{position:relative} #tltip{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:.2rem .45rem;font-size:.78rem;box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;display:none;z-index:5}
 .score{border-left:3px solid var(--accent);padding:.5rem .7rem;background:var(--accentSoft);font-size:.88rem;line-height:1.45;border-radius:0 4px 4px 0}
 .score.abn{border-left-color:var(--flag)} .score h3{margin:0 0 .25rem;font-size:.95rem;font-weight:600} .score p{margin:.12rem 0} .score ul{margin:.2rem 0 .1rem 1rem;padding:0}
 .iedbar{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:.3rem 0 .45rem;font-size:.82rem}
@@ -105,9 +106,9 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <label class="ctl"><input id="notch" type="checkbox" checked> Notch 50</label>
   <label class="ctl">Sensibilità <select id="sens"><option>3</option><option>5</option><option selected>7</option><option>10</option><option>15</option><option>20</option><option>30</option><option>50</option></select> µV/mm</label>
   <label class="ctl">Tema <select id="theme"><option value="auto">automatico</option><option value="light">chiaro (bianco)</option><option value="dark">scuro</option></select></label>
-  <label class="ctl">Pagina <select id="page"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select> s</label>
-  <button class="btn" id="prev" title="Pagina precedente (←)">◀</button>
-  <button class="btn" id="next" title="Pagina successiva (→)">▶</button>
+  <label class="ctl">Pagina <select id="page"><option>5</option><option>10</option><option>15</option><option selected>20</option><option>30</option></select> s</label>
+  <button class="btn" id="prev" title="Pagina precedente (PagSu)">◀</button>
+  <button class="btn" id="next" title="Pagina successiva (PagGiù)">▶</button>
   <button class="btn" id="sidetog" title="Mostra o nascondi il pannello laterale" aria-pressed="true">Pannello</button>
   <button class="btn primary" id="open">Apri EDF</button>
   <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors" multiple hidden>
@@ -127,7 +128,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     </div>
     <div class="tl">
       <div class="tlhead"><span>Tutto il tracciato per epoche di 4 s (clic per saltare)<button class="btn" id="tltog" aria-pressed="true">Nascondi</button></span><span id="tpos"></span></div>
-      <canvas id="timeline" aria-label="Linea del tempo"></canvas>
+      <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div>
       <div class="tllegend" id="tllegend">Annotazioni: del tecnico (EDF). Artefatti: rilevati dall'app<i style="background:var(--art)"></i>ampiezza &gt; 350 µV su ≥ 3 canali o annotati, <i style="background:var(--stim);opacity:.45"></i>delta solo frontopolare (oculare). Onde lente: indice lento/veloce per epoca (colore da 0,2). Lateralità: <i style="background:var(--flag)"></i>più lento a sx, <i style="background:var(--stato)"></i>più lento a dx. Segnalazioni: epoche oltre soglia (sx, dx, <i style="background:var(--ink)"></i>diffuse); compaiono anche come striscia sotto il tracciato.</div>
     </div>
   </section>
@@ -172,7 +173,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <ul class="annlist" id="annlist"></ul>
   </aside>
 </main>
-<footer><span>←/→ pagina · ↑/↓ sensibilità · N/P candidato IED · 1/2/3 giudizio · clic sulla linea del tempo per saltare</span><span>Modello IED: SenuaLab EEG-IED-Detection (resnet_attention, CC BY 4.0, dati vEpiSet)</span><span>Uso didattico e di ricerca, non diagnostico.</span></footer>
+<footer><span>PagSu/PagGiù pagina · ←/→ 1 s · ↑/↓ sensibilità · N/P candidato IED · 1/2/3 giudizio · clic sulla linea del tempo per saltare</span><span>Modello IED: SenuaLab EEG-IED-Detection (resnet_attention, CC BY 4.0, dati vEpiSet)</span><span>Uso didattico e di ricerca, non diagnostico.</span></footer>
 </div>
 <script>/* Annotatore EEG — core (lettore EDF+, filtri, montaggi, analisi spettrale). Nessun dato esce dal browser. */
 (function (G) {
@@ -280,6 +281,8 @@ const POS = { // coordinate 2D (vista dall'alto, naso in alto), raggio 1
   Fp1:[-.31,.95],Fp2:[.31,.95],F7:[-.81,.59],F3:[-.4,.5],Fz:[0,.45],F4:[.4,.5],F8:[.81,.59],
   T3:[-1,0],C3:[-.5,0],Cz:[0,0],C4:[.5,0],T4:[1,0],T5:[-.81,-.59],P3:[-.4,-.5],Pz:[0,-.45],P4:[.4,-.5],T6:[.81,-.59],O1:[-.31,-.95],O2:[.31,-.95] };
 const MONTAGES = {
+  'I dx-sn (come Galileo)': [['Fp2','F4'],['F4','C4'],['C4','P4'],['P4','O2'],['Fp2','F8'],['F8','T4'],['T4','T6'],['T6','O2'],['Fz','Cz'],['Cz','Pz'],
+    ['Fp1','F3'],['F3','C3'],['C3','P3'],['P3','O1'],['Fp1','F7'],['F7','T3'],['T3','T5'],['T5','O1']],
   'Bipolare longitudinale': [
     ['Fp1','F7'],['F7','T3'],['T3','T5'],['T5','O1'],null,
     ['Fp2','F8'],['F8','T4'],['T4','T6'],['T6','O2'],null,
@@ -1492,7 +1495,7 @@ function getPageData() {
   });
   // ECG, se presente
   const ecg = rec.signals.find(s => /^(A|ECG|EKG)\b/i.test(s.name) && s.fs === fs);
-  if (ecg) rows.push(null, { label: 'ECG', data: C.filtfilt(Float32Array.from(ecg.data.subarray(i0, i1)), C.makeFilters(fs, 1, 40, 0)), ecg: true });
+  if (ecg) rows.push(...(mont.includes(null) ? [null] : []), { label: 'ECG', data: C.filtfilt(Float32Array.from(ecg.data.subarray(i0, i1)), C.makeFilters(fs, 1, 40, 0)), ecg: true });
   S.cache = { key, rows, i0, off: Math.round((S.t * fs) - i0) };
   return S.cache;
 }
@@ -1524,7 +1527,9 @@ function drawTrace() {
     const x = lab + (a.onset - S.t) / sec * plotW, col = css(GROUPCOL[a.group] || '--tec');
     if (a.duration > 0) { tctx.fillStyle = col + '22'; const x1 = lab + Math.min(sec, e - S.t) / sec * plotW; tctx.fillRect(Math.max(lab, x), 0, x1 - Math.max(lab, x), H - 18); }
     if (a.onset >= S.t) { tctx.strokeStyle = col; tctx.setLineDash([4, 3]); tctx.beginPath(); tctx.moveTo(x + .5, 0); tctx.lineTo(x + .5, H - 18); tctx.stroke(); tctx.setLineDash([]);
-      tctx.fillStyle = col; tctx.font = '600 11px IBM Plex Sans, system-ui'; tctx.fillText(a.label, x + 3, 12); }
+      tctx.font = '11px IBM Plex Sans, system-ui'; const tw = tctx.measureText(a.label).width + 14, yb = H - 44, xb = Math.max(lab, x - tw / 2);
+      tctx.fillStyle = col; tctx.globalAlpha = .28; tctx.fillRect(xb, yb, tw, 16); tctx.globalAlpha = 1; tctx.strokeStyle = col; tctx.strokeRect(xb + .5, yb + .5, tw, 16);
+      tctx.fillStyle = css('--ink'); tctx.fillText(a.label, xb + 7, yb + 12); }
   }
   // scala: sensibilità in µV/mm, 1 mm ≈ 3,78 px CSS
   const sens = +$('sens').value, pxPerUv = 3.78 / sens, step = Math.max(1, Math.floor(fs * sec / plotW / 2));
@@ -1533,7 +1538,7 @@ function drawTrace() {
     const y0 = 6 + (k + .5) * rowH;
     tctx.fillStyle = row.bad ? css('--flag') : css('--ink'); tctx.font = '12px IBM Plex Sans, system-ui'; tctx.fillText(row.label, 6, y0 + 4);
     if (row.missing) return;
-    tctx.strokeStyle = row.ecg ? css('--muted') : row.bad ? css('--flag') : css('--trace'); tctx.lineWidth = 1; tctx.beginPath();
+    tctx.strokeStyle = row.ecg ? css('--ecg') : row.bad ? css('--flag') : css('--trace'); tctx.lineWidth = 1; tctx.beginPath();
     const g = row.ecg ? pxPerUv / 12 : pxPerUv, n = Math.floor(fs * sec);
     for (let i = 0; i < n; i += step) {
       const v = row.data[P.off + i]; if (v === undefined) break;
@@ -1608,7 +1613,28 @@ function heat(z) { // grigio chiaro → arancio → rosso scuro
   const [z0, c0] = a[i], [z1, c1] = a[i + 1], f = (z - z0) / (z1 - z0);
   return 'rgb(' + c0.map((v, k) => Math.round(v + (c1[k] - v) * f)).join(',') + ')';
 }
-tl.addEventListener('click', e => { if (!S.A) return; const r = tl.getBoundingClientRect(), lab = 92, pw = r.width - lab - 8; const t = (e.clientX - r.left - lab) / pw * S.A.duration; goTo(t - pageLen() / 2); });
+function tlHit(e) { // cosa c'è sotto il mouse nella linea del tempo
+  if (!S.A) return null; const A = S.A, r = tl.getBoundingClientRect(), lab = 92, pw = r.width - lab - 8, rows = tlRows(), rh = (r.height - 16) / rows.length;
+  const px = e.clientX - r.left, py = e.clientY - r.top, t = (px - lab) / pw * A.duration, row = rows[Math.floor(py / rh)], tol = 4 / pw * A.duration;
+  if (px < lab || t < 0 || t > A.duration || !row) return null;
+  const o = A.epochs.find(q => t >= q.t && t < q.t + A.epoch), hit = { t, row };
+  if (row === 'Annotazioni') { const a = A.anns.filter(q => t >= q.onset - tol && t <= q.onset + (q.duration || 0) + tol).sort((x, y) => Math.abs(x.onset - t) - Math.abs(y.onset - t))[0];
+    if (a) { hit.go = a.onset - 1; hit.txt = fmtT(a.onset) + ' · ' + a.label + (a.duration ? ' (' + Math.round(a.duration) + ' s)' : ''); } }
+  else if (row === 'Pattern ACNS') { const p = (A.rpp.patterns || []).find(q => t >= q.t0 - tol && t <= q.t1 + tol); if (p) { hit.go = p.t0 - 1; hit.txt = fmtT(p.t0) + ' · ' + p.name + (p.side === 'G' ? '' : ' ' + p.side) + ', ' + Math.round(p.t1 - p.t0) + ' s'; } }
+  else if (row === 'IED (modello)') { const ev = S.ied.events.find(q => Math.abs(q.tp - t) <= Math.max(tol, 2)); if (ev) { hit.go = ev.tp - 2; hit.txt = fmtT(ev.tp) + ' · candidato IED p ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : ''); } }
+  else if (o && !o.zero) { const ts = fmtT(o.t) + ' · ';
+    if (row === 'Artefatti') hit.txt = ts + (o.artifact ? 'artefatto: ampiezza > 350 µV su ≥ 3 canali' : o.annArt ? 'artefatto annotato dal tecnico' : o.popCh && o.popCh.length ? 'elettrodo instabile: ' + o.popCh.join(', ') : o.eyeDelta ? 'delta solo frontopolare (probabile movimento oculare)' : 'nessun artefatto');
+    if (row === 'Onde lente') hit.txt = ts + 'indice lento/veloce ' + (isFinite(o.slowAbs) ? o.slowAbs.toFixed(2) : '–') + (o.slowAbs >= 0.2 ? '' : ' (sotto 0,2: non colorato)');
+    if (row === 'Lateralità') { let m = 0, rg = ''; for (const k in (o.lat || {})) if (Math.abs(o.lat[k]) > Math.abs(m)) { m = o.lat[k]; rg = k; } hit.txt = ts + (rg ? (m > 0 ? 'più lento a sx' : 'più lento a dx') + ' in ' + rg + ' (' + m.toFixed(2) + ')' : 'non calcolata'); }
+    if (row === 'Segnalazioni') hit.txt = ts + (o.flag ? o.flag + (o.flagReg ? ' (' + o.flagReg + ')' : '') : 'nessuna segnalazione'); }
+  return hit;
+}
+tl.addEventListener('mousemove', e => { const h = tlHit(e), tip = $('tltip'); if (!h || !h.txt) { tip.style.display = 'none'; return; }
+  const r = tl.getBoundingClientRect(), pr = tl.parentElement.getBoundingClientRect(); tip.textContent = h.txt; tip.style.display = 'block';
+  const x = Math.min(e.clientX - pr.left + 12, pr.width - tip.offsetWidth - 4); tip.style.left = Math.max(4, x) + 'px'; tip.style.top = (e.clientY - pr.top - tip.offsetHeight - 8) + 'px'; });
+tl.addEventListener('mouseleave', () => { $('tltip').style.display = 'none'; });
+tl.addEventListener('click', e => { if (!S.A) return; const h = tlHit(e); if (h && h.go != null) { goTo(h.go); return; }
+  const r = tl.getBoundingClientRect(), lab = 92, pw = r.width - lab - 8; const t = (e.clientX - r.left - lab) / pw * S.A.duration; goTo(t - pageLen() / 2); });
 
 /* ---- mappa topografica ---- */
 function drawTopo() {
@@ -1761,11 +1787,13 @@ $('prev').onclick = () => goTo(S.t - pageLen()); $('next').onclick = () => goTo(
 ['montage', 'hp', 'lp', 'notch', 'sens', 'page'].forEach(id => $(id).addEventListener('change', () => { S.cache = null; drawAll(); }));
 document.addEventListener('keydown', e => {
   if (/INPUT|SELECT/.test(document.activeElement.tagName)) return;
-  if (e.key === 'ArrowRight') { goTo(S.t + pageLen()); e.preventDefault(); }
+  if (e.key === 'PageDown') { goTo(S.t + pageLen()); e.preventDefault(); }
+  if (e.key === 'PageUp') { goTo(S.t - pageLen()); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { goTo(S.t + 1); e.preventDefault(); }
   if (/^[nN]$/.test(e.key)) { stepIED(1); e.preventDefault(); }
   if (/^[pP]$/.test(e.key)) { stepIED(-1); e.preventDefault(); }
   if (S.iedCur >= 0 && ['1', '2', '3'].includes(e.key)) { judge(S.iedCur, ['si', 'no', 'dubbio'][+e.key - 1]); e.preventDefault(); }
-  if (e.key === 'ArrowLeft') { goTo(S.t - pageLen()); e.preventDefault(); }
+  if (e.key === 'ArrowLeft') { goTo(S.t - 1); e.preventDefault(); }
   const s = $('sens'); if (e.key === 'ArrowUp' && s.selectedIndex > 0) { s.selectedIndex--; drawTrace(); e.preventDefault(); }
   if (e.key === 'ArrowDown' && s.selectedIndex < s.options.length - 1) { s.selectedIndex++; drawTrace(); e.preventDefault(); }
 });
