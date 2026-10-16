@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Annotatore EEG</title>
+<title>EEGnote</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
+  --tab:#2F67C9;
   --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#CFD8DF;
   --trace:#1C2A38; --accent:#0E6E78; --accentSoft:#D7ECEE;
   --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#7A8791; --zero:#9AA6AF; --flag:#C2410C;
@@ -19,17 +20,37 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B;}}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8;}}
 :root[data-theme="dark"]{--bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B;}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8;}
 /* tema chiaro: sfondo bianco, tracciato nero (come la carta EEG) */
 :root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
   --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
 *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:var(--bg)}
 :root[data-theme="dark"]{color-scheme:dark} :root[data-theme="dark"] *{scrollbar-color:#3A3A3A #000}
-.kv dt[title],.tipq{cursor:help;text-decoration:underline dotted;text-underline-offset:2px}
+.kv dt[title],.tipq,h2[title],b[title]{cursor:help}
 button,select,input{font:inherit;color:inherit}
-.app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+.app{display:grid;grid-template-rows:auto auto 1fr;height:100%} .app>header{grid-row:1} .app>main{grid-row:3}
+#annbar{grid-row:2;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line);font-size:.8rem}
+#annbar[hidden]{display:none} #annq{width:9.5rem;padding:.15rem .4rem;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
+.annseg{display:inline-flex;flex-wrap:wrap;gap:.25rem} .annsep{width:1px;align-self:stretch;background:var(--line)}
+.annseg button{font-size:.76rem;border:1px solid var(--line);border-radius:999px;padding:.08rem .55rem;background:var(--paper);cursor:pointer;color:var(--ink)}
+.annseg button:hover{border-color:var(--accent)} .annseg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+#anncats button{border-radius:4px;font-weight:500} #anncats button i{display:inline-block;width:.55rem;height:.55rem;border-radius:2px;margin-right:.3rem;vertical-align:0}
+#annot[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff} #annbar.flash{animation:annfl .6s 2}
+@keyframes annfl{50%{background:var(--accentSoft)}}
+#annlayer{position:absolute;inset:0;pointer-events:none;overflow:hidden} #annlayer.on{pointer-events:auto;cursor:crosshair}
+.ua{position:absolute;border:1.5px solid var(--c);background:color-mix(in srgb,var(--c) 10%,transparent);border-radius:3px;pointer-events:auto;cursor:move;box-sizing:border-box}
+.ua.sel{border-width:2px;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 30%,transparent)} .ua.off{border-style:dashed}
+.ua .ul{position:absolute;left:-1px;top:-1px;display:flex;align-items:center;max-width:calc(100% + 2px);white-space:nowrap;font-size:11px;line-height:15px;padding:0 0 0 4px;background:var(--c);color:#fff;border-radius:2px 0 3px 0}
+.ua .ul b{font-weight:500;overflow:hidden;text-overflow:ellipsis} .ua.narrow .ul{max-width:none;border-radius:2px 3px 3px 0}
+.ua .ux{flex:none;width:16px;height:15px;border:0;padding:0;background:transparent;color:#fff;font-size:13px;line-height:14px;cursor:pointer}
+.ua .ur{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 0 45%,var(--c) 45% 55%,transparent 55% 65%,var(--c) 65% 75%,transparent 75%)}
+.ua .urow{position:absolute;left:0;right:0;pointer-events:none;border-top:1px dashed color-mix(in srgb,var(--c) 45%,transparent)} .ua .urow.first{border-top:0}
+.ua .urow span{position:absolute;left:3px;bottom:3px;font-size:9px;line-height:9px;color:var(--c);font-weight:600;white-space:nowrap;text-shadow:0 0 2px var(--paper),0 0 2px var(--paper)}
+.ua.narrow .urow span{left:auto;right:100%;margin-right:3px}
+.uadraft{position:absolute;border:1.5px dashed var(--accent);background:var(--sel);pointer-events:none}
+.annlist+h3,h3.small{margin:.5rem 0 .2rem;font-weight:500;color:var(--muted)}
 header{display:flex;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;align-items:center;gap:.3rem .6rem;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line)}
 header h1{font-size:1.05rem;font-weight:600;margin:0 .5rem 0 0;letter-spacing:.01em}
 header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
@@ -43,15 +64,15 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
 main.closed{grid-template-columns:1fr 40px} main.closed>aside{display:none} .viewer{min-width:0}
-main{position:relative} #railtog{position:absolute;right:366px;top:50%;transform:translateY(-50%);width:14px;height:44px;border:1px solid var(--line);border-left:0;border-radius:0 6px 6px 0;background:var(--panel);color:var(--muted);cursor:pointer;padding:0;font-size:12px;line-height:1;z-index:3}
-main.closed #railtog{right:40px;border-left:1px solid var(--line);border-right:0;border-radius:6px 0 0 6px}
-#railtog:hover{color:var(--ink);border-color:var(--accent)}
-aside .sec{display:none} aside .sec.on{display:block} aside .sec+.sec.on{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.1rem}
+main{position:relative} #railtog{position:absolute;right:366px;top:50%;transform:translateY(-50%);width:14px;height:32px;border:0;border-radius:0 16px 16px 0;background:var(--tab);color:#fff;cursor:pointer;padding:0;font-size:13px;line-height:1;z-index:3}
+main.closed #railtog{right:40px;border-radius:16px 0 0 16px}
+#railtog:hover,#tltab:hover{filter:brightness(1.12)}
+aside .sec{display:block} .sec[data-sec=cmp],#rail .rb[data-sec=cmp]{display:none} body.haslabels .sec[data-sec=cmp]{display:block} body.haslabels #rail .rb[data-sec=cmp]{display:grid} aside .sec+.sec{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.1rem}
 #rail{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.4rem 0;background:var(--panel);border-left:1px solid var(--line)}
 #rail hr{width:24px;border:0;border-top:1px solid var(--line);margin:.2rem 0}
 .rb{width:32px;height:32px;display:grid;place-items:center;border:1px solid transparent;border-radius:6px;background:none;color:var(--muted);cursor:pointer;padding:0}
 .rb:hover{color:var(--ink);border-color:var(--line)} .rb[aria-pressed=true]{color:var(--accent);background:var(--accentSoft);border-color:var(--accent)}
-body.notl #timeline{display:none} .tlhead button{font-size:.75rem;padding:0 .4rem;margin-left:.5rem}
+body.notl .tl>*:not(#tltab){display:none} body.notl .tl{padding:0;min-height:8px} .tlhead button{font-size:.75rem;padding:0 .4rem;margin-left:.5rem}
 .chips{display:flex;flex-wrap:wrap;gap:.25rem;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:.25rem;font-size:.74rem;border:1px solid var(--line);border-radius:999px;padding:.05rem .5rem;background:var(--paper);color:var(--muted);cursor:pointer}
 .chip[aria-pressed=true]{color:var(--ink);border-color:var(--accent);background:var(--accentSoft)}
@@ -63,7 +84,14 @@ body.notl #timeline{display:none} .tlhead button{font-size:.75rem;padding:0 .4re
 .tl{background:var(--panel);border-top:1px solid var(--line);padding:.35rem .6rem .5rem}
 .tlhead{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:.2rem}
 #timeline{width:100%;height:180px;display:block;cursor:pointer}
-.tl{position:relative} #tltip{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:.2rem .45rem;font-size:.78rem;box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;display:none;z-index:5}
+.tl{position:relative}
+.cg{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
+.cg .chip{border:0;background:transparent} .cg:has(.chip[aria-pressed=true]){border-color:var(--accent);background:var(--accentSoft)}
+.eye .slash{stroke-width:1.6} .eye[aria-pressed=true] .slash{display:none}
+.cg .eye{width:20px;height:16px;margin:0 2px 0 -3px;border:0} .cg .eye[aria-pressed=true]{background:var(--accent);color:#fff;border:0} .eye{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid transparent;border-radius:999px;background:none;color:var(--muted);cursor:pointer;padding:0}
+.eye:hover{border-color:var(--line);color:var(--ink)} .eye[aria-pressed=true]{color:var(--accent);background:var(--accentSoft);border-color:var(--accent)}
+#tltab{position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:32px;height:14px;border:0;border-radius:16px 16px 0 0;background:var(--tab);color:#fff;cursor:pointer;padding:0;font-size:12px;line-height:14px;z-index:4}
+body.notl #tltab{top:-14px} #tltip{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:.2rem .45rem;font-size:.78rem;box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;display:none;z-index:5}
 .score{border-left:3px solid var(--accent);padding:.5rem .7rem;background:var(--accentSoft);font-size:.88rem;line-height:1.45;border-radius:0 4px 4px 0}
 .score.abn{border-left-color:var(--flag)} .score h3{margin:0 0 .25rem;font-size:.95rem;font-weight:600} .score p{margin:.12rem 0} .score ul{margin:.2rem 0 .1rem 1rem;padding:0}
 .iedbar{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:.3rem 0 .45rem;font-size:.82rem}
@@ -85,7 +113,7 @@ details.fold>summary .cnt{color:var(--muted);font-size:.8rem} details.fold[open]
 .kv{display:grid;grid-template-columns:auto 1fr;gap:.15rem .8rem;font-size:.86rem;margin:0}
 .kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right}
 .verdict{border-left:3px solid var(--accent);padding:.45rem .7rem;background:var(--accentSoft);font-size:.88rem;line-height:1.45;border-radius:0 4px 4px 0}
-.verdict p{margin:.15rem 0} .bgline{font-size:.88rem;line-height:1.45;margin:.2rem 0 .4rem} .bgline p{margin:0}
+.verdict p{margin:.15rem 0} .gauge{display:block;width:100%;max-width:300px;margin:.1rem 0 .4rem auto} .bgline{font-size:.88rem;line-height:1.45;margin:.2rem 0 .4rem} .bgline p{margin:0}
 .warnline{color:var(--flag)}
 .small{font-size:.78rem;color:var(--muted);line-height:1.4}
 .bandsel{display:flex;gap:.25rem;margin-bottom:.4rem} .bandsel button{flex:1;padding:.2rem 0;font-size:.8rem}
@@ -111,8 +139,9 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <body>
 <div class="app">
 <header>
-  <h1>Annotatore EEG</h1>
+  <h1>EEGnote</h1>
   <button class="btn primary" id="open">Apri EDF</button>
+  <button class="btn" id="annot" aria-pressed="false" title="Annota reperti sul tracciato (tasto A)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/><path d="M9.5 4l2.5 2.5"/></svg> Annota</button>
   <span class="fname" id="fname">nessun file</span>
   <span class="spacer"></span>
   <label class="ctl">Montaggio <select id="montage"></select></label>
@@ -120,16 +149,24 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <label class="ctl">LP <input id="lp" type="number" step="1" min="0" value="70"> Hz</label>
   <label class="ctl"><input id="notch" type="checkbox" checked> Notch 50</label>
   <label class="ctl" title="Sensibilità">Sens. <select id="sens"><option>3</option><option>5</option><option selected>7</option><option>10</option><option>15</option><option>20</option><option>30</option><option>50</option></select> µV/mm</label>
-  <span class="ctl">Tema <button class="btn ib" id="theme" title="Passa al tema scuro" aria-label="Cambia tema"></button></span>
-  <label class="ctl">Pagina <select id="page"><option>5</option><option>10</option><option>15</option><option selected>20</option><option>30</option></select> s</label>
-  <button class="btn" id="prev" title="Pagina precedente (PagSu)">◀</button>
-  <button class="btn" id="next" title="Pagina successiva (PagGiù)">▶</button>
+  <span class="ctl"><button class="btn ib" id="theme" title="Passa al tema scuro" aria-label="Cambia tema"></button></span>
+  <label class="ctl" title="Durata della pagina">Pag. <select id="page"><option>5</option><option>10</option><option>15</option><option selected>20</option><option>30</option></select> s</label>
+  <button class="btn" id="prev" title="Pagina precedente (← o PagSu; Ctrl+← = 1 s)">◀</button>
+  <button class="btn" id="next" title="Pagina successiva (→ o PagGiù; Ctrl+→ = 1 s)">▶</button>
   <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors" multiple hidden>
 </header>
+<div id="annbar" hidden>
+  <input id="annq" type="search" placeholder="Cerca evento…" aria-label="Cerca un evento da annotare">
+  <span class="annseg" id="anncats" role="tablist" aria-label="Categoria"></span>
+  <span class="annsep"></span>
+  <span class="annseg" id="annevs" aria-label="Evento"></span>
+  <span class="spacer"></span>
+  <span class="small" id="annhint" title="Clic sul tracciato: segno di 0,5 s su tutte le derivazioni. Trascina: riquadro su tempo e derivazioni (indica anche lato e regione). Sul riquadro: trascina per spostarlo, angolo in basso a destra per ridimensionarlo, × o Canc per eliminarlo; selezionalo e scegli un altro evento per cambiarlo.">clic = segno · trascina = riquadro</span>
+</div>
 <main>
   <section class="viewer">
     <div id="traceWrap">
-      <canvas id="trace" aria-label="Tracciato EEG"></canvas>
+      <canvas id="trace" aria-label="Tracciato EEG"></canvas><div id="annlayer"></div>
       <div id="drop"><div class="box">
         <h2>Trascina qui un EEG in formato EDF o EDF+</h2>
         <p>Il file viene letto solo in questo browser: nessun dato esce dal computer.</p>
@@ -139,17 +176,9 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       </div></div>
       <div class="busy" id="busy">Analisi in corso…</div>
     </div>
-    <div class="tl">
-      <div class="tlhead"><span class="chips"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Mostra o nascondi la riga Annotazioni"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button><button class="chip" data-row="Artefatti" aria-pressed="true" title="Mostra o nascondi la riga Artefatti"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="chip" data-row="Onde lente" aria-pressed="true" title="Mostra o nascondi la riga Onde lente"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Onde lente</span></button><button class="chip" data-row="Lateralità" aria-pressed="true" title="Mostra o nascondi la riga Lateralità"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M2 6h11l-2.5-2.5M14 10H3l2.5 2.5"/></svg><span>Lateralità</span></button><button class="chip" data-row="Segnalazioni" aria-pressed="true" title="Mostra o nascondi la riga Segnalazioni"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M8 2l6.5 11.5h-13z"/><path d="M8 6.5v3.5M8 12v.1"/></svg><span>Segnalazioni</span></button><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Mostra o nascondi la riga Pattern ACNS"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="chip" data-row="IED (modello)" aria-pressed="true" title="Mostra o nascondi la riga IED (modello)"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button><button class="btn" id="tltog" aria-pressed="true" title="Nascondi o mostra la panoramica">Nascondi</button></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
+    <div class="tl"><button id="tltab" title="Comprimi la panoramica" aria-label="Comprimi o espandi la panoramica">⌄</button>
+      <div class="tlhead"><span class="chips"><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni: segnalate dal tecnico (nell'EDF). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti (calcolati dall'app): > 350 µV su ≥ 3 canali o annotati dal tecnico; viola chiaro = delta solo frontopolare (oculare). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Onde lente" aria-pressed="true" title="Onde lente: indice lento/veloce per epoca di 4 s, colorato da 0,2. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Onde lente</span></button><button class="eye" data-eye="Onde lente" aria-pressed="false" title="Mostra onde lente sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Lateralità" aria-pressed="true" title="Lateralità: rosso = più lento a sx, blu = più lento a dx. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M2 6h11l-2.5-2.5M14 10H3l2.5 2.5"/></svg><span>Lateralità</span></button><button class="eye" data-eye="Lateralità" aria-pressed="false" title="Mostra lateralità sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Segnalazioni" aria-pressed="true" title="Segnalazioni: epoche oltre le soglie di anomalia lenta (rosso sx, blu dx, nero diffuse). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M8 2l6.5 11.5h-13z"/><path d="M8 6.5v3.5M8 12v.1"/></svg><span>Segnalazioni</span></button><button class="eye" data-eye="Segnalazioni" aria-pressed="false" title="Mostra segnalazioni sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati automaticamente. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="IED: probabilità del modello e candidati. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
       <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div>
-      <div class="tllegend" id="tllegend">Ogni cella = epoca di 4 s dell'intera registrazione; passa il mouse per i dettagli, clic per andarci.
- <span data-row="Annotazioni">Annotazioni: quelle del tecnico nell'EDF.</span>
- <span data-row="Artefatti">Artefatti (calcolati dall'app):<i style="background:var(--art)"></i>&gt; 350 µV su ≥ 3 canali o annotati, <i style="background:var(--stim);opacity:.45"></i>delta solo frontopolare (oculare).</span>
- <span data-row="Onde lente">Onde lente: indice lento/veloce per epoca, colorato da 0,2.</span>
- <span data-row="Lateralità">Lateralità:<i style="background:var(--flag)"></i>più lento a sx,<i style="background:var(--stato)"></i>più lento a dx.</span>
- <span data-row="Segnalazioni">Segnalazioni: epoche oltre soglia (sx, dx,<i style="background:var(--ink)"></i>diffuse), anche come striscia sotto il tracciato.</span>
- <span data-row="Pattern ACNS">Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati.</span>
- <span data-row="IED (modello)">IED: probabilità del modello e candidati.</span></div>
     </div>
   </section>
   <aside id="side">
@@ -166,12 +195,13 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <h2>Referto automatico (bozza)</h2>
     <div id="repbox">
       <textarea id="reptext" class="rep" spellcheck="false" placeholder="Apri un file per generare la bozza." aria-label="Bozza di referto modificabile"></textarea>
-      <div class="iedbar"><button class="btn" id="repcopy">Copia</button><button class="btn" id="repdl">Scarica .txt</button><select id="repfmt" aria-label="Formato del referto"><option value="aopd">Stile AOPD</option><option value="score">Strutturato SCORE/IFCN</option></select><button class="btn" id="repregen" title="Rigenera dal tracciato (perde le modifiche manuali)">Rigenera</button><span class="small" id="repstate"></span></div>
+      <div class="iedbar"><button class="btn" id="repcopy">Copia</button><select id="repfmt" aria-label="Formato del referto"><option value="aopd">Stile AOPD</option><option value="score">Strutturato SCORE/IFCN</option></select><button class="btn" id="repregen" title="Rigenera dal tracciato (perde le modifiche manuali)">Rigenera</button><span class="small" id="repstate"></span></div>
+      <div class="iedbar"><button class="btn" id="repsave" title="Scarica un file di testo con il referto e l'elenco dei reperti annotati">Salva testo e annotazioni</button></div>
       <p class="small">Stile AOPD o strutturato SCORE/IFCN (sezioni, prevalenza e incidenza ACNS 2021, significato diagnostico); ogni frase deriva da una misura dell'app. Il testo è modificabile; si aggiorna da solo dopo la revisione IED finché non lo modifichi.</p>
     </div>
    </section>
    <section class="sec" data-sec="ied">
-    <h2>Candidati IED (modello)</h2>
+    <h2 title="Modello IED: SenuaLab EEG-IED-Detection (resnet_attention), pesi CC BY 4.0, addestrato su vEpiSet. Tasti: N/P candidato successivo/precedente, 1/2/3 giudizio sì/no/dubbio.">Candidati IED (modello)</h2>
     <div id="iedbox">
       <div class="small" id="iedstatus">Modello non caricato.</div>
       <div class="prog" id="iedprog" hidden><i></i></div>
@@ -197,10 +227,9 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <div id="refbox" class="small">Trascina etichette_referti.json (resta in locale).</div>
    </section>
    <section class="sec" data-sec="map">
-    <h2>Mappa delle bande</h2>
+    <h2 title="Potenza relativa per elettrodo, media comune, epoche senza artefatti. Le croci indicano gli elettrodi esclusi.">Mappa delle bande</h2>
     <div class="bandsel" id="bandsel"></div>
     <canvas id="topo" height="250"></canvas>
-    <p class="small">Potenza relativa, media comune, epoche senza artefatti. Le croci indicano gli elettrodi esclusi.</p>
    </section>
    <section class="sec" data-sec="spec">
     <h2>Spettro posteriore a occhi chiusi</h2>
@@ -208,13 +237,12 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
    </section>
    <section class="sec" data-sec="ann">
     <h2>Annotazioni</h2>
-    <ul class="annlist" id="annlist"></ul>
+    <h3 class="small" id="uahead" hidden>Reperti annotati da te</h3><ul class="annlist" id="ualist" hidden></ul>
+    <h3 class="small" id="eahead" hidden>Dal tecnico (EDF)</h3><ul class="annlist" id="annlist"></ul>
    </section>
   </aside>
   <button id="railtog" title="Comprimi il pannello" aria-label="Comprimi o espandi il pannello">›</button>
   <nav id="rail" aria-label="Sezioni del pannello">
-    <button class="rb" id="railall" title="Mostra o nascondi tutte le sezioni" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg></button>
-    <hr>
     <button class="rb" data-sec="score" title="Livello decisionale (regole SCORE)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12M4 14h8M3 4h10M3 4l-2 5h4zM13 4l-2 5h4z"/></svg></button>
     <button class="rb" data-sec="ilae" title="Requisiti minimi ILAE-IFCN" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2.5" width="10" height="12" rx="1"/><path d="M6 2.5h4v2H6zM5.5 9.5l2 2 3-4"/></svg></button>
     <button class="rb" data-sec="acns" title="Pattern ritmici e periodici ACNS" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg></button>
@@ -227,7 +255,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <button class="rb" data-sec="ann" title="Annotazioni" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg></button>
   </nav>
 </main>
-<footer><span>PagSu/PagGiù pagina · ←/→ 1 s · ↑/↓ sensibilità · N/P candidato IED · 1/2/3 giudizio · clic sulla linea del tempo per saltare</span><span>Modello IED: SenuaLab EEG-IED-Detection (resnet_attention, CC BY 4.0, dati vEpiSet)</span><span>Uso didattico e di ricerca, non diagnostico.</span></footer>
+
 </div>
 <script>/* Annotatore EEG — core (lettore EDF+, filtri, montaggi, analisi spettrale). Nessun dato esce dal browser. */
 (function (G) {
@@ -615,7 +643,7 @@ function analyze(rec, opts = {}) {
       flaggedL: ep.filter(o => o.flag === 'lento sx').length, flaggedR: ep.filter(o => o.flag === 'lento dx').length,
       flaggedD: ep.filter(o => o.flag === 'lento diffuso' || o.flag === 'lento bilaterale').length }
   };
-  out.amp = alphaAmplitude(rec, out); out.voltACNS = bgVoltage(rec, out); out.sli = photicDriving(rec, out);
+  out.amp = alphaAmplitude(rec, out); out.voltACNS = bgVoltage(rec, out); out.stab = alphaStability(rec, out); out.sli = photicDriving(rec, out);
   try { out.rpp = rhythmicPeriodic(rec, out); } catch (e) { out.rpp = { patterns: [], summary: {}, error: String(e) }; }
   out.standards = recordingStandards(rec, out);
   return out;
@@ -644,6 +672,33 @@ function bgVoltage(rec, A) {
   if (!per.length) return null;
   const uv = median(per), hi = Math.max(...per);
   return { uv, max: hi, nDer: per.length, cat: hi < 10 ? 'soppresso' : uv < 20 ? 'basso' : uv >= 150 ? 'alto' : 'normale' };
+}
+/* stabilità del ritmo posteriore (taratura su 85 referti AOPD, 17/10/2026, VALIDAZIONE_v0.4 §4)
+   Tratti a occhi chiusi, finestre di 2 s con passo 1 s, epoche con artefatti escluse. Per finestra: quota alfa = potenza 8–13 Hz /
+   potenza 2–30 Hz (media O1-P3, O2-P4); finestra "in sonnolenza" se theta (4–8 Hz) > alfa sia posteriormente sia in C3-P3/C4-P4.
+   Persistenza = quota di finestre in veglia con quota alfa ≥ 0,35. Sequenza = finestre consecutive in veglia con alfa dominante;
+   durata media delle sequenze < 2,1 finestre (≈ 3 s) → instabile (11/15 "instabile" dei referti trovati, 14/70 falsi; LOO 66/85).
+   "Stabile" e "un po' instabile" dei referti non si distinguono con nessuna misura: due soli livelli. */
+const STAB_THR = 2.1;
+function alphaStability(rec, A) {
+  const fs = A.fs, n = 2 * fs, segs = A.pdr.ocSegs || []; if (!segs.length) return null;
+  const ok = p => !A.bad.has(p[0]) && !A.bad.has(p[1]) && A.cmap[p[0]] !== undefined && A.cmap[p[1]] !== undefined;
+  const post = [['O1', 'P3'], ['O2', 'P4']].map((p, i) => ok(p) ? p : [['O1', 'T5'], ['O2', 'T6']][i]).filter(ok), cen = [['C3', 'P3'], ['C4', 'P4']].filter(ok);
+  if (!post.length) return null;
+  const filt = makeFilters(fs, 1, 30, 0), badEp = t => A.epochs.some(o => (o.zero || o.artifact || o.annArt) && t + 2 > o.t && t < o.t + A.epoch);
+  const bp = (P, a, b) => bandPow(P, fs, n, a, b), runs = []; let nAlert = 0, nAlpha = 0, nAll = 0;
+  for (const [t0, t1] of segs) { const i0 = Math.floor(t0 * fs), i1 = Math.floor(t1 * fs), sig = pr => filtfilt(derivation(rec, A.cmap, pr, i0, i1), filt);
+    const P = post.map(sig), Cn = cen.map(sig); let r = 0;
+    for (let i = 0; i + n <= i1 - i0; i += fs) { if (badEp(t0 + i / fs)) { if (r) runs.push(r); r = 0; continue; }
+      const sp = P.map(x => spectrum(x.subarray(i, i + n))), sc = Cn.map(x => spectrum(x.subarray(i, i + n)));
+      const share = sp.reduce((a, S) => a + bp(S, 8, 13) / bp(S, 2, 30), 0) / sp.length, ta = S => bp(S, 4, 8) / bp(S, 8, 13);
+      const drowsy = sp.reduce((a, S) => a + ta(S), 0) / sp.length > 1 && sc.length > 0 && sc.reduce((a, S) => a + ta(S), 0) / sc.length > 1;
+      nAll++; if (drowsy) { if (r) runs.push(r); r = 0; continue; }
+      nAlert++; if (share >= 0.35) { nAlpha++; r++; } else { if (r) runs.push(r); r = 0; } }
+    if (r) runs.push(r); }
+  if (nAlert < 10) return { nAll, nAlert, cls: null };
+  const runMean = runs.length ? runs.reduce((a, v) => a + v, 0) / runs.length : 0;
+  return { nAll, nAlert, persist: nAlpha / nAlert, runMean, runSec: runMean ? runMean + 1 : 0, drowsyFrac: nAll ? 1 - nAlert / nAll : 0, cls: runMean < STAB_THR ? 'instabile' : 'stabile' };
 }
 /* stimolazione luminosa intermittente: trascinamento = picchi posteriori ≥ 6× la potenza basale a frequenze diverse dal ritmo di fondo */
 function photicDriving(rec, A) {
@@ -819,16 +874,18 @@ function generateReport(A, rec, d, ied, format) {
   // condizioni
   const artFrac = A.epochs.filter(o => !o.zero && (o.artifact || o.annArt)).length / Math.max(1, A.epochs.filter(o => !o.zero).length);
   const nMov = A.anns.filter(a => a.code === 'ART_MOV').length;
-  m.artFrac = artFrac; m.drowsy = has('DROWSY'); m.nocoop = has('NOCOOP');
+  const U = userFindings(A), uS = x => x.text + ' (annotato: ' + x.note + ')';
+  m.artFrac = artFrac; m.drowsy = has('DROWSY') || U.list.some(x => x.ev === 'sonnolenza'); m.nocoop = has('NOCOOP'); m.user = U.list;
   let cond = 'Condizioni di registrazione: esame condotto in veglia' + (m.drowsy ? ', con tratti di sonnolenza' : '') + '. ';
   cond += m.nocoop ? 'Paziente scarsamente collaborante.' : artFrac > 0.25 ? 'Collaborazione parziale.' : 'Collaborazione buona.';
   if (artFrac > 0.25 || nMov >= 8) cond += ' Presenti numerosi artefatti' + (nMov >= 4 ? ' da movimento' : '') + '.';
+  if (U.by('art').length) cond += ' Artefatti segnalati: ' + U.by('art').map(x => x.ev + ' (' + x.n + ')').join(', ') + '.';
   out.push(cond);
   // ritmo di fondo
   const prom = ((p.sx ? p.sx.prominence : 0) + (p.dx ? p.dx.prominence : 0)) / ((p.sx ? 1 : 0) + (p.dx ? 1 : 0) || 1);
   m.pdr = p.freq; m.prom = prom; m.react = p.reactivity; m.amp = A.amp;
   const slowBg = p.freq != null && p.freq < 8, asymF = p.freqDiff != null && Math.abs(p.freqDiff) > 1;
-  const stab = prom >= 12 ? 'stabile' : prom >= 4 ? 'un po’ instabile' : 'instabile';
+  const stab = A.stab && A.stab.cls ? A.stab.cls : prom >= 12 ? 'stabile' : prom >= 4 ? 'un po’ instabile' : 'instabile'; m.stab = A.stab;
   // voltaggio: aggettivo calibrato sui referti AOPD; la categoria ACNS 2021 (pensata per l'EEG in area critica) è riportata a parte,
   // perché su 49 EEG AOPD classifica "basso" 26 tracciati refertati come medio-voltati
   m.volt = A.voltACNS;
@@ -870,12 +927,21 @@ function generateReport(A, rec, d, ied, format) {
   m.betaAnt = beta;
   body += beta == null ? '' : beta > 0.35 ? ' Abbondante attività beta sulle regioni anteriori.' : beta >= 0.05 ? ' Presente attività beta in quantità adeguata sulle regioni anteriori.' : ' Scarsa attività beta.';
   out.push(body);
+  const uSlow = U.by('slow').concat(U.by('bg').filter(x => x.ev !== 'sonnolenza' && x.ev !== 'sonno'));
+  if (uSlow.length) out.push('Si osservano: ' + uSlow.map(uS).join('; ') + '.');
+  uSlow.filter(x => x.abn).forEach(x => concl.push(x.ev + (x.where ? ' ' + x.where : '')));
   // anomalie epilettiformi
   if (ied && ied.confirmed && ied.confirmed.length) {
     const t = iedText(ied, A);
     out.push('Nel corso della registrazione si evidenzia' + (t.n === 1 ? ' un\u2019anomalia epilettiforme (' + t.morph + ', confermata in revisione) ' : 'no ' + t.incPl + ' anomalie epilettiformi (' + t.morph + '; ' + t.n + ' confermate in revisione) ') + t.where + (t.rev.length ? ', con inversione di fase in ' + t.rev.join(', ') : '') + '.');
     concl.push((t.n > 1 ? t.incPl + ' ' : '') + 'anomalie epilettiformi ' + t.where);
-  } else out.push('Nel corso della registrazione non si evidenziano anomalie epilettiformi' + (ied && ied.pending ? ' (' + ied.pending + ' candidati del rilevatore automatico non ancora rivisti)' : ied ? '' : ' (rilevatore automatico non eseguito)') + '.');
+  } else if (U.epi.length) out.push('Nel corso della registrazione si evidenziano anomalie epilettiformi: ' + U.epi.map(uS).join('; ') + '.');
+  else out.push('Nel corso della registrazione non si evidenziano anomalie epilettiformi' + (ied && ied.pending ? ' (' + ied.pending + ' candidati del rilevatore automatico non ancora rivisti)' : ied ? '' : ' (rilevatore automatico non eseguito)') + '.');
+  if (U.epi.length && ied && ied.confirmed && ied.confirmed.length) out.push('Annotati inoltre: ' + U.epi.map(uS).join('; ') + '.');
+  U.epi.slice().reverse().forEach(x => concl.unshift(x.ev + (x.where ? ' ' + x.where : '')));
+  if (U.by('rpp').length) { out.push('Si osservano: ' + U.by('rpp').map(uS).join('; ') + '.'); U.by('rpp').forEach(x => concl.push(x.ev + (x.where ? ' ' + x.where : ''))); }
+  if (U.by('sz').length) { out.push('Si registrano: ' + U.by('sz').map(x => x.ev + (x.where ? ' ' + x.where : '') + ' (annotato: ' + x.note + ')').join('; ') + '.'); U.by('sz').forEach(x => concl.unshift(x.ev + (x.where ? ' ' + x.where : ''))); }
+  if (U.by('var').length) out.push('Varianti normali: ' + U.by('var').map(x => x.ev + (x.where ? ' ' + x.where : '') + ' (' + x.n + ')').join('; ') + '.');
   const rpx = rppText(A); if (rpx.present.length) out.push('Si osservano ' + rpx.present.join('; ') + ' (rilevamento automatico secondo la terminologia ACNS, da verificare).');
   // iperpnea
   if (has('HV')) { if (s.hvEvoked && s.hvEvoked.positive) { out.push('L’iperpnea evoca la comparsa di attività lenta intermittente (' + Math.round(s.hvEvoked.slowFrac * 100) + '% delle epoche più lente del basale): verificare se fisiologica.'); concl.push('anomalie lente evocate dall’iperpnea'); }
@@ -887,20 +953,35 @@ function generateReport(A, rec, d, ied, format) {
   else out.push('La SLI non modifica significativamente il tracciato.');
   // conclusione
   let c;
-  if (!d.abnormal) c = 'tracciato privo di anomalie significative.' + (d.possible && d.possible.length ? ' Da verificare sul tracciato: ' + d.possible.join('; ') + '.' : '');
+  if (!d.abnormal && !U.abn) c = 'tracciato privo di anomalie significative.' + (d.possible && d.possible.length ? ' Da verificare sul tracciato: ' + d.possible.join('; ') + '.' : '');
   else { c = concl.length ? concl.join('; ') : d.labels.join(', ').toLowerCase(); if (org === 'scarsamente organizzato' && !/contesto/.test(c)) c += ', nel contesto di un tracciato scarsamente organizzato'; c = c.charAt(0).toLowerCase() + c.slice(1) + '.';
     const iedFlag = d.possible && d.possible.some(x => /candidati IED/.test(x));
-    if (!(ied && ied.confirmed && ied.confirmed.length)) c += iedFlag ? ' Frequenti candidati IED da rivedere prima di escludere anomalie epilettiformi.' : ' Non anomalie epilettiformi.';
+    if (!(ied && ied.confirmed && ied.confirmed.length) && !U.epi.length) c += iedFlag ? ' Frequenti candidati IED da rivedere prima di escludere anomalie epilettiformi.' : ' Non anomalie epilettiformi.';
     const other = (d.possible || []).filter(x => !/candidati IED/.test(x)); if (iedFlag || other.length) c += ' Da verificare sul tracciato: ' + (d.possible || []).join('; ') + '.'; }
   out.push('In conclusione: ' + c);
   m.hv = has('HV') ? (s.hvEvoked && s.hvEvoked.positive ? 'evocato' : 'fisiologica') : 'non eseguita'; m.sli = A.sli && A.sli.done ? (A.sli.driving ? 'trascinamento' : 'senza modifiche') : 'non eseguita';
   const dt = (rec.startDate || '').split('.'), date = dt.length === 3 ? dt[0] + '/' + dt[1] + '/' + (dt[2].length === 2 ? (+dt[2] > 84 ? '19' : '20') + dt[2] : dt[2]) : '';
-  const head = 'ESAME ELETTROENCEFALOGRAFICO — BOZZA GENERATA AUTOMATICAMENTE (Annotatore EEG v0.3)\nData registrazione: ' + date + ' ' + (rec.startTime || '').replace(/\./g, ':') + ' · durata ' + Math.round(A.duration / 60) + ' min\n';
-  const foot = '\n\nBozza da rivedere sul tracciato e da validare dal medico refertante: non è un referto diagnostico.';
+  const head = 'ESAME ELETTROENCEFALOGRAFICO — BOZZA GENERATA AUTOMATICAMENTE (EEGnote)\nData registrazione: ' + date + ' ' + (rec.startTime || '').replace(/\./g, ':') + ' · durata ' + Math.round(A.duration / 60) + ' min\n';
+  const foot = '';
   return { text: head + '\n' + out.join('\n') + foot, sections: out, measures: m, conclusion: c };
 }
 
 
+/* reperti annotati dall'operatore (A.uann, preparato dall'interfaccia: {cat, ev, t0, t1, where, side}).
+   Quantificatori ACNS 2021: incidenza per i transienti (epilettiformi, p. 8), prevalenza per pattern e attività lenta (pp. 13-14). */
+const UCAT_ABN = { epi: 1, slow: 1, rpp: 1, sz: 1 }, UBG_ABN = { 'attenuazione focale': 1, 'asimmetria': 1 };
+function userFindings(A) {
+  const U = A.uann || [], g = {}, mm = t => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(Math.floor(t % 60)).padStart(2, '0'), min = A.duration / 60;
+  for (const u of U) { const k = u.cat + '|' + u.ev + '|' + u.where; (g[k] = g[k] || { cat: u.cat, ev: u.ev, where: u.where, items: [] }).items.push(u); }
+  const list = Object.values(g).map(x => { x.items.sort((a, b) => a.t0 - b.t0); x.n = x.items.length; x.dur = x.items.reduce((a, u) => a + (u.t1 - u.t0), 0);
+    x.times = x.items.slice(0, 5).map(u => mm(u.t0)).join(', ') + (x.n > 5 ? '…' : '');
+    x.quant = x.cat === 'epi' ? incidenceTerm(x.n, min) : prevalenceTerm(x.dur / A.duration * 100);
+    x.text = x.ev + (x.where ? ' ' + x.where : '') + (x.cat === 'epi' ? ', incidenza ' + x.quant : x.cat === 'rpp' || x.cat === 'slow' ? ', prevalenza ' + x.quant : '');
+    x.note = x.n + (x.n === 1 ? ' evento' : ' eventi') + ' alle ' + x.times + (x.cat === 'epi' ? '' : ', ' + Math.round(x.dur) + ' s in tutto');
+    x.abn = !!UCAT_ABN[x.cat] || (x.cat === 'bg' && !!UBG_ABN[x.ev]); return x; });
+  const by = c => list.filter(x => x.cat === c);
+  return { list, by, abn: list.some(x => x.abn), epi: by('epi') };
+}
 function rppText(A) {
   const names = { LPD: 'scariche periodiche lateralizzate (LPD)', GPD: 'scariche periodiche generalizzate (GPD)', LRDA: 'attività delta ritmica lateralizzata (LRDA)', GRDA: 'attività delta ritmica generalizzata (GRDA)' };
   const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary) : [], f = r => (names[r.name] || r.name) + (r.side === 'G' ? '' : ' a ' + (r.side === 'sx' ? 'sinistra' : 'destra')) + ', ' + (/PD$/.test(r.name) ? prevQ(r.pct) : r.prevalence) + ' (' + Math.round(r.pct) + '% della registrazione), ' + (r.freq != null ? hz05(r.freq) : '?') + ' Hz';
@@ -923,14 +1004,19 @@ function generateReportSCORE(A, rec, d, ied) {
   if (s.diffuse || (p.freq != null && p.freq < 8)) nf.push('rallentamento diffuso, ' + prevalenceTerm(s.prev ? s.prev.diffuse : 0) + ' (' + Math.round(s.prev ? s.prev.diffuse : 0) + '% delle epoche)');
   if (s.side) nf.push('attività lenta polimorfa lateralizzata a ' + (s.side === 'sx' ? 'sinistra' : 'destra') + ' (' + lobesText(s.latRegions.slice(0, 2)) + '), ' + prevalenceTerm(s.prev.side) + ' (' + Math.round(s.prev.side) + '%)');
   else if (s.intermittent && !s.diffuse) nf.push('attività lenta intermittente bitemporale, ' + prevalenceTerm(s.prev.intermittent) + ' (' + Math.round(s.prev.intermittent) + '%)');
+  const U = userFindings(A), uL = x => '   - ' + x.text + ' (annotato: ' + x.note + ')';
+  U.by('slow').concat(U.by('bg').filter(x => x.ev !== 'sonnolenza' && x.ev !== 'sonno'), U.by('var')).forEach(x => nf.push(x.text + ' (annotato: ' + x.note + ')'));
   L.push(nf.length ? nf.map(x => '   - ' + x).join('\n') : '   Nessuno.');
   L.push('', '5. REPERTI INTERCRITICI EPILETTIFORMI');
   if (ied && ied.confirmed && ied.confirmed.length) { const t = iedText(ied, A);
     L.push('   Morfologia: ' + t.morph, '   Sede: ' + t.where + (t.rev.length ? '; inversione di fase in ' + t.rev.join(', ') : ''), '   Incidenza: ' + t.inc + ' (' + t.n + ' in ' + Math.round(A.duration / 60) + ' min, ' + t.rate.toFixed(1).replace('.', ',') + '/min)'); }
+  else if (U.epi.length) L.push(...U.epi.map(uL));
   else L.push('   Assenti' + (ied ? (ied.pending ? ' tra i reperti confermati (' + ied.pending + ' candidati automatici da rivedere, incidenza ' + incidenceTerm(ied.total, A.duration / 60) + ')' : '') : ' (rilevatore automatico non eseguito)') + '.');
   L.push('', '6. PATTERN RITMICI E PERIODICI (terminologia ACNS 2021)');
   const r = rppText(A);
-  L.push(r.present.length ? r.present.map(x => '   - ' + x).join('\n') : '   Nessun pattern con prevalenza ≥ 10%.');
+  if (U.epi.length && ied && ied.confirmed && ied.confirmed.length) L.push(...U.epi.map(uL));
+  if (U.by('sz').length) L.push(...U.by('sz').map(uL));
+  L.push(r.present.length || U.by('rpp').length ? r.present.map(x => '   - ' + x).concat(U.by('rpp').map(uL)).join('\n') : '   Nessun pattern con prevalenza ≥ 10%.');
   if (r.possible.length) L.push('   Possibili, da verificare: ' + r.possible.join('; '));
   L.push('', '7. ATTIVAZIONI');
   L.push('   Iperpnea: ' + base.sections.find(x => /HPN|iperpnea/i.test(x)));
@@ -940,7 +1026,7 @@ function generateReportSCORE(A, rec, d, ied) {
   L.push('', '9. SIGNIFICATO DIAGNOSTICO (SCORE)', '   ' + sig.label + (sig.detail ? ': ' + sig.detail : '') + '.');
   L.push('', '10. COMMENTO', '   ' + base.conclusion.charAt(0).toUpperCase() + base.conclusion.slice(1));
   const head = base.text.split('\n\n')[0].replace('BOZZA GENERATA', 'BOZZA STRUTTURATA SCORE/IFCN GENERATA');
-  return { text: head + '\n\n' + L.join('\n') + '\n\nBozza da rivedere sul tracciato e da validare dal medico refertante: non è un referto diagnostico.', sections: L, measures: base.measures, conclusion: base.conclusion, significance: sig };
+  return { text: head + '\n\n' + L.join('\n'), sections: L, measures: base.measures, conclusion: base.conclusion, significance: sig };
 }
 
 /* ---------- localizzazione fine dei candidati IED ----------
@@ -1272,7 +1358,7 @@ function pdrPeak(acc, fs, nfft) {
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
-G.EEGCore = { generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+G.EEGCore = { STAB_THR, alphaStability, userFindings,  generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script id="iedsrc">/* Annotatore EEG — rilevatore di scariche epilettiformi intercritiche (IED).
@@ -1493,6 +1579,7 @@ G.EEGIED = { IED_CH, IED_THR, readSafetensors, prepareModel, forward, makePrepro
 const C = window.EEGCore;
 const $ = id => document.getElementById(id);
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let UA = [], ANNOT = false, ANNCUR = { cat: 'epi', ev: null }, ANNTAB = 'epi'; // annotazioni dell'operatore (vedi sotto)
 const S = window.__EEG = { rec: null, A: null, t: 0, labels: null, fileId: null, band: 'alpha', cache: null, fname: null, model: null, ied: null, iedCur: -1, review: {} };
 const GROUPCOL = { stato: '--stato', stimolazione: '--stim', artefatto: '--art', tecnico: '--tec', ambiente: '--art', 'da chiarire': '--tec', altro: '--tec' };
 const fmtT = s => { const m = Math.floor(s / 60), x = Math.floor(s % 60); return m + ':' + String(x).padStart(2, '0'); };
@@ -1522,7 +1609,7 @@ async function handleFiles(files) {
     S.rec = C.parseEDF(buf);
     const t0 = performance.now(); S.A = C.analyze(S.rec); S.ms = performance.now() - t0;
     const m = edf.name.match(/(\d+)/); S.fileId = m ? String(parseInt(m[1])) : null; S.fname = edf.name;
-    S.t = 0; S.cache = null; S.ied = null; S.iedCur = -1; S.review = loadReview(); repDirty = false;
+    S.t = 0; S.cache = null; S.ied = null; S.iedCur = -1; S.review = loadReview(); repDirty = false; loadUA();
     $('drop').style.display = 'none';
     renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll();
     if (S.model) setTimeout(runIED, 50);
@@ -1567,18 +1654,22 @@ function drawTrace() {
   tctx.font = '12px IBM Plex Sans, system-ui'; // colonna delle derivazioni larga quanto l'etichetta più lunga
   const lab = Math.ceil(Math.max(30, ...P.rows.filter(Boolean).map(r => tctx.measureText(r.label).width)) + 12), plotW = W - lab - 4;
   const rows = P.rows, nRows = rows.length, rowH = (H - 20) / nRows;
+  S.geo = { lab, plotW, rowH, sec, H, labels: rows.map(r => r && !r.ecg ? r.label : null) };
   // griglia: secondi
   tctx.lineWidth = 1;
   for (let s = 0; s <= sec; s++) { const x = lab + s / sec * plotW; tctx.strokeStyle = css('--grid2'); tctx.beginPath(); tctx.moveTo(x + .5, 0); tctx.lineTo(x + .5, H - 18); tctx.stroke();
     tctx.fillStyle = css('--muted'); tctx.font = '11px IBM Plex Sans, system-ui'; tctx.fillText(fmtT(S.t + s), x + 2, H - 5); }
   // tratti a zero
   for (const [a, b] of A.zeros) if (b > S.t && a < S.t + sec) { tctx.fillStyle = css('--grid'); const x0 = lab + Math.max(0, a - S.t) / sec * plotW, x1 = lab + Math.min(sec, b - S.t) / sec * plotW; tctx.fillRect(x0, 0, x1 - x0, H - 18); }
-  // striscia per epoca sotto le tracce: segnalazioni di onde lente (rosso sx, blu dx, grigio scuro diffuso/bilaterale), artefatti, delta oculare
-  for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue;
-    const x0 = lab + Math.max(0, o.t - S.t) / sec * plotW, x1 = lab + Math.min(sec, o.t + A.epoch - S.t) / sec * plotW;
-    let col = null, al = 1;
-    if (o.artifact || o.annArt) { col = '--art'; al = o.artifact ? .9 : .5; } else if (o.flag) { col = o.flag === 'lento sx' ? '--flag' : o.flag === 'lento dx' ? '--stato' : '--muted'; } else if (o.eyeDelta) { col = '--stim'; al = .45; }
-    if (col) { tctx.fillStyle = css(col); tctx.globalAlpha = al; tctx.fillRect(x0, H - 24, Math.max(1, x1 - x0 - 1), 5); tctx.globalAlpha = 1; } }
+  // reperti della panoramica mostrati sul tracciato (pulsante "occhio"): fasce colorate trasparenti per epoca di 4 s
+  if (EYEON.size) { const band = (t0, t1, col, al) => { const x0 = lab + Math.max(0, t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, t1 - S.t) / sec * plotW; if (x1 <= x0) return;
+      tctx.fillStyle = col; tctx.globalAlpha = al; tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.globalAlpha = 1; };
+    for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue; const t1 = o.t + A.epoch;
+      if (EYEON.has('Artefatti')) { if (o.artifact || o.annArt) band(o.t, t1, css('--art'), o.artifact ? .16 : .1); else if (o.eyeDelta) band(o.t, t1, css('--stim'), .08); }
+      if (EYEON.has('Onde lente') && o.slowAbs >= 0.2) band(o.t, t1, heat(Math.max(0.15, Math.min(1, (o.slowAbs - 0.2) / 0.8))), .22);
+      if (EYEON.has('Lateralità') && o.lat) { let m = 0; for (const r in o.lat) if (Math.abs(o.lat[r]) > Math.abs(m)) m = o.lat[r]; if (Math.abs(m) >= C.SLOW.epochLat) band(o.t, t1, css(m > 0 ? '--flag' : '--stato'), .12); }
+      if (EYEON.has('Segnalazioni') && o.flag) band(o.t, t1, css(o.flag === 'lento sx' ? '--flag' : o.flag === 'lento dx' ? '--stato' : '--muted'), .14); }
+    if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) for (const q of A.rpp.patterns) band(q.t0, q.t1, css(q.side === 'sx' ? '--flag' : q.side === 'dx' ? '--stato' : '--ink'), .12); }
   // annotazioni
   for (const a of A.anns) {
     const e = a.onset + (a.duration || 0);
@@ -1619,12 +1710,14 @@ function drawTrace() {
   // barra di calibrazione 50 µV
   const cal = 50 * pxPerUv; tctx.strokeStyle = css('--accent'); tctx.lineWidth = 2; tctx.beginPath(); tctx.moveTo(W - 14, H - 26); tctx.lineTo(W - 14, H - 26 - cal); tctx.stroke();
   tctx.fillStyle = css('--accent'); tctx.font = '10px IBM Plex Sans, system-ui'; tctx.textAlign = 'right'; tctx.fillText('50 µV', W - 18, H - 28 - cal / 2); tctx.textAlign = 'left';
+  renderUA();
 }
 
 /* ---- linea del tempo ---- */
 const tl = $('timeline'), lctx = tl.getContext('2d');
 const TLROWS = ['Annotazioni', 'Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni', 'Pattern ACNS', 'IED (modello)'];
 const TLOFF = new Set(); // righe nascoste dall'utente
+const EYEON = new Set(); // reperti mostrati anche sul tracciato
 function tlRows() { const A = S.A; const r = TLROWS.filter(n => !TLOFF.has(n) && (n === 'Pattern ACNS' ? !!(A && A.rpp && A.rpp.patterns && A.rpp.patterns.length) : n === 'IED (modello)' ? !!S.ied : true)); return r.length ? r : ['Annotazioni']; }
 function drawTimeline() {
   const r = tl.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
@@ -1637,6 +1730,7 @@ function drawTimeline() {
   rows.forEach((n, i) => { lctx.fillStyle = css('--muted'); lctx.fillText(n, 4, i * rh + rh * .62); lctx.fillStyle = css('--grid'); lctx.fillRect(lab, i * rh + 2, pw, rh - 4); });
   // annotazioni
   const yA = RI('Annotazioni') * rh, yR = RI('Artefatti') * rh, yS = RI('Onde lente') * rh, yL = RI('Lateralità') * rh, yF = RI('Segnalazioni') * rh;
+  if (yA >= 0) for (const u of UA) { lctx.fillStyle = css(ucat(u.cat).col); lctx.fillRect(X(u.t0), yA + 1, Math.max(3, (u.t1 - u.t0) / D * pw), rh - 2); }
   if (yA >= 0) for (const a of A.anns) { lctx.fillStyle = css(GROUPCOL[a.group] || '--tec'); const w = Math.max(2, (a.duration || 0) / D * pw); lctx.fillRect(X(a.onset), yA + 3, w, rh - 6); }
   for (const [a, b] of A.zeros) { lctx.fillStyle = css('--zero'); lctx.fillRect(X(a), 0, Math.max(2, X(b) - X(a)), H - 16); }
   const ew = A.epoch / D * pw + .6;
@@ -1747,6 +1841,18 @@ function drawSpec() {
 }
 
 /* ---- sintesi ---- */
+/* scala della stabilità (logaritmica, 1–8 finestre): a sinistra stabile (sequenze lunghe), a destra instabile (sequenze brevi); tacche = 1 finestra; soglia tratteggiata */
+function stabGauge(st) {
+  const lo = 1, hi = 8, X = v => 14 + (1 - Math.log(Math.max(lo, Math.min(hi, v))) / Math.log(hi)) * 212, x = X(st.runMean), xt = X(C.STAB_THR);
+  let ticks = ''; for (let v = lo; v <= hi; v++) ticks += `<line x1="${X(v)}" y1="22" x2="${X(v)}" y2="${v === hi || v === lo ? 28 : 26}" stroke="var(--muted)" stroke-width="1"/>`;
+  return `<svg class="gauge" viewBox="0 0 240 44" role="img" aria-label="Stabilità: ${st.cls}">
+    <title>Durata media delle sequenze di alfa in veglia a occhi chiusi: ${st.runMean.toFixed(1)} finestre (≈ ${st.runSec.toFixed(1)} s). Soglia: ${C.STAB_THR} finestre (≈ ${(C.STAB_THR + 1).toFixed(1)} s); più a destra = più instabile.</title>
+    <line x1="14" y1="22" x2="226" y2="22" stroke="var(--muted)" stroke-width="1.2"/>${ticks}
+    <line x1="${xt}" y1="10" x2="${xt}" y2="32" stroke="var(--flag)" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <line x1="${x}" y1="6" x2="${x}" y2="22" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    <text x="14" y="41" font-size="9" fill="var(--muted)">stabile</text><text x="226" y="41" font-size="9" fill="var(--muted)" text-anchor="end">instabile</text>
+    <text x="${xt}" y="41" font-size="8" fill="var(--flag)" text-anchor="middle">soglia</text></svg>`;
+}
 function renderSummary() {
   const { A, rec } = S, p = A.pdr, f1 = v => v == null || isNaN(v) ? '–' : v.toFixed(1);
   const lines = [], abn = [];
@@ -1768,7 +1874,7 @@ function renderSummary() {
   const asy = Object.entries(A.asym).filter(([k, v]) => v != null && Math.abs(v) >= 0.5);
   if (asy.length) lines.push('possibile asimmetria delle onde lente: ' + asy.map(([k, v]) => k + (v > 0 ? ' (sx>dx)' : ' (dx>sx)')).join(', ') + ' — indice sperimentale');
   const ctr = A.counts, sl = A.slow;
-  const verdict = '<p><b>Ritmo di fondo:</b> ' + (abn.length ? abn.join('; ') : 'nessuna alterazione con le regole attuali') + '.' + (lines.length ? ' Da notare: ' + lines.join('; ') + '.' : '') + '</p>';
+  const verdict = '<p><b title="Rallentato: RPD sotto 8 Hz (banda alfa 8–13 Hz, glossario IFCN). Asimmetrico: differenza di frequenza sx/dx oltre 1 Hz (marcata, ACNS 2021). Non reattivo: attenuazione all\'apertura degli occhi sotto 10%; scarsamente reagente: sotto 35% (soglia AOPD). Da notare: RPD 8–8,5 Hz, asimmetria di voltaggio ≥ 50% o di frequenza 0,5–1 Hz (ACNS 2021), picco posteriore poco netto, gradiente antero-posteriore sotto 1.">Ritmo di fondo:</b> ' + (abn.length ? abn.join('; ') : 'nessuna alterazione con le regole attuali') + '.' + (lines.length ? ' Da notare: ' + lines.join('; ') + '.' : '') + '</p>';
   const chW = Object.keys(A.warn);
   const pops = {}; A.epochs.forEach(o => (o.popCh || []).forEach(c => pops[c] = (pops[c] || 0) + 1));
   $('summary').innerHTML = `
@@ -1782,15 +1888,18 @@ function renderSummary() {
       <dt>Calcolato su</dt><dd>${p.segments ? p.segments + ' tratti a occhi chiusi' : p.source}</dd>
       <dt>Reattività (O.A.)</dt><dd>${p.reactivity == null ? '–' : Math.round(p.reactivity * 100) + '% di attenuazione'}</dd>
       <dt>Gradiente A-P alfa</dt><dd>${f1(A.apGrad)}×</dd>
+      <dt>Stabilità</dt><dd>${A.stab && A.stab.cls ? A.stab.cls + ' (sequenze di alfa ≈ ' + A.stab.runSec.toFixed(1).replace('.', ',') + ' s; persistenza ' + Math.round(A.stab.persist * 100) + '%)' : 'non valutabile'}</dd>
+    </dl>
+    ${A.stab && A.stab.cls ? stabGauge(A.stab) : ''}
+    <dl class="kv">
     </dl>
     <details class="fold"><summary>Stimolazione luminosa (dettagli)</summary><dl class="kv">
       <dt>Esito</dt><dd>${!A.sli || !A.sli.done ? 'non eseguita' : A.sli.driving == null ? 'non valutabile' : A.sli.driving ? 'trascinamento' : 'senza modificazioni'}</dd>
       <dt>Frequenze di trascinamento</dt><dd>${A.sli && A.sli.freqs && A.sli.freqs.length ? A.sli.freqs.join(', ') + ' Hz' : '–'}</dd>
       <dt>Finestre con trascinamento</dt><dd>${A.sli && A.sli.nWin ? A.sli.nHits + ' / ' + A.sli.nWin : '–'}</dd></dl></details>
-    <h2>Potenza relativa globale</h2>
+    <h2 title="Derivazioni bipolari longitudinali senza Fp, epoche pulite, quota sul totale 1–30 Hz. Escluse le epoche con delta limitato ai poli frontali (probabili movimenti oculari): ${A.relBip && isFinite(A.relBip.eyePct) ? Math.round(A.relBip.eyePct) + '%' : '–'} delle epoche pulite. La parte 1–2 Hz raccoglie soprattutto movimenti oculari residui, sudore e deriva della linea di base; gli indici di rallentamento dell'app partono da 2 Hz.">Potenza relativa globale</h2>
     <dl class="kv">${A.relBip ? [['delta 1–2 Hz', 'd1'], ['delta 2–4 Hz', 'd2'], ['theta', 'theta'], ['alfa', 'alpha'], ['beta', 'beta']].map(([l, k]) => `<dt>${l}</dt><dd>${Math.round(A.relBip[k] * 100)}%</dd>`).join('')
       : ['delta', 'theta', 'alpha', 'beta'].map(b => `<dt>${b}</dt><dd>${Math.round(A.globalRel[b] * 100)}%</dd>`).join('')}</dl>
-    <p class="small">Escluse le epoche con delta limitato ai poli frontali (probabili movimenti oculari): ${A.relBip && isFinite(A.relBip.eyePct) ? Math.round(A.relBip.eyePct) + '%' : '–'} delle epoche pulite. Derivazioni bipolari longitudinali senza Fp, epoche pulite, quota sul totale 1–30 Hz. La parte 1–2 Hz raccoglie soprattutto movimenti oculari residui, sudore e deriva della linea di base: gli indici di rallentamento dell'app partono da 2 Hz.</p>
     <h2>Qualità del segnale</h2>
     <dl class="kv">
       <dt>Durata</dt><dd>${fmtT(A.duration)} (${ctr.clean}/${ctr.epochs} epoche pulite)</dd>
@@ -1799,7 +1908,7 @@ function renderSummary() {
       <dt>Rete 50 Hz</dt><dd>${chW.length ? chW.join(', ') : 'trascurabile'}</dd>
       <dt>Tratti a zero</dt><dd>${A.zeros.length ? A.zeros.map(([a, b]) => fmtT(a) + '–' + fmtT(b)).join(', ') : 'nessuno'}</dd>
     </dl>
-    <h2>Anomalie lente (indici regionali bipolari)</h2>
+    <h2 title="Indice = log10(potenza 2–8 Hz / 8–30 Hz) sulle derivazioni bipolari longitudinali, esclusi gli elettrodi Fp (contaminati dai movimenti oculari). Asimmetria sx − dx corretta per lo scarto medio di ogni regione; positivo = più lento a sx. Soglie calibrate su 49 referti AOPD (v0.3) e verificate su 87 (v0.4).">Anomalie lente (indici regionali bipolari)</h2>
     <dl class="kv">
       <dt>Indice globale (mediana)</dt><dd>${sl.g50.toFixed(2)} ${sl.g50 >= C.SLOW.diffuse ? '⚠ ≥ ' + C.SLOW.diffuse : ''}</dd>
       <dt>90° perc. temporale</dt><dd>${sl.p90.temporale.toFixed(2)}</dd>
@@ -1809,14 +1918,15 @@ function renderSummary() {
       ${Object.entries(sl.latMed).map(([r, v]) => `<dt>&nbsp;&nbsp;${r}</dt><dd>${isFinite(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '–'}</dd>`).join('')}
       <dt>Iperpnea</dt><dd>${sl.hvEvoked ? (sl.hvEvoked.positive ? '⚠ ' : '') + Math.round(sl.hvEvoked.slowFrac * 100) + '% epoche lente' : 'non annotata'}</dd>
     </dl>
-    <p class="small">Indice = log10 potenza 2–8 Hz / 8–30 Hz su derivazioni bipolari longitudinali (esclusi gli elettrodi Fp, contaminati dai movimenti oculari). Asimmetria sx−dx corretta per lo scarto medio di ogni regione; positivo = più lento a sx. Soglie calibrate sui 15 referti AOPD. Epoche segnalate: sx ${ctr.flaggedL}, dx ${ctr.flaggedR}, bilaterali/diffuse ${ctr.flaggedD} su ${ctr.clean}.</p>
-    <p class="small">File: ${rec.signals.length} segnali a ${A.fs} Hz, ${rec.type || 'EDF'}, inizio ${rec.startTime.replace(/\./g, ':')}. Analisi in ${Math.round(S.ms)} ms.</p>`;
+    <p class="small">Epoche segnalate: sx ${ctr.flaggedL}, dx ${ctr.flaggedR}, bilaterali/diffuse ${ctr.flaggedD} su ${ctr.clean} epoche pulite.</p>
+`;
+  $('fname').title = 'File: ' + rec.signals.length + ' segnali a ' + A.fs + ' Hz, ' + (rec.type || 'EDF') + ', inizio ' + rec.startTime.replace(/\./g, ':') + '. Analisi in ' + Math.round(S.ms) + ' ms.';
   addSumTips();
 }
-const SUMTIPS = {"Frequenza": "75° percentile dei picchi alfa (5–13,5 Hz) delle singole finestre a occhi chiusi (dal 2° secondo dopo ogni O.C., fino a 20 s), derivazioni O1-P3 e O2-P4; arrotondato a 0,5 Hz (ACNS 2021). 'Media' = picco dello spettro medio di tutte le finestre. 'Non chiaro' se il picco non è netto o non si attenua all'apertura degli occhi (< 10%).", "Voltaggio (ACNS)": "Ampiezza picco-picco (massimo − minimo in finestre di 1 s, filtro 1–30 Hz) sulle derivazioni bipolari longitudinali, epoche pulite; mediana per derivazione e poi tra derivazioni. ACNS 2021: basso < 20 µV, alto ≥ 150 µV, soppresso < 10 µV (soglie per l'area critica).", "Sinistra / destra": "Picco alfa dello spettro medio a occhi chiusi per ciascun lato; 'non definito' se il picco è meno di 2 volte il livello di fondo 1/f (media 3,5–5 e 14–16 Hz). L'asimmetria di frequenza si calcola solo se entrambi i picchi sono netti.", "Derivazioni": "Coppie usate per il ritmo posteriore: O1-P3 e O2-P4, oppure O1-T5 e O2-T6 se un elettrodo è escluso.", "Calcolato su": "Numero di tratti a occhi chiusi annotati dal tecnico (O.C.) usati per il ritmo posteriore; senza annotazioni si usa l'intero tracciato.", "Reattività (O.A.)": "1 − (potenza alfa a occhi aperti / potenza alfa a occhi chiusi), finestre dopo O.A. (da 0,5 a 10 s) e dopo O.C. ACNS 2021 la definisce solo come presente o assente, senza percentuali: sotto 10% = non reattivo; sotto 35% = scarsamente reagente (soglia calibrata sui referti AOPD, la stessa nel referto).", "Gradiente A-P alfa": "Potenza alfa (8–13 Hz) media posteriore (O1, O2, P3, P4) diviso anteriore (Fp1, Fp2, F3, F4), epoche pulite non a occhi aperti. Sotto 1 = gradiente antero-posteriore non mantenuto.", "Esito": "Trascinamento se in almeno 8 finestre di 4 s (passo 2 s) durante la SLI compare un picco posteriore (O1-P3, O2-P4) almeno 6 volte la potenza basale (log10 > 0,8), a frequenze diverse dal ritmo di fondo.", "Frequenze di trascinamento": "Frequenze (Hz, arrotondate) dei picchi sopra soglia nelle finestre della SLI.", "Finestre con trascinamento": "Finestre della SLI con picco sopra soglia / finestre totali della SLI.", "delta 1–2 Hz": "Quota della potenza 1–2 Hz sul totale 1–30 Hz, media sulle derivazioni bipolari longitudinali senza Fp e sulle epoche pulite, escluse quelle con delta solo frontopolare. Raccoglie soprattutto artefatti lenti (occhi, sudore, deriva).", "delta 2–4 Hz": "Quota della potenza 2–4 Hz sul totale 1–30 Hz (stesse derivazioni ed epoche della riga precedente).", "theta": "Quota della potenza 4–8 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "alfa": "Quota della potenza 8–13 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "beta": "Quota della potenza 13–30 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "Durata": "Durata del file. Epoche pulite = epoche di 4 s senza tratti a zero, senza artefatto (picco-picco > 350 µV su almeno 3 canali) e non annotate come artefatto.", "Elettrodi esclusi": "Elettrodi piatti, scollegati o con rumore persistente: esclusi da tutte le analisi (motivo indicato a fianco).", "Artefatti transitori": "Numero di epoche in cui l'elettrodo ha un picco-picco oltre 5 volte la mediana degli altri e oltre 150 µV (elettrodo che 'salta'); in quelle epoche l'elettrodo è ignorato.", "Rete 50 Hz": "Canali con interferenza di rete a 50 Hz elevata rispetto all'attività EEG.", "Tratti a zero": "Pause dell'esportazione riempite con zero (opzione Fill Pause with zero): escluse dalle analisi.", "Indice globale (mediana)": "Indice di rallentamento = log10(potenza 2–8 Hz / potenza 8–30 Hz), media delle derivazioni bipolari longitudinali senza Fp; mediana sulle epoche pulite. ≥ 0,40 = rallentamento diffuso (soglia calibrata su 49 referti AOPD).", "90° perc. temporale": "90° percentile dell'indice di rallentamento nelle derivazioni temporali (F7-T3, T3-T5, F8-T4, T4-T6). ≥ 0,45 = rallentamento intermittente (soglia calibrata AOPD).", "90° perc. fronto-centrale": "90° percentile dell'indice di rallentamento in F3-C3, F4-C4, Fz-Cz. ≥ 0,15 = 'da verificare'.", "90° perc. posteriore": "90° percentile dell'indice di rallentamento nelle derivazioni posteriori (P3-O1, P4-O2, T5-O1, T6-O2, C3-P3, C4-P4). Solo informativo.", "Lateralizzazione": "Differenza sx − dx dell'indice di rallentamento per regione (mediana sulle epoche), corretta per lo scarto medio della regione; lateralizzato se ≥ 0,35 in almeno 2 regioni nello stesso verso (calibrato AOPD).", "Iperpnea": "Quota di epoche nei 180 s dopo l'inizio dell'iperpnea più lente del 90° percentile basale; attivazione se ≥ 15% (o ≥ 20% di epoche con artefatto)."};
+const SUMTIPS = {"Stabilità": "Tratti a occhi chiusi, finestre di 2 s (passo 1 s), O1-P3 e O2-P4; escluse le finestre con artefatti e quelle in sonnolenza (theta > alfa sia in sede posteriore sia in C3-P3/C4-P4). Persistenza = quota di finestre con alfa ≥ 35% della potenza 2–30 Hz. Instabile se le sequenze consecutive di alfa durano in media meno di circa 3 s (2,1 finestre). Soglia tarata su 85 referti AOPD: trova 11/15 'instabile' con 14/70 falsi. Nessuna linea guida definisce la stabilità.", "Frequenza": "75° percentile dei picchi alfa (5–13,5 Hz) delle singole finestre a occhi chiusi (dal 2° secondo dopo ogni O.C., fino a 20 s), derivazioni O1-P3 e O2-P4; arrotondato a 0,5 Hz (ACNS 2021). 'Media' = picco dello spettro medio di tutte le finestre. 'Non chiaro' se il picco non è netto o non si attenua all'apertura degli occhi (< 10%).", "Voltaggio (ACNS)": "Ampiezza picco-picco (massimo − minimo in finestre di 1 s, filtro 1–30 Hz) sulle derivazioni bipolari longitudinali, epoche pulite; mediana per derivazione e poi tra derivazioni. ACNS 2021: basso < 20 µV, alto ≥ 150 µV, soppresso < 10 µV (soglie per l'area critica).", "Sinistra / destra": "Picco alfa dello spettro medio a occhi chiusi per ciascun lato; 'non definito' se il picco è meno di 2 volte il livello di fondo 1/f (media 3,5–5 e 14–16 Hz). L'asimmetria di frequenza si calcola solo se entrambi i picchi sono netti.", "Derivazioni": "Coppie usate per il ritmo posteriore: O1-P3 e O2-P4, oppure O1-T5 e O2-T6 se un elettrodo è escluso.", "Calcolato su": "Numero di tratti a occhi chiusi annotati dal tecnico (O.C.) usati per il ritmo posteriore; senza annotazioni si usa l'intero tracciato.", "Reattività (O.A.)": "1 − (potenza alfa a occhi aperti / potenza alfa a occhi chiusi), finestre dopo O.A. (da 0,5 a 10 s) e dopo O.C. ACNS 2021 la definisce solo come presente o assente, senza percentuali: sotto 10% = non reattivo; sotto 35% = scarsamente reagente (soglia calibrata sui referti AOPD, la stessa nel referto).", "Gradiente A-P alfa": "Potenza alfa (8–13 Hz) media posteriore (O1, O2, P3, P4) diviso anteriore (Fp1, Fp2, F3, F4), epoche pulite non a occhi aperti. Sotto 1 = gradiente antero-posteriore non mantenuto.", "Esito": "Trascinamento se in almeno 8 finestre di 4 s (passo 2 s) durante la SLI compare un picco posteriore (O1-P3, O2-P4) almeno 6 volte la potenza basale (log10 > 0,8), a frequenze diverse dal ritmo di fondo.", "Frequenze di trascinamento": "Frequenze (Hz, arrotondate) dei picchi sopra soglia nelle finestre della SLI.", "Finestre con trascinamento": "Finestre della SLI con picco sopra soglia / finestre totali della SLI.", "delta 1–2 Hz": "Quota della potenza 1–2 Hz sul totale 1–30 Hz, media sulle derivazioni bipolari longitudinali senza Fp e sulle epoche pulite, escluse quelle con delta solo frontopolare. Raccoglie soprattutto artefatti lenti (occhi, sudore, deriva).", "delta 2–4 Hz": "Quota della potenza 2–4 Hz sul totale 1–30 Hz (stesse derivazioni ed epoche della riga precedente).", "theta": "Quota della potenza 4–8 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "alfa": "Quota della potenza 8–13 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "beta": "Quota della potenza 13–30 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "Durata": "Durata del file. Epoche pulite = epoche di 4 s senza tratti a zero, senza artefatto (picco-picco > 350 µV su almeno 3 canali) e non annotate come artefatto.", "Elettrodi esclusi": "Elettrodi piatti, scollegati o con rumore persistente: esclusi da tutte le analisi (motivo indicato a fianco).", "Artefatti transitori": "Numero di epoche in cui l'elettrodo ha un picco-picco oltre 5 volte la mediana degli altri e oltre 150 µV (elettrodo che 'salta'); in quelle epoche l'elettrodo è ignorato.", "Rete 50 Hz": "Canali con interferenza di rete a 50 Hz elevata rispetto all'attività EEG.", "Tratti a zero": "Pause dell'esportazione riempite con zero (opzione Fill Pause with zero): escluse dalle analisi.", "Indice globale (mediana)": "Indice di rallentamento = log10(potenza 2–8 Hz / potenza 8–30 Hz), media delle derivazioni bipolari longitudinali senza Fp; mediana sulle epoche pulite. ≥ 0,40 = rallentamento diffuso (soglia calibrata su 49 referti AOPD).", "90° perc. temporale": "90° percentile dell'indice di rallentamento nelle derivazioni temporali (F7-T3, T3-T5, F8-T4, T4-T6). ≥ 0,45 = rallentamento intermittente (soglia calibrata AOPD).", "90° perc. fronto-centrale": "90° percentile dell'indice di rallentamento in F3-C3, F4-C4, Fz-Cz. ≥ 0,15 = 'da verificare'.", "90° perc. posteriore": "90° percentile dell'indice di rallentamento nelle derivazioni posteriori (P3-O1, P4-O2, T5-O1, T6-O2, C3-P3, C4-P4). Solo informativo.", "Lateralizzazione": "Differenza sx − dx dell'indice di rallentamento per regione (mediana sulle epoche), corretta per lo scarto medio della regione; lateralizzato se ≥ 0,35 in almeno 2 regioni nello stesso verso (calibrato AOPD).", "Iperpnea": "Quota di epoche nei 180 s dopo l'inizio dell'iperpnea più lente del 90° percentile basale; attivazione se ≥ 15% (o ≥ 20% di epoche con artefatto)."};
 function addSumTips() { $('summary').querySelectorAll('dt').forEach(dt => { const k = dt.textContent.trim(); const t = SUMTIPS[k] || (/^\u00a0/.test(dt.textContent) ? "Differenza sx − dx dell'indice di rallentamento in questa regione (positivo = più lento a sinistra), mediana sulle epoche, corretta per lo scarto medio della regione." : null); if (t) dt.title = t; }); }
 function renderRef() {
-  if (!S.labels) return;
+  if (!S.labels) return; document.body.classList.add('haslabels');
   const e = S.fileId && S.labels.esami && S.labels.esami[S.fileId];
   if (!e) { $('refbox').textContent = S.rec ? 'Nessuna etichetta per questo file.' : 'Etichette caricate: ' + Object.keys(S.labels.esami || {}).length + ' esami.'; return; }
   const p = S.A && S.A.pdr, ok = p && p.freq != null && p.freq >= e.pdr_hz[0] - 1 && p.freq <= e.pdr_hz[1] + 1;
@@ -1838,49 +1948,176 @@ function renderAnn() {
   }
 }
 
+/* ---- annotazioni dell'operatore ----
+   Catalogo: termini di SCORE-2 (Beniczky 2017, Tab. 5: epilettiformi, attività ritmica anomala), ACNS 2021 (pattern periodici/ritmici, BIRD, crisi)
+   e glossario IFCN 2017 (varianti normali, attenuazione, asimmetria). Le categorie "Fondo" e "Artefatti" sono raggruppamenti pratici dell'app. */
+const ANNCAT = [
+  { k: 'epi', n: 'Epilettiformi', col: '--ied', src: 'SCORE-2 (Tab. 5) e glossario IFCN 2017', ev: ['punta', 'punta-onda lenta', 'polipunte', 'polipunta-onda lenta', 'onda aguzza', 'onda aguzza-onda lenta', 'onda aguzza lenta', 'run di punte rapide'] },
+  { k: 'slow', n: 'Attività lenta', col: '--flag', src: 'SCORE-2 (Tab. 5) e glossario IFCN 2017', ev: ['theta polimorfo', 'delta polimorfo', 'theta ritmico', 'delta ritmico', 'FIRDA', 'TIRDA', 'OIRDA'] },
+  { k: 'rpp', n: 'Periodici e ritmici', col: '--stato', src: 'ACNS 2021 (main term 1 + 2)', ev: ['LPD', 'GPD', 'BIPD', 'LRDA', 'GRDA', 'SW ritmiche', 'BIRD'] },
+  { k: 'sz', n: 'Crisi', col: '--ied', src: 'ACNS 2021 (pp. 22-24)', ev: ['crisi elettrografica', 'crisi elettroclinica'] },
+  { k: 'bg', n: 'Fondo e stato', col: '--accent', src: 'glossario IFCN 2017; raggruppamento dell’app', ev: ['attenuazione focale', 'asimmetria', 'sonnolenza', 'sonno'] },
+  { k: 'var', n: 'Varianti normali', col: '--yes', src: 'glossario IFCN 2017', ev: ['onde lambda', 'POSTS', 'wicket', 'BETS', 'punta-onda 6 Hz', '14 e 6 Hz positivi', 'RMTD', 'SREDA'] },
+  { k: 'art', n: 'Artefatti', col: '--art', src: 'raggruppamento dell’app', ev: ['oculare', 'muscolare', 'movimento', 'elettrodo', 'ECG'] }
+];
+const ucat = k => ANNCAT.find(c => c.k === k) || ANNCAT[0];
+Object.defineProperty(S, 'UA', { get: () => UA }); // per i test
+const uaKey = () => S.rec ? 'eeg.ua.' + (S.fname || '') + '|' + (S.rec.startDate || '') + '|' + (S.rec.startTime || '') : null;
+function loadUA() { UA = []; S.uaSel = null; try { const k = uaKey(), v = k && localStorage.getItem(k); if (v) UA = JSON.parse(v) || []; } catch (e) { UA = []; } renderUAList(); }
+function saveUA() { try { const k = uaKey(); if (k) UA.length ? localStorage.setItem(k, JSON.stringify(UA)) : localStorage.removeItem(k); } catch (e) { /* ignora */ }
+  renderUAList(); drawTimeline(); renderReport(false); }
+// sede dalle derivazioni coperte: lato da numeri dispari (sx) / pari (dx) / z; regioni dalle lettere degli elettrodi
+const REGORD = ['frontale', 'centrale', 'temporale', 'parietale', 'occipitale'], REGPRE = { frontale: 'fronto', centrale: 'centro', temporale: 'temporo', parietale: 'parieto', occipitale: 'occipito' };
+function uaWhere(u) {
+  if (!u.ch) return { side: 'diffuso', where: 'con distribuzione diffusa' };
+  const el = new Set(); u.ch.forEach(l => (l.match(/(Fp|AF|FC|FT|F|CP|C|TP|T|PO|P|O)(\d+|z)/gi) || []).forEach(x => el.add(x)));
+  let L = 0, R = 0, Z = 0; const reg = new Set();
+  el.forEach(x => { const m = x.match(/^([A-Za-z]+)(\d+|z)$/i), pre = m[1].toUpperCase(), n = m[2];
+    if (/z/i.test(n)) Z++; else if (+n % 2) L++; else R++;
+    if (/^(FP|AF|F|FC)$/.test(pre)) reg.add('frontale'); if (pre === 'FT') { reg.add('frontale'); reg.add('temporale'); }
+    if (/^(C|CP)$/.test(pre)) reg.add('centrale'); if (/^(T|TP)$/.test(pre)) reg.add('temporale');
+    if (/^(P|PO)$/.test(pre)) reg.add('parietale'); if (pre === 'O') reg.add('occipitale'); });
+  if (!el.size) return { side: '', where: '' };
+  const side = L && R ? 'bilaterale' : L ? 'sinistra' : R ? 'destra' : 'linea mediana', rs = REGORD.filter(r => reg.has(r));
+  if (rs.length > 3) return { side, where: side === 'sinistra' || side === 'destra' ? 'sull’emisfero di ' + side : 'con distribuzione diffusa' };
+  const adj = rs.slice(0, -1).map(r => REGPRE[r]).concat([rs[rs.length - 1].replace(/e$/, 'i')]).join('-');
+  return { side, where: side === 'linea mediana' ? 'sulla linea mediana (' + adj + ')' : 'sulle regioni ' + adj + (side === 'sinistra' ? ' di sinistra' : side === 'destra' ? ' di destra' : ' bilateralmente') };
+}
+function uaForCore() { return UA.map(u => Object.assign({ cat: u.cat, ev: u.ev, t0: u.t0, t1: u.t1 }, uaWhere(u))); }
+// barra di scelta: categorie (schede) ed eventi (pulsanti); la ricerca filtra su tutte le categorie
+function renderAnnBar() {
+  $('anncats').innerHTML = ANNCAT.map(c => `<button data-k="${c.k}" aria-pressed="${c.k === ANNTAB && !$('annq').value}" title="${c.n}: ${c.src}"><i style="background:var(${c.col})"></i>${c.n}</button>`).join('');
+  const q = $('annq').value.trim().toLowerCase(), evs = q ? [].concat(...ANNCAT.map(c => c.ev.filter(e => e.toLowerCase().includes(q) || c.n.toLowerCase().includes(q)).map(e => [c.k, e]))) : ucat(ANNTAB).ev.map(e => [ANNTAB, e]);
+  $('annevs').innerHTML = evs.length ? evs.map(([k, e]) => `<button data-k="${k}" data-e="${e}" aria-pressed="${ANNCUR.cat === k && ANNCUR.ev === e}" title="${ucat(k).n}${q ? '' : ''}">${e}</button>`).join('') : '<span class="small">nessun evento</span>';
+  $('anncats').querySelectorAll('button').forEach(b => b.onclick = () => { ANNTAB = b.dataset.k; $('annq').value = ''; renderAnnBar(); });
+  $('annevs').querySelectorAll('button').forEach(b => b.onclick = () => { ANNCUR = { cat: b.dataset.k, ev: b.dataset.e };
+    const u = S.uaSel && UA.find(x => x.id === S.uaSel); if (u) { u.cat = ANNCUR.cat; u.ev = ANNCUR.ev; saveUA(); renderUA(); } renderAnnBar(); });
+}
+$('annq').oninput = renderAnnBar;
+$('annq').onkeydown = e => { if (e.key === 'Enter') { const b = $('annevs').querySelector('button'); if (b) b.click(); $('annq').blur(); } if (e.key === 'Escape') { $('annq').value = ''; renderAnnBar(); $('annq').blur(); } };
+function setAnnot(on) { ANNOT = on; $('annot').setAttribute('aria-pressed', String(on)); $('annbar').hidden = !on; $('annlayer').classList.toggle('on', on); if (on) renderAnnBar(); requestAnimationFrame(drawAll); }
+$('annot').onclick = () => setAnnot(!ANNOT);
+// disegno dei riquadri sopra il tracciato
+const uaX = t => S.geo.lab + (t - S.t) / S.geo.sec * S.geo.plotW;
+function uaRows(u) { const G = S.geo, idx = u.ch ? u.ch.map(l => G.labels.indexOf(l)).filter(i => i >= 0) : [];
+  if (!u.ch || !idx.length) { const all = G.labels.map((l, i) => l ? i : -1).filter(i => i >= 0); return { i0: all[0], i1: all[all.length - 1], off: !!u.ch }; }
+  return { i0: Math.min(...idx), i1: Math.max(...idx), off: false }; }
+function uaBox(u) { const G = S.geo, r = uaRows(u), x0 = uaX(u.t0), x1 = uaX(u.t1);
+  return { left: x0, top: 6 + r.i0 * G.rowH, width: Math.max(6, x1 - x0), height: (r.i1 - r.i0 + 1) * G.rowH, off: r.off }; }
+function renderUA() {
+  const lay = $('annlayer'); if (!lay) return; lay.innerHTML = '';
+  if (!S.A || !S.geo) return; const G = S.geo;
+  for (const u of UA) { if (u.t1 < S.t || u.t0 > S.t + G.sec) continue; const b = uaBox(u), c = ucat(u.cat), w = uaWhere(u);
+    const d = document.createElement('div'); d.className = 'ua' + (u.id === S.uaSel ? ' sel' : '') + (b.off ? ' off' : '') + (b.width < 70 ? ' narrow' : '');
+    d.style.cssText = `--c:var(${c.col});left:${b.left}px;top:${b.top}px;width:${b.width}px;height:${b.height}px`; d.dataset.id = u.id;
+    d.title = `${u.ev} (${c.n})${w.where ? ' — ' + w.where : ''}\n${fmtT(u.t0)}–${fmtT(u.t1)}${u.ch ? ' · ' + u.ch.join(', ') : ' · tutte le derivazioni'}${b.off ? '\n(derivazioni non presenti in questo montaggio)' : ''}\nTrascina per spostare, angolo in basso a destra per ridimensionare, × o Canc per eliminare.`;
+    d.innerHTML = `<span class="ul"><b>${u.ev}</b><button class="ux" title="Elimina" aria-label="Elimina annotazione">×</button></span><span class="ur" title="Ridimensiona"></span>`;
+    uaFill(d, u); lay.appendChild(d); }
+}
+function uaFill(d, u) { d.querySelectorAll('.urow').forEach(x => x.remove()); if (!u.ch || !S.geo) return;
+  const G = S.geo, r = uaRows(u); if (r.off) return; let h = '';
+  for (let i = r.i0; i <= r.i1; i++) { const l = G.labels[i]; h += `<div class="urow${i === r.i0 ? ' first' : ''}" style="top:${(i - r.i0) * G.rowH}px;height:${G.rowH}px">${l ? '<span>' + l + '</span>' : ''}</div>`; }
+  d.insertAdjacentHTML('afterbegin', h); }
+function delUA(id) { UA = UA.filter(u => u.id !== id); if (S.uaSel === id) S.uaSel = null; saveUA(); renderUA(); }
+// interazione: clic = segno di 0,5 s su tutte le derivazioni; trascinamento = rettangolo; sui riquadri: sposta, ridimensiona, elimina
+(function () {
+  const lay = $('annlayer'); let drag = null;
+  const pos = e => { const r = lay.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  const tOf = x => S.t + (x - S.geo.lab) / S.geo.plotW * S.geo.sec, rowOf = y => Math.max(0, Math.min(S.geo.labels.length - 1, Math.floor((y - 6) / S.geo.rowH)));
+  const labsIn = (a, b) => S.geo.labels.slice(Math.min(a, b), Math.max(a, b) + 1).filter(Boolean);
+  lay.addEventListener('pointerdown', e => {
+    if (!S.A || !S.geo || e.button !== 0) return; const p = pos(e), box = e.target.closest('.ua');
+    if (box) { const u = UA.find(x => x.id === box.dataset.id); if (!u) return; e.stopPropagation();
+      if (e.target.classList.contains('ux')) { delUA(u.id); return; }
+      S.uaSel = u.id; lay.querySelectorAll('.ua').forEach(x => x.classList.toggle('sel', x === box));
+      const r = uaRows(u); drag = { mode: e.target.classList.contains('ur') ? 'size' : 'move', u, box, p, t0: u.t0, t1: u.t1, i0: r.i0, i1: r.i1, moved: false };
+      lay.setPointerCapture(e.pointerId); return; }
+    if (!ANNOT || p.x < S.geo.lab) return;
+    if (S.uaSel) { S.uaSel = null; renderUA(); }
+    const dv = document.createElement('div'); dv.className = 'uadraft'; lay.appendChild(dv);
+    drag = { mode: 'new', p, dv, moved: false }; lay.setPointerCapture(e.pointerId); });
+  lay.addEventListener('pointermove', e => { if (!drag) return; const p = pos(e), dx = p.x - drag.p.x, dy = p.y - drag.p.y, G = S.geo;
+    if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true; if (!drag.moved) return;
+    if (drag.mode === 'new') { const x0 = Math.max(G.lab, Math.min(p.x, drag.p.x)), ka = Math.min(rowOf(p.y), rowOf(drag.p.y)), kb = Math.max(rowOf(p.y), rowOf(drag.p.y));
+      Object.assign(drag.dv.style, { left: x0 + 'px', top: 6 + ka * G.rowH + 'px', width: Math.max(p.x, drag.p.x) - x0 + 'px', height: (kb - ka + 1) * G.rowH + 'px' }); return; }
+    const dt = dx / G.plotW * G.sec, dk = Math.round(dy / G.rowH), n = G.labels.length - 1, u = drag.u;
+    if (drag.mode === 'move') { u.t0 = Math.max(0, drag.t0 + dt); u.t1 = u.t0 + (drag.t1 - drag.t0);
+      if (u.ch && dk) { const k = Math.max(-drag.i0, Math.min(n - drag.i1, dk)); u.ch = labsIn(drag.i0 + k, drag.i1 + k); } }
+    else { u.t1 = Math.max(u.t0 + 0.1, drag.t1 + dt); if (dk) u.ch = labsIn(u.ch ? drag.i0 : 0, Math.max(drag.i0, Math.min(n, drag.i1 + dk))); }
+    const b = uaBox(u); Object.assign(drag.box.style, { left: b.left + 'px', top: b.top + 'px', width: b.width + 'px', height: b.height + 'px' }); uaFill(drag.box, u); });
+  const end = e => { if (!drag) return; const d = drag; drag = null; try { lay.releasePointerCapture(e.pointerId); } catch (x) { /* ignora */ }
+    if (d.mode !== 'new') { if (d.moved) saveUA(); renderUA(); return; }
+    d.dv.remove(); if (e.type === 'pointercancel') return;
+    if (!ANNCUR.ev) { $('annbar').classList.remove('flash'); void $('annbar').offsetWidth; $('annbar').classList.add('flash'); $('annhint').textContent = 'Scegli prima un evento nella barra.'; return; }
+    const p = pos(e); let u;
+    if (!d.moved) { const t = tOf(p.x); u = { t0: Math.max(0, t - 0.25), t1: t + 0.25, ch: null }; }
+    else { const ta = tOf(Math.min(p.x, d.p.x)), tb = tOf(Math.max(p.x, d.p.x)), ch = labsIn(rowOf(d.p.y), rowOf(p.y)); u = { t0: Math.max(0, ta), t1: Math.max(ta + 0.1, tb), ch: ch.length === S.geo.labels.filter(Boolean).length ? null : ch }; }
+    Object.assign(u, { id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), cat: ANNCUR.cat, ev: ANNCUR.ev });
+    UA.push(u); UA.sort((a, b) => a.t0 - b.t0); S.uaSel = null; $('annhint').textContent = 'clic = segno · trascina = riquadro'; saveUA(); renderUA(); };
+  lay.addEventListener('pointerup', end); lay.addEventListener('pointercancel', end);
+})();
+// elenco nel pannello "Annotazioni"
+function renderUAList() {
+  const ul = $('ualist'); ul.innerHTML = ''; $('ualist').hidden = $('uahead').hidden = !UA.length; $('eahead').hidden = !UA.length;
+  for (const u of UA) { const li = document.createElement('li'); li.tabIndex = 0; const w = uaWhere(u);
+    li.innerHTML = `<span class="dot" style="background:var(${ucat(u.cat).col})"></span><span class="t">${fmtT(u.t0)}</span><span>${u.ev}${w.where ? ' <span class="small">' + w.where + '</span>' : ''}</span>`;
+    li.onclick = li.onkeydown = ev => { if (ev.type === 'keydown' && ev.key !== 'Enter') return; S.uaSel = u.id; goTo(u.t0 - 1); };
+    ul.appendChild(li); }
+}
+// salvataggio: referto (com'è nella casella, anche se modificato a mano) + elenco dei reperti annotati
+$('repsave').onclick = () => { if (!S.A) return;
+  const L = UA.map(u => { const w = uaWhere(u); return [fmtT(u.t0) + '–' + fmtT(u.t1), ucat(u.cat).n, u.ev, w.where || '', u.ch ? u.ch.join(', ') : 'tutte'].join(' · '); });
+  const txt = $('reptext').value + '\n\n' + 'REPERTI ANNOTATI (' + UA.length + ')\n' + (L.length ? L.join('\n') : 'nessuno') + '\n';
+  download(base() + '_referto.txt', txt, 'text/plain;charset=utf-8'); $('repstate').textContent = 'salvato'; };
+
 /* ---- navigazione ---- */
 function goTo(t) { if (!S.A) return; S.t = Math.max(0, Math.min(S.A.duration - pageLen(), t)); S.cache = null; drawAll(); }
 function sizeTimeline() { tl.style.height = (tlRows().length * 26 + 16) + 'px'; } // altezza fissa per riga: togliere righe restituisce spazio al tracciato
 function drawAll() { sizeTimeline(); drawTrace(); drawTimeline(); }
-(function () { // pannello laterale a sezioni, panoramica collassabile e righe attivabili (preferenze ricordate nel browser)
+(function () { // pannello laterale, panoramica collassabile, righe e "occhi" della panoramica (preferenze ricordate nel browser)
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-  const secs = [...document.querySelectorAll('#side .sec')].map(x => x.dataset.sec);
-  let on = new Set((get('eeg.secs') || 'score,rep').split(',').filter(k => secs.includes(k)));
+  const main = document.querySelector('main'), side = $('side');
   const redraw = () => requestAnimationFrame(() => { drawAll(); drawTopo(); drawSpec(); });
-  const applySide = () => {
-    document.querySelectorAll('#side .sec').forEach(x => x.classList.toggle('on', on.has(x.dataset.sec)));
-    document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.setAttribute('aria-pressed', String(on.has(b.dataset.sec))));
-    $('railall').setAttribute('aria-pressed', String(on.size === secs.length));
-    document.querySelector('main').classList.toggle('closed', !on.size); set('eeg.secs', [...on].join(','));
-    $('railtog').textContent = on.size ? '›' : '‹'; $('railtog').title = on.size ? 'Comprimi il pannello' : 'Espandi il pannello'; redraw(); };
-  document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.onclick = () => { on.has(b.dataset.sec) ? on.delete(b.dataset.sec) : on.add(b.dataset.sec); applySide();
-    const el = document.querySelector('#side .sec[data-sec="' + b.dataset.sec + '"]'); if (on.has(b.dataset.sec) && el) el.scrollIntoView({ block: 'nearest' }); });
-  $('railall').onclick = () => { on = on.size === secs.length ? new Set() : new Set(secs); applySide(); };
-  let last = new Set(on.size ? on : ['score', 'rep']);
-  $('railtog').onclick = () => { if (on.size) { last = new Set(on); on = new Set(); } else on = new Set(last.size ? last : ['score', 'rep']); applySide(); };
-  applySide();
+  const applySide = () => { const cl = main.classList.contains('closed'); $('railtog').textContent = cl ? '‹' : '›'; $('railtog').title = cl ? 'Espandi il pannello' : 'Comprimi il pannello'; set('eeg.side', cl ? '0' : '1'); redraw(); };
+  if (get('eeg.side') === '0') main.classList.add('closed');
+  $('railtog').onclick = () => { main.classList.toggle('closed'); applySide(); };
+  // clic su un'icona: apre il pannello se chiuso e salta alla sezione
+  document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.onclick = () => {
+    if (main.classList.contains('closed')) { main.classList.remove('closed'); applySide(); }
+    const el = side.querySelector('.sec[data-sec="' + b.dataset.sec + '"]'); if (el) requestAnimationFrame(() => side.scrollTo({ top: el.offsetTop - side.offsetTop - 4, behavior: 'smooth' })); });
+  // icona attiva = sezione in cima al pannello
+  const spy = () => { const y = side.scrollTop + 24; let cur = null;
+    side.querySelectorAll('.sec').forEach(x => { if (x.offsetParent !== null && x.offsetTop - side.offsetTop <= y) cur = x.dataset.sec; });
+    if (!cur) { const f = [...side.querySelectorAll('.sec')].find(x => x.offsetParent !== null); cur = f && f.dataset.sec; }
+    document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sec === cur))); };
+  side.addEventListener('scroll', spy, { passive: true }); spy(); applySide();
   // panoramica
-  const applyTl = () => { const nt = document.body.classList.contains('notl'); $('tltog').setAttribute('aria-pressed', String(!nt)); $('tltog').textContent = nt ? 'Mostra' : 'Nascondi';
-    $('tllegend').style.display = nt ? 'none' : ''; document.querySelectorAll('.chip').forEach(c => c.hidden = nt); redraw(); };
+  const applyTl = () => { const nt = document.body.classList.contains('notl'); $('tltab').textContent = nt ? '⌃' : '⌄'; $('tltab').title = nt ? 'Espandi la panoramica' : 'Comprimi la panoramica'; redraw(); };
   if (get('eeg.notl') === '1') document.body.classList.add('notl');
-  $('tltog').onclick = () => { set('eeg.notl', document.body.classList.toggle('notl') ? '1' : '0'); applyTl(); };
+  $('tltab').onclick = () => { set('eeg.notl', document.body.classList.toggle('notl') ? '1' : '0'); applyTl(); };
   (get('eeg.tloff') || '').split('|').filter(Boolean).forEach(n => TLOFF.add(n));
-  const applyRows = () => { document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(!TLOFF.has(c.dataset.row))));
-    document.querySelectorAll('#tllegend span[data-row]').forEach(x => x.hidden = TLOFF.has(x.dataset.row)); set('eeg.tloff', [...TLOFF].join('|')); drawAll(); };
+  const applyRows = () => { document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(!TLOFF.has(c.dataset.row)))); set('eeg.tloff', [...TLOFF].join('|')); drawAll(); };
   document.querySelectorAll('.chip').forEach(c => c.onclick = () => { TLOFF.has(c.dataset.row) ? TLOFF.delete(c.dataset.row) : TLOFF.add(c.dataset.row); applyRows(); });
-  applyTl(); applyRows();
+  (get('eeg.eyes') || '').split('|').filter(Boolean).forEach(n => EYEON.add(n));
+  const applyEyes = () => { document.querySelectorAll('.eye').forEach(b => b.setAttribute('aria-pressed', String(EYEON.has(b.dataset.eye)))); set('eeg.eyes', [...EYEON].join('|')); drawTrace(); };
+  document.querySelectorAll('.eye').forEach(b => b.onclick = () => { EYEON.has(b.dataset.eye) ? EYEON.delete(b.dataset.eye) : EYEON.add(b.dataset.eye); applyEyes(); });
+  applyTl(); applyRows(); applyEyes();
+  window.__spy = spy;
 })();
 $('prev').onclick = () => goTo(S.t - pageLen()); $('next').onclick = () => goTo(S.t + pageLen());
 ['montage', 'hp', 'lp', 'notch', 'sens', 'page'].forEach(id => $(id).addEventListener('change', () => { S.cache = null; drawAll(); }));
 document.addEventListener('keydown', e => {
-  if (/INPUT|SELECT/.test(document.activeElement.tagName)) return;
+  if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
+  if (/^[aA]$/.test(e.key) && !e.ctrlKey && !e.metaKey) { setAnnot(!ANNOT); e.preventDefault(); return; }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && S.uaSel) { delUA(S.uaSel); e.preventDefault(); return; }
+  if (e.key === 'Escape') { if (S.uaSel) { S.uaSel = null; renderUA(); } else if (ANNOT) setAnnot(false); return; }
   if (e.key === 'PageDown') { goTo(S.t + pageLen()); e.preventDefault(); }
   if (e.key === 'PageUp') { goTo(S.t - pageLen()); e.preventDefault(); }
-  if (e.key === 'ArrowRight') { goTo(S.t + 1); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { goTo(S.t + (e.ctrlKey || e.metaKey ? 1 : pageLen())); e.preventDefault(); }
   if (/^[nN]$/.test(e.key)) { stepIED(1); e.preventDefault(); }
   if (/^[pP]$/.test(e.key)) { stepIED(-1); e.preventDefault(); }
   if (S.iedCur >= 0 && ['1', '2', '3'].includes(e.key)) { judge(S.iedCur, ['si', 'no', 'dubbio'][+e.key - 1]); e.preventDefault(); }
-  if (e.key === 'ArrowLeft') { goTo(S.t - 1); e.preventDefault(); }
+  if (e.key === 'ArrowLeft') { goTo(S.t - (e.ctrlKey || e.metaKey ? 1 : pageLen())); e.preventDefault(); }
   const s = $('sens'); if (e.key === 'ArrowUp' && s.selectedIndex > 0) { s.selectedIndex--; drawTrace(); e.preventDefault(); }
   if (e.key === 'ArrowDown' && s.selectedIndex < s.options.length - 1) { s.selectedIndex++; drawTrace(); e.preventDefault(); }
 });
@@ -2018,7 +2255,7 @@ function importReview(j) {
 }
 function iedSummary() {
   if (!S.ied) return null; const ev = S.ied.events;
-  return { confirmed: ev.filter(e => S.review[evKey(e)] === 'si').map(e => Object.assign({}, e, { ch: e.loc && e.loc.found ? e.loc.ch : e.ch })), pending: ev.filter(e => !S.review[evKey(e)]).length, total: ev.length, inArt: ev.filter(e => e.art).length };
+  return { confirmed: ev.filter(e => S.review[evKey(e)] === 'si').map(e => Object.assign({}, e, { ch: e.loc && e.loc.found ? e.loc.ch : e.ch })), pending: ev.filter(e => !S.review[evKey(e)] && !e.art).length, total: ev.filter(e => !e.art).length, inArt: ev.filter(e => e.art).length };
 }
 
 /* ---- livello decisionale ---- */
@@ -2045,7 +2282,7 @@ function renderScore() {
     <p><b>Significato diagnostico (SCORE):</b> ${d.significance.label}${d.significance.code === 'anormale' && d.significance.detail ? ' — ' + d.significance.detail : ''}</p>
     ${d.why.length ? '<ul>' + d.why.map(w => '<li>' + w + '</li>').join('') + '</ul>' : '<p>Nessuna regola di anomalia attivata.</p>'}
     ${d.possible.length ? '<p><b>Da verificare</b> (soglie sensibili, non cambiano la classificazione):</p><ul>' + d.possible.map(w => '<li>' + w + '</li>').join('') + '</ul>' : ''}
-    <p class="small">${I ? `Rilevatore IED: ${I.total} candidati, ${I.confirmed.length} confermati, ${I.pending} da rivedere${I.inArt ? ', ' + I.inArt + ' in tratti con artefatti' : ''}. I candidati non rivisti non modificano la classificazione.` : 'Rilevatore IED non ancora eseguito.'}</p>
+    <p class="small">${I ? `Rilevatore IED: ${I.total} candidati, ${I.confirmed.length} confermati, ${I.pending} da rivedere${I.inArt ? ', ' + I.inArt + ' in tratti con artefatti (esclusi dai conteggi)' : ''}. I candidati non rivisti non modificano la classificazione.` : 'Rilevatore IED non ancora eseguito.'}</p>
     <p class="small">Regole esplicite, soglie calibrate su 49 referti AOPD (v0.3): proposta da verificare, non diagnosi.</p></div>`;
 }
 /* ---- referto automatico ---- */
@@ -2053,6 +2290,7 @@ let repDirty = false;
 function renderReport(force) {
   if (!S.A) return;
   if (repDirty && !force) { $('repstate').textContent = 'modificato a mano: premi Rigenera per aggiornare'; return; }
+  S.A.uann = uaForCore();
   const r = C.generateReport(S.A, S.rec, S.decision || C.scoreDecision(S.A, iedSummary()), iedSummary(), $('repfmt').value);
   $('reptext').value = r.text; repDirty = false; $('repstate').textContent = '';
 }
@@ -2061,7 +2299,6 @@ $('repregen').onclick = () => renderReport(true);
 try { const f = localStorage.getItem('eeg-repfmt'); if (f) $('repfmt').value = f; } catch (e) { }
 $('repfmt').onchange = () => { try { localStorage.setItem('eeg-repfmt', $('repfmt').value); } catch (e) { } renderReport(true); };
 $('repcopy').onclick = async () => { try { await navigator.clipboard.writeText($('reptext').value); $('repstate').textContent = 'copiato'; } catch (e) { $('reptext').select(); document.execCommand('copy'); $('repstate').textContent = 'copiato'; } };
-$('repdl').onclick = () => download(base() + '_referto_bozza.txt', $('reptext').value, 'text/plain;charset=utf-8');
 function refCompare(e) {
   const d = S.decision || C.scoreDecision(S.A, iedSummary()), L = C.parseLabel(e), ok = b => b ? '✓' : '<span class="warnline">✗</span>';
   const rows = [];
