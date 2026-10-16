@@ -26,6 +26,8 @@
 :root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
   --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
 *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:var(--bg)}
+:root[data-theme="dark"]{color-scheme:dark} :root[data-theme="dark"] *{scrollbar-color:#3A3A3A #000}
+.kv dt[title],.tipq{cursor:help;text-decoration:underline dotted;text-underline-offset:2px}
 button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
 header{display:flex;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;align-items:center;gap:.3rem .6rem;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line)}
@@ -41,7 +43,8 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
 main.closed{grid-template-columns:1fr 40px} main.closed>aside{display:none} .viewer{min-width:0}
-#rail{position:relative} #railtog{position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:14px;height:44px;border:1px solid var(--line);border-right:0;border-radius:6px 0 0 6px;background:var(--panel);color:var(--muted);cursor:pointer;padding:0;font-size:12px;line-height:1;z-index:3}
+main{position:relative} #railtog{position:absolute;right:366px;top:50%;transform:translateY(-50%);width:14px;height:44px;border:1px solid var(--line);border-left:0;border-radius:0 6px 6px 0;background:var(--panel);color:var(--muted);cursor:pointer;padding:0;font-size:12px;line-height:1;z-index:3}
+main.closed #railtog{right:40px;border-left:1px solid var(--line);border-right:0;border-radius:6px 0 0 6px}
 #railtog:hover{color:var(--ink);border-color:var(--accent)}
 aside .sec{display:none} aside .sec.on{display:block} aside .sec+.sec.on{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.1rem}
 #rail{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.4rem 0;background:var(--panel);border-left:1px solid var(--line)}
@@ -208,8 +211,8 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <ul class="annlist" id="annlist"></ul>
    </section>
   </aside>
+  <button id="railtog" title="Comprimi il pannello" aria-label="Comprimi o espandi il pannello">›</button>
   <nav id="rail" aria-label="Sezioni del pannello">
-    <button id="railtog" title="Comprimi il pannello" aria-label="Comprimi o espandi il pannello">›</button>
     <button class="rb" id="railall" title="Mostra o nascondi tutte le sezioni" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg></button>
     <hr>
     <button class="rb" data-sec="score" title="Livello decisionale (regole SCORE)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12M4 14h8M3 4h10M3 4l-2 5h4zM13 4l-2 5h4z"/></svg></button>
@@ -1800,7 +1803,10 @@ function renderSummary() {
     </dl>
     <p class="small">Indice = log10 potenza 2–8 Hz / 8–30 Hz su derivazioni bipolari longitudinali (esclusi gli elettrodi Fp, contaminati dai movimenti oculari). Asimmetria sx−dx corretta per lo scarto medio di ogni regione; positivo = più lento a sx. Soglie calibrate sui 15 referti AOPD. Epoche segnalate: sx ${ctr.flaggedL}, dx ${ctr.flaggedR}, bilaterali/diffuse ${ctr.flaggedD} su ${ctr.clean}.</p>
     <p class="small">File: ${rec.signals.length} segnali a ${A.fs} Hz, ${rec.type || 'EDF'}, inizio ${rec.startTime.replace(/\./g, ':')}. Analisi in ${Math.round(S.ms)} ms.</p>`;
+  addSumTips();
 }
+const SUMTIPS = {"Frequenza": "75° percentile dei picchi alfa (5–13,5 Hz) delle singole finestre a occhi chiusi (dal 2° secondo dopo ogni O.C., fino a 20 s), derivazioni O1-P3 e O2-P4; arrotondato a 0,5 Hz (ACNS 2021). 'Media' = picco dello spettro medio di tutte le finestre. 'Non chiaro' se il picco non è netto o non si attenua all'apertura degli occhi (< 10%).", "Voltaggio (ACNS)": "Ampiezza picco-picco (massimo − minimo in finestre di 1 s, filtro 1–30 Hz) sulle derivazioni bipolari longitudinali, epoche pulite; mediana per derivazione e poi tra derivazioni. ACNS 2021: basso < 20 µV, alto ≥ 150 µV, soppresso < 10 µV (soglie per l'area critica).", "Sinistra / destra": "Picco alfa dello spettro medio a occhi chiusi per ciascun lato; 'non definito' se il picco è meno di 2 volte il livello di fondo 1/f (media 3,5–5 e 14–16 Hz). L'asimmetria di frequenza si calcola solo se entrambi i picchi sono netti.", "Derivazioni": "Coppie usate per il ritmo posteriore: O1-P3 e O2-P4, oppure O1-T5 e O2-T6 se un elettrodo è escluso.", "Calcolato su": "Numero di tratti a occhi chiusi annotati dal tecnico (O.C.) usati per il ritmo posteriore; senza annotazioni si usa l'intero tracciato.", "Reattività (O.A.)": "1 − (potenza alfa a occhi aperti / potenza alfa a occhi chiusi), finestre dopo O.A. (da 0,5 a 10 s) e dopo O.C. Nel referto 'scarsamente reagente' sotto il 35% (soglia calibrata sui referti AOPD); nel riquadro in alto sotto il 30%.", "Gradiente A-P alfa": "Potenza alfa (8–13 Hz) media posteriore (O1, O2, P3, P4) diviso anteriore (Fp1, Fp2, F3, F4), epoche pulite non a occhi aperti. Sotto 1 = gradiente antero-posteriore non mantenuto.", "Esito": "Trascinamento se in almeno 8 finestre di 4 s (passo 2 s) durante la SLI compare un picco posteriore (O1-P3, O2-P4) almeno 6 volte la potenza basale (log10 > 0,8), a frequenze diverse dal ritmo di fondo.", "Frequenze di trascinamento": "Frequenze (Hz, arrotondate) dei picchi sopra soglia nelle finestre della SLI.", "Finestre con trascinamento": "Finestre della SLI con picco sopra soglia / finestre totali della SLI.", "delta 1–2 Hz": "Quota della potenza 1–2 Hz sul totale 1–30 Hz, media sulle derivazioni bipolari longitudinali senza Fp e sulle epoche pulite, escluse quelle con delta solo frontopolare. Raccoglie soprattutto artefatti lenti (occhi, sudore, deriva).", "delta 2–4 Hz": "Quota della potenza 2–4 Hz sul totale 1–30 Hz (stesse derivazioni ed epoche della riga precedente).", "theta": "Quota della potenza 4–8 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "alfa": "Quota della potenza 8–13 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "beta": "Quota della potenza 13–30 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "Durata": "Durata del file. Epoche pulite = epoche di 4 s senza tratti a zero, senza artefatto (picco-picco > 350 µV su almeno 3 canali) e non annotate come artefatto.", "Elettrodi esclusi": "Elettrodi piatti, scollegati o con rumore persistente: esclusi da tutte le analisi (motivo indicato a fianco).", "Artefatti transitori": "Numero di epoche in cui l'elettrodo ha un picco-picco oltre 5 volte la mediana degli altri e oltre 150 µV (elettrodo che 'salta'); in quelle epoche l'elettrodo è ignorato.", "Rete 50 Hz": "Canali con interferenza di rete a 50 Hz elevata rispetto all'attività EEG.", "Tratti a zero": "Pause dell'esportazione riempite con zero (opzione Fill Pause with zero): escluse dalle analisi.", "Indice globale (mediana)": "Indice di rallentamento = log10(potenza 2–8 Hz / potenza 8–30 Hz), media delle derivazioni bipolari longitudinali senza Fp; mediana sulle epoche pulite. ≥ 0,40 = rallentamento diffuso (soglia calibrata su 49 referti AOPD).", "90° perc. temporale": "90° percentile dell'indice di rallentamento nelle derivazioni temporali (F7-T3, T3-T5, F8-T4, T4-T6). ≥ 0,45 = rallentamento intermittente (soglia calibrata AOPD).", "90° perc. fronto-centrale": "90° percentile dell'indice di rallentamento in F3-C3, F4-C4, Fz-Cz. ≥ 0,15 = 'da verificare'.", "90° perc. posteriore": "90° percentile dell'indice di rallentamento nelle derivazioni posteriori (P3-O1, P4-O2, T5-O1, T6-O2, C3-P3, C4-P4). Solo informativo.", "Lateralizzazione": "Differenza sx − dx dell'indice di rallentamento per regione (mediana sulle epoche), corretta per lo scarto medio della regione; lateralizzato se ≥ 0,35 in almeno 2 regioni nello stesso verso (calibrato AOPD).", "Iperpnea": "Quota di epoche nei 180 s dopo l'inizio dell'iperpnea più lente del 90° percentile basale; attivazione se ≥ 15% (o ≥ 20% di epoche con artefatto)."};
+function addSumTips() { $('summary').querySelectorAll('dt').forEach(dt => { const k = dt.textContent.trim(); const t = SUMTIPS[k] || (/^\u00a0/.test(dt.textContent) ? "Differenza sx − dx dell'indice di rallentamento in questa regione (positivo = più lento a sinistra), mediana sulle epoche, corretta per lo scarto medio della regione." : null); if (t) dt.title = t; }); }
 function renderRef() {
   if (!S.labels) return;
   const e = S.fileId && S.labels.esami && S.labels.esami[S.fileId];
@@ -1826,7 +1832,8 @@ function renderAnn() {
 
 /* ---- navigazione ---- */
 function goTo(t) { if (!S.A) return; S.t = Math.max(0, Math.min(S.A.duration - pageLen(), t)); S.cache = null; drawAll(); }
-function drawAll() { drawTrace(); drawTimeline(); }
+function sizeTimeline() { tl.style.height = (tlRows().length * 26 + 16) + 'px'; } // altezza fissa per riga: togliere righe restituisce spazio al tracciato
+function drawAll() { sizeTimeline(); drawTrace(); drawTimeline(); }
 (function () { // pannello laterale a sezioni, panoramica collassabile e righe attivabili (preferenze ricordate nel browser)
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   const secs = [...document.querySelectorAll('#side .sec')].map(x => x.dataset.sec);
@@ -1851,7 +1858,7 @@ function drawAll() { drawTrace(); drawTimeline(); }
   $('tltog').onclick = () => { set('eeg.notl', document.body.classList.toggle('notl') ? '1' : '0'); applyTl(); };
   (get('eeg.tloff') || '').split('|').filter(Boolean).forEach(n => TLOFF.add(n));
   const applyRows = () => { document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(!TLOFF.has(c.dataset.row))));
-    document.querySelectorAll('#tllegend span[data-row]').forEach(x => x.hidden = TLOFF.has(x.dataset.row)); set('eeg.tloff', [...TLOFF].join('|')); drawTimeline(); };
+    document.querySelectorAll('#tllegend span[data-row]').forEach(x => x.hidden = TLOFF.has(x.dataset.row)); set('eeg.tloff', [...TLOFF].join('|')); drawAll(); };
   document.querySelectorAll('.chip').forEach(c => c.onclick = () => { TLOFF.has(c.dataset.row) ? TLOFF.delete(c.dataset.row) : TLOFF.add(c.dataset.row); applyRows(); });
   applyTl(); applyRows();
 })();
