@@ -18,10 +18,10 @@
   font-variant-numeric:tabular-nums;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0F161C; --panel:#162028; --paper:#121B22; --ink:#E3EAEF; --muted:#93A3AF; --line:#26343F; --grid:#1B2731; --grid2:#2A3946;
-  --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#93A3AF; --maybe:#E0AA3E;}}
-:root[data-theme="dark"]{--bg:#0F161C; --panel:#162028; --paper:#121B22; --ink:#E3EAEF; --muted:#93A3AF; --line:#26343F; --grid:#1B2731; --grid2:#2A3946;
-  --trace:#D8E3EA; --accent:#4FB6BF; --accentSoft:#173A3E; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8796A2; --zero:#55636E; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#93A3AF; --maybe:#E0AA3E;}
+  --bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E;}}
+:root[data-theme="dark"]{--bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E;}
 /* tema chiaro: sfondo bianco, tracciato nero (come la carta EEG) */
 :root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
   --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
@@ -1501,7 +1501,9 @@ function drawTrace() {
   tc.width = r.width * dpr; tc.height = r.height * dpr; tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const W = r.width, H = r.height; tctx.clearRect(0, 0, W, H);
   if (!S.A) return;
-  const { A } = S, fs = A.fs, P = getPageData(), lab = 92, plotW = W - lab - 8, sec = pageLen();
+  const { A } = S, fs = A.fs, P = getPageData(), sec = pageLen();
+  tctx.font = '12px IBM Plex Sans, system-ui'; // colonna delle derivazioni larga quanto l'etichetta più lunga
+  const lab = Math.ceil(Math.max(30, ...P.rows.filter(Boolean).map(r => tctx.measureText(r.label).width)) + 12), plotW = W - lab - 4;
   const rows = P.rows, nRows = rows.length, rowH = (H - 20) / nRows;
   // griglia: secondi
   tctx.lineWidth = 1;
