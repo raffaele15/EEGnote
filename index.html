@@ -40,6 +40,9 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .spacer{flex:1}
 .fname{font-size:.85rem;color:var(--muted);max-width:22rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px;min-height:0}
+body.noside main{grid-template-columns:1fr 0} body.noside main>aside{display:none}
+body.notl #timeline{display:none} .tlhead button{font-size:.75rem;padding:0 .4rem;margin-left:.5rem}
+.tllegend{font-size:.74rem;color:var(--muted);margin-top:.15rem} .tllegend i{display:inline-block;width:.8em;height:.6em;margin:0 .2em 0 .7em;vertical-align:baseline}
 .viewer{display:grid;grid-template-rows:1fr auto;min-height:0;border-right:1px solid var(--line)}
 #traceWrap{position:relative;min-height:0;background:var(--paper)}
 #trace{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -105,6 +108,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <label class="ctl">Pagina <select id="page"><option>5</option><option selected>10</option><option>15</option><option>20</option><option>30</option></select> s</label>
   <button class="btn" id="prev" title="Pagina precedente (←)">◀</button>
   <button class="btn" id="next" title="Pagina successiva (→)">▶</button>
+  <button class="btn" id="sidetog" title="Mostra o nascondi il pannello laterale" aria-pressed="true">Pannello</button>
   <button class="btn primary" id="open">Apri EDF</button>
   <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors" multiple hidden>
 </header>
@@ -122,8 +126,9 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       <div class="busy" id="busy">Analisi in corso…</div>
     </div>
     <div class="tl">
-      <div class="tlhead"><span>Tutto il tracciato: annotazioni, artefatti, onde lente per epoca di 4 s. Clic per saltare.</span><span id="tpos"></span></div>
+      <div class="tlhead"><span>Tutto il tracciato per epoche di 4 s (clic per saltare)<button class="btn" id="tltog" aria-pressed="true">Nascondi</button></span><span id="tpos"></span></div>
       <canvas id="timeline" aria-label="Linea del tempo"></canvas>
+      <div class="tllegend" id="tllegend">Annotazioni: del tecnico (EDF). Artefatti: rilevati dall'app<i style="background:var(--art)"></i>ampiezza &gt; 350 µV su ≥ 3 canali o annotati, <i style="background:var(--stim);opacity:.45"></i>delta solo frontopolare (oculare). Onde lente: indice lento/veloce per epoca (colore da 0,2). Lateralità: <i style="background:var(--flag)"></i>più lento a sx, <i style="background:var(--stato)"></i>più lento a dx. Segnalazioni: epoche oltre soglia (sx, dx, <i style="background:var(--ink)"></i>diffuse); compaiono anche come striscia sotto il tracciato.</div>
     </div>
   </section>
   <aside>
@@ -501,6 +506,12 @@ function analyze(rec, opts = {}) {
     o.lat = median(L_.map(c => Math.log10(slowIdx(o.ch[c])))) - median(R_.map(c => Math.log10(slowIdx(o.ch[c]))));
     o.reg = {}; for (const r in regions) { const cs = regions[r].filter(c => gs.includes(c)); if (cs.length) o.reg[r] = median(cs.map(c => Math.log10(slowIdx(o.ch[c])))); }
   }
+  // delta con campo limitato ai poli frontali (gradiente ripido Fp → F, come i movimenti oculari): delta 1-4 Hz in Fp1-F3/Fp2-F4 ≥ 3×
+  // quello in F3-C3/F4-C4. Criterio di campo (l'attività cerebrale ha un campo fisiologico, gli artefatti oculari restano anteriori);
+  // soglia scelta sui dati AOPD (mediana del rapporto: occhi aperti 1,4-8×, occhi chiusi 0,9-3×), non da linea guida.
+  const dl = x => x ? x.d1 + x.d2 : NaN;
+  for (const o of ep) { if (o.zero || !o.bip) continue; const a = dl(o.bip['Fp1-F3']) + dl(o.bip['Fp2-F4']), b = dl(o.bip['F3-C3']) + dl(o.bip['F4-C4']);
+    o.eyeRatio = a / b; o.eyeDelta = isFinite(o.eyeRatio) && o.eyeRatio >= 3; }
   const clean = ep.filter(o => !o.zero && !o.artifact && !o.annArt);
   // soglie relative al tracciato stesso (z robusto) per segnalare epoche "lente"
   const sl = clean.map(o => o.slow), slMed = median(sl), slMad = median(sl.map(v => Math.abs(v - slMed))) * 1.4826 || 0.1;
@@ -533,10 +544,11 @@ function analyze(rec, opts = {}) {
   const globalRel = { delta: 0, theta: 0, alpha: 0, beta: 0 };
   for (const b in BANDS) globalRel[b] = mean(good.map(c => relMap[c][b]));
   // potenza relativa sulle derivazioni bipolari longitudinali senza Fp (la media comune diffonde gli artefatti oculari a tutti i canali)
-  const relBip = { d1: 0, d2: 0, theta: 0, alpha: 0, beta: 0 }; { let n = 0;
-    for (const o of clean) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; const x = o.bip[k], t = x.d1 + x.d2 + x.t1 + x.t2 + x.a + x.b; if (!(t > 0)) continue;
+  const relBip = { d1: 0, d2: 0, theta: 0, alpha: 0, beta: 0 }; { let n = 0; const use = clean.filter(o => !o.eyeDelta);
+    for (const o of use) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; const x = o.bip[k], t = x.d1 + x.d2 + x.t1 + x.t2 + x.a + x.b; if (!(t > 0)) continue;
       relBip.d1 += x.d1 / t; relBip.d2 += x.d2 / t; relBip.theta += (x.t1 + x.t2) / t; relBip.alpha += x.a / t; relBip.beta += x.b / t; n++; }
-    for (const k in relBip) relBip[k] = n ? relBip[k] / n : NaN; }
+    for (const k in relBip) relBip[k] = n ? relBip[k] / n : NaN;
+    relBip.eyePct = clean.length ? 100 * clean.filter(o => o.eyeDelta).length / clean.length : 0; }
 
   const slow = slowLayer(ep, anns, pdr);
   const out = {
@@ -1497,6 +1509,12 @@ function drawTrace() {
     tctx.fillStyle = css('--muted'); tctx.font = '11px IBM Plex Sans, system-ui'; tctx.fillText(fmtT(S.t + s), x + 2, H - 5); }
   // tratti a zero
   for (const [a, b] of A.zeros) if (b > S.t && a < S.t + sec) { tctx.fillStyle = css('--grid'); const x0 = lab + Math.max(0, a - S.t) / sec * plotW, x1 = lab + Math.min(sec, b - S.t) / sec * plotW; tctx.fillRect(x0, 0, x1 - x0, H - 18); }
+  // striscia per epoca sotto le tracce: segnalazioni di onde lente (rosso sx, blu dx, grigio scuro diffuso/bilaterale), artefatti, delta oculare
+  for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue;
+    const x0 = lab + Math.max(0, o.t - S.t) / sec * plotW, x1 = lab + Math.min(sec, o.t + A.epoch - S.t) / sec * plotW;
+    let col = null, al = 1;
+    if (o.artifact || o.annArt) { col = '--art'; al = o.artifact ? .9 : .5; } else if (o.flag) { col = o.flag === 'lento sx' ? '--flag' : o.flag === 'lento dx' ? '--stato' : '--muted'; } else if (o.eyeDelta) { col = '--stim'; al = .45; }
+    if (col) { tctx.fillStyle = css(col); tctx.globalAlpha = al; tctx.fillRect(x0, H - 24, Math.max(1, x1 - x0 - 1), 5); tctx.globalAlpha = 1; } }
   // annotazioni
   for (const a of A.anns) {
     const e = a.onset + (a.duration || 0);
@@ -1540,14 +1558,16 @@ function drawTrace() {
 /* ---- linea del tempo ---- */
 const tl = $('timeline'), lctx = tl.getContext('2d');
 const TLROWS = ['Annotazioni', 'Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni', 'Pattern ACNS', 'IED (modello)'];
+function tlRows() { const A = S.A; return TLROWS.filter(n => n === 'Pattern ACNS' ? !!(A && A.rpp && A.rpp.patterns && A.rpp.patterns.length) : n === 'IED (modello)' ? !!S.ied : true); }
 function drawTimeline() {
   const r = tl.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   tl.width = r.width * dpr; tl.height = r.height * dpr; lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const W = r.width, H = r.height; lctx.clearRect(0, 0, W, H);
   if (!S.A) return;
-  const { A } = S, lab = 92, pw = W - lab - 8, D = A.duration, rh = (H - 16) / TLROWS.length, X = t => lab + t / D * pw;
+  const rows = tlRows(), RI = n => rows.indexOf(n);
+  const { A } = S, lab = 92, pw = W - lab - 8, D = A.duration, rh = (H - 16) / rows.length, X = t => lab + t / D * pw;
   lctx.font = '11px IBM Plex Sans, system-ui';
-  TLROWS.forEach((n, i) => { lctx.fillStyle = css('--muted'); lctx.fillText(n, 4, i * rh + rh * .62); lctx.fillStyle = css('--grid'); lctx.fillRect(lab, i * rh + 2, pw, rh - 4); });
+  rows.forEach((n, i) => { lctx.fillStyle = css('--muted'); lctx.fillText(n, 4, i * rh + rh * .62); lctx.fillStyle = css('--grid'); lctx.fillRect(lab, i * rh + 2, pw, rh - 4); });
   // annotazioni
   for (const a of A.anns) { lctx.fillStyle = css(GROUPCOL[a.group] || '--tec'); const w = Math.max(2, (a.duration || 0) / D * pw); lctx.fillRect(X(a.onset), 3, w, rh - 6); }
   for (const [a, b] of A.zeros) { lctx.fillStyle = css('--zero'); lctx.fillRect(X(a), 0, Math.max(2, X(b) - X(a)), H - 16); }
@@ -1555,22 +1575,25 @@ function drawTimeline() {
   for (const o of A.epochs) {
     if (o.zero) continue; const x = X(o.t);
     if (o.artifact || o.annArt || (o.popCh && o.popCh.length)) { lctx.fillStyle = css('--art'); lctx.globalAlpha = o.artifact ? 1 : o.annArt ? .55 : .3; lctx.fillRect(x, rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
-    // onde lente: indice assoluto log10(2-8 Hz / 8-30 Hz) nelle derivazioni bipolari temporali e fronto-centrali
-    if (o.slowAbs != null && isFinite(o.slowAbs)) { const z = Math.max(0, Math.min(1, (o.slowAbs + 0.6) / 1.4)); lctx.fillStyle = heat(z); lctx.fillRect(x, 2 * rh + 3, ew, rh - 6); }
+    else if (o.eyeDelta) { lctx.fillStyle = css('--stim'); lctx.globalAlpha = .45; lctx.fillRect(x, rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
+    // onde lente: indice log10(2-8 Hz / 8-30 Hz), massimo tra le derivazioni bipolari temporali e fronto-centrali; colorato solo da 0,2
+    // (sotto: valori comuni anche nei tracciati normali AOPD), pieno da 1,0
+    if (o.slowAbs != null && isFinite(o.slowAbs) && o.slowAbs >= 0.2) { const z = Math.max(0.15, Math.min(1, (o.slowAbs - 0.2) / 0.8)); lctx.fillStyle = heat(z); lctx.fillRect(x, 2 * rh + 3, ew, rh - 6); }
     // lateralità: asimmetria regionale massima corretta (rosso = più lento a sx, blu = più lento a dx)
     if (o.lat) { let m = 0; for (const r in o.lat) if (Math.abs(o.lat[r]) > Math.abs(m)) m = o.lat[r];
       const l = Math.max(-1, Math.min(1, m / 0.8)); if (Math.abs(m) >= C.SLOW.epochLat) { lctx.fillStyle = l > 0 ? css('--flag') : css('--stato'); lctx.globalAlpha = Math.abs(l); lctx.fillRect(x, 3 * rh + 3, ew, rh - 6); lctx.globalAlpha = 1; } }
     if (o.flag) { lctx.fillStyle = o.flag === 'lento sx' ? css('--flag') : o.flag === 'lento dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = o.flag === 'lento bilaterale' ? .5 : 1; lctx.fillRect(x, 4 * rh + 3, ew, rh - 6); lctx.globalAlpha = 1; }
   }
+  const yP = RI('Pattern ACNS') * rh, yI = RI('IED (modello)') * rh;
   // pattern ritmici/periodici ACNS (rosso = sx, blu = dx, nero = generalizzato; RDA più chiari)
   if (A.rpp && A.rpp.patterns) for (const p of A.rpp.patterns) { lctx.fillStyle = p.side === 'sx' ? css('--flag') : p.side === 'dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = p.kind === 'PD' ? 1 : .55;
-    lctx.fillRect(X(p.t0), 5 * rh + 3, Math.max(2, (p.t1 - p.t0) / D * pw), rh - 6); lctx.globalAlpha = 1; }
+    lctx.fillRect(X(p.t0), yP + 3, Math.max(2, (p.t1 - p.t0) / D * pw), rh - 6); lctx.globalAlpha = 1; }
   // IED: punteggio per finestra (sopra 0,5) e candidati
   if (S.ied) { const thr = +$('iedthr').value, sw = S.ied.step / D * pw + .6;
-    S.ied.t.forEach((t, i) => { const p = S.ied.p[i]; if (!(p >= 0.5)) return; lctx.fillStyle = css('--ied'); lctx.globalAlpha = p >= thr ? 1 : .25; lctx.fillRect(X(t + 1.5), 6 * rh + 3, sw, rh - 6); });
+    S.ied.t.forEach((t, i) => { const p = S.ied.p[i]; if (!(p >= 0.5)) return; lctx.fillStyle = css('--ied'); lctx.globalAlpha = p >= thr ? 1 : .25; lctx.fillRect(X(t + 1.5), yI + 3, sw, rh - 6); });
     lctx.globalAlpha = 1;
     S.ied.events.forEach((ev, i) => { const j = S.review[evKey(ev)]; if (!j && i !== S.iedCur) return; lctx.fillStyle = j === 'si' ? css('--yes') : j === 'no' ? css('--no') : j ? css('--maybe') : css('--ink');
-      lctx.fillRect(X(ev.tp) - 1, 6 * rh + 1, 3, rh - 2); }); }
+      lctx.fillRect(X(ev.tp) - 1, yI + 1, 3, rh - 2); }); }
   // finestra visibile
   lctx.fillStyle = css('--sel'); lctx.strokeStyle = css('--accent'); const vx = X(S.t), vw = Math.max(3, pageLen() / D * pw);
   lctx.fillRect(vx, 0, vw, H - 14); lctx.strokeRect(vx + .5, .5, vw, H - 15);
@@ -1674,7 +1697,7 @@ function renderSummary() {
     <h2>Potenza relativa globale</h2>
     <dl class="kv">${A.relBip ? [['delta 1–2 Hz', 'd1'], ['delta 2–4 Hz', 'd2'], ['theta', 'theta'], ['alfa', 'alpha'], ['beta', 'beta']].map(([l, k]) => `<dt>${l}</dt><dd>${Math.round(A.relBip[k] * 100)}%</dd>`).join('')
       : ['delta', 'theta', 'alpha', 'beta'].map(b => `<dt>${b}</dt><dd>${Math.round(A.globalRel[b] * 100)}%</dd>`).join('')}</dl>
-    <p class="small">Derivazioni bipolari longitudinali senza Fp, epoche pulite, quota sul totale 1–30 Hz. La parte 1–2 Hz raccoglie soprattutto movimenti oculari residui, sudore e deriva della linea di base: gli indici di rallentamento dell'app partono da 2 Hz.</p>
+    <p class="small">Escluse le epoche con delta limitato ai poli frontali (probabili movimenti oculari): ${A.relBip && isFinite(A.relBip.eyePct) ? Math.round(A.relBip.eyePct) + '%' : '–'} delle epoche pulite. Derivazioni bipolari longitudinali senza Fp, epoche pulite, quota sul totale 1–30 Hz. La parte 1–2 Hz raccoglie soprattutto movimenti oculari residui, sudore e deriva della linea di base: gli indici di rallentamento dell'app partono da 2 Hz.</p>
     <h2>Qualità del segnale</h2>
     <dl class="kv">
       <dt>Durata</dt><dd>${fmtT(A.duration)} (${ctr.clean}/${ctr.epochs} epoche pulite)</dd>
@@ -1722,6 +1745,16 @@ function renderAnn() {
 /* ---- navigazione ---- */
 function goTo(t) { if (!S.A) return; S.t = Math.max(0, Math.min(S.A.duration - pageLen(), t)); S.cache = null; drawAll(); }
 function drawAll() { drawTrace(); drawTimeline(); }
+(function () { // pannello laterale e linea del tempo collassabili (preferenza ricordata nel browser)
+  const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const apply = () => { const ns = document.body.classList.contains('noside'), nt = document.body.classList.contains('notl');
+    $('sidetog').setAttribute('aria-pressed', String(!ns)); $('tltog').setAttribute('aria-pressed', String(!nt)); $('tltog').textContent = nt ? 'Mostra' : 'Nascondi';
+    $('tllegend').style.display = nt ? 'none' : ''; requestAnimationFrame(() => { drawAll(); if (!ns) { drawTopo(); drawSpec(); } }); };
+  if (get('eeg.noside') === '1') document.body.classList.add('noside'); if (get('eeg.notl') === '1') document.body.classList.add('notl');
+  $('sidetog').onclick = () => { set('eeg.noside', document.body.classList.toggle('noside') ? '1' : '0'); apply(); };
+  $('tltog').onclick = () => { set('eeg.notl', document.body.classList.toggle('notl') ? '1' : '0'); apply(); };
+  apply();
+})();
 $('prev').onclick = () => goTo(S.t - pageLen()); $('next').onclick = () => goTo(S.t + pageLen());
 ['montage', 'hp', 'lp', 'notch', 'sens', 'page'].forEach(id => $(id).addEventListener('change', () => { S.cache = null; drawAll(); }));
 document.addEventListener('keydown', e => {
