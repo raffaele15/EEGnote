@@ -28,7 +28,7 @@
 *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:var(--bg)}
 button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
-header{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .75rem;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line)}
+header{display:flex;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;align-items:center;gap:.3rem .6rem;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line)}
 header h1{font-size:1.05rem;font-weight:600;margin:0 .5rem 0 0;letter-spacing:.01em}
 header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ctl{display:flex;align-items:center;gap:.35rem;font-size:.85rem;color:var(--muted)}
@@ -38,9 +38,11 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .btn:hover{border-color:var(--accent)} .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .spacer{flex:1}
-.fname{font-size:.85rem;color:var(--muted);max-width:22rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
-main.closed{grid-template-columns:1fr 0 40px} main.closed>aside{display:none}
+main.closed{grid-template-columns:1fr 40px} main.closed>aside{display:none} .viewer{min-width:0}
+#rail{position:relative} #railtog{position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:14px;height:44px;border:1px solid var(--line);border-right:0;border-radius:6px 0 0 6px;background:var(--panel);color:var(--muted);cursor:pointer;padding:0;font-size:12px;line-height:1;z-index:3}
+#railtog:hover{color:var(--ink);border-color:var(--accent)}
 aside .sec{display:none} aside .sec.on{display:block} aside .sec+.sec.on{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.1rem}
 #rail{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.4rem 0;background:var(--panel);border-left:1px solid var(--line)}
 #rail hr{width:24px;border:0;border-top:1px solid var(--line);margin:.2rem 0}
@@ -107,18 +109,18 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <div class="app">
 <header>
   <h1>Annotatore EEG</h1>
+  <button class="btn primary" id="open">Apri EDF</button>
   <span class="fname" id="fname">nessun file</span>
   <span class="spacer"></span>
   <label class="ctl">Montaggio <select id="montage"></select></label>
   <label class="ctl">HP <input id="hp" type="number" step="0.1" min="0" value="0.5"> Hz</label>
   <label class="ctl">LP <input id="lp" type="number" step="1" min="0" value="70"> Hz</label>
   <label class="ctl"><input id="notch" type="checkbox" checked> Notch 50</label>
-  <label class="ctl">Sensibilità <select id="sens"><option>3</option><option>5</option><option selected>7</option><option>10</option><option>15</option><option>20</option><option>30</option><option>50</option></select> µV/mm</label>
-  <label class="ctl">Tema <select id="theme"><option value="auto">auto</option><option value="light">chiaro</option><option value="dark">scuro</option></select></label>
+  <label class="ctl" title="Sensibilità">Sens. <select id="sens"><option>3</option><option>5</option><option selected>7</option><option>10</option><option>15</option><option>20</option><option>30</option><option>50</option></select> µV/mm</label>
+  <span class="ctl">Tema <button class="btn ib" id="theme" title="Passa al tema scuro" aria-label="Cambia tema"></button></span>
   <label class="ctl">Pagina <select id="page"><option>5</option><option>10</option><option>15</option><option selected>20</option><option>30</option></select> s</label>
   <button class="btn" id="prev" title="Pagina precedente (PagSu)">◀</button>
   <button class="btn" id="next" title="Pagina successiva (PagGiù)">▶</button>
-  <button class="btn primary" id="open">Apri EDF</button>
   <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors" multiple hidden>
 </header>
 <main>
@@ -207,7 +209,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
    </section>
   </aside>
   <nav id="rail" aria-label="Sezioni del pannello">
-    <button class="rb" id="railclose" title="Chiudi il pannello"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    <button id="railtog" title="Comprimi il pannello" aria-label="Comprimi o espandi il pannello">›</button>
     <button class="rb" id="railall" title="Mostra o nascondi tutte le sezioni" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg></button>
     <hr>
     <button class="rb" data-sec="score" title="Livello decisionale (regole SCORE)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12M4 14h8M3 4h10M3 4l-2 5h4zM13 4l-2 5h4z"/></svg></button>
@@ -1834,11 +1836,13 @@ function drawAll() { drawTrace(); drawTimeline(); }
     document.querySelectorAll('#side .sec').forEach(x => x.classList.toggle('on', on.has(x.dataset.sec)));
     document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.setAttribute('aria-pressed', String(on.has(b.dataset.sec))));
     $('railall').setAttribute('aria-pressed', String(on.size === secs.length));
-    document.querySelector('main').classList.toggle('closed', !on.size); set('eeg.secs', [...on].join(',')); redraw(); };
+    document.querySelector('main').classList.toggle('closed', !on.size); set('eeg.secs', [...on].join(','));
+    $('railtog').textContent = on.size ? '›' : '‹'; $('railtog').title = on.size ? 'Comprimi il pannello' : 'Espandi il pannello'; redraw(); };
   document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.onclick = () => { on.has(b.dataset.sec) ? on.delete(b.dataset.sec) : on.add(b.dataset.sec); applySide();
     const el = document.querySelector('#side .sec[data-sec="' + b.dataset.sec + '"]'); if (on.has(b.dataset.sec) && el) el.scrollIntoView({ block: 'nearest' }); });
   $('railall').onclick = () => { on = on.size === secs.length ? new Set() : new Set(secs); applySide(); };
-  $('railclose').onclick = () => { on = new Set(); applySide(); };
+  let last = new Set(on.size ? on : ['score', 'rep']);
+  $('railtog').onclick = () => { if (on.size) { last = new Set(on); on = new Set(); } else on = new Set(last.size ? last : ['score', 'rep']); applySide(); };
   applySide();
   // panoramica
   const applyTl = () => { const nt = document.body.classList.contains('notl'); $('tltog').setAttribute('aria-pressed', String(!nt)); $('tltog').textContent = nt ? 'Mostra' : 'Nascondi';
@@ -2057,11 +2061,14 @@ function refCompare(e) {
 new ResizeObserver(() => { drawAll(); drawTopo(); drawSpec(); }).observe(document.body);
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawAll(); drawTopo(); drawSpec(); });
 /* ---- tema: automatico (segue il sistema), chiaro (bianco/nero), scuro; scelta ricordata nel browser ---- */
-function setTheme(v) { if (v === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = v;
+const MOON = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 10.2A6 6 0 0 1 5.8 2.5a6 6 0 1 0 7.7 7.7z"/></svg>',
+  SUN = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9L13 13M3 13l1.1-1.1M11.9 4.1L13 3"/></svg>';
+function setTheme(v) { if (v !== 'dark') v = 'light'; document.documentElement.dataset.theme = v;
+  $('theme').innerHTML = v === 'dark' ? SUN : MOON; $('theme').title = v === 'dark' ? 'Passa al tema chiaro' : 'Passa al tema scuro';
   try { localStorage.setItem('eeg-theme', v); } catch (e) { /* archiviazione non disponibile */ }
   S.cache = null; drawAll(); drawTopo(); drawSpec(); }
-$('theme').onchange = e => setTheme(e.target.value);
-try { const t = localStorage.getItem('eeg-theme'); if (t && ['auto', 'light', 'dark'].includes(t)) { $('theme').value = t; setTheme(t); } } catch (e) { /* ignora */ }
+$('theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+{ let t = null; try { t = localStorage.getItem('eeg-theme'); } catch (e) { /* ignora */ } setTheme(t === 'dark' ? 'dark' : 'light'); }
 })();
 </script>
 </body>
