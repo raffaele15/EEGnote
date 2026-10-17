@@ -181,7 +181,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       <div class="busy" id="busy" role="status" aria-live="polite"><div class="spin" aria-hidden="true"></div><span id="busytxt">Caricamento e analisi in corso…</span></div>
     </div>
     <div class="tl"><button id="tltab" title="Comprimi la panoramica" aria-label="Comprimi o espandi la panoramica">⌄</button>
-      <div class="tlhead"><span class="chips"><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni: segnalate dal tecnico (nell'EDF). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti (calcolati dall'app): > 350 µV su ≥ 3 canali o annotati dal tecnico; viola chiaro = delta solo frontopolare (oculare). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Onde lente" aria-pressed="true" title="Onde lente: indice lento/veloce per epoca di 4 s, colorato da 0,2. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Onde lente</span></button><button class="eye" data-eye="Onde lente" aria-pressed="false" title="Mostra onde lente sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Lateralità" aria-pressed="true" title="Lateralità: rosso = più lento a sx, blu = più lento a dx. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M2 6h11l-2.5-2.5M14 10H3l2.5 2.5"/></svg><span>Lateralità</span></button><button class="eye" data-eye="Lateralità" aria-pressed="false" title="Mostra lateralità sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Segnalazioni" aria-pressed="true" title="Segnalazioni: epoche oltre le soglie di anomalia lenta (rosso sx, blu dx, nero diffuse). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M8 2l6.5 11.5h-13z"/><path d="M8 6.5v3.5M8 12v.1"/></svg><span>Segnalazioni</span></button><button class="eye" data-eye="Segnalazioni" aria-pressed="false" title="Mostra segnalazioni sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati automaticamente. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="IED: probabilità del modello e candidati. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
+      <div class="tlhead"><span class="chips"><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni: segnalate dal tecnico (nell'EDF). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti (calcolati dall'app): > 350 µV su ≥ 3 canali o annotati dal tecnico; viola chiaro = delta solo frontopolare (oculare). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Rallentamenti" aria-pressed="true" title="Rallentamenti per epoca di 4 s: rosso = sinistra, blu = destra (pieno = solo da quel lato, chiaro = maggiore da quel lato), grigio = diffuso. Al passaggio del mouse: indice lento/veloce e lateralità. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Rallentamenti</span></button><button class="eye" data-eye="Rallentamenti" aria-pressed="false" title="Mostra rallentamenti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati automaticamente. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="IED: probabilità del modello e candidati. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
       <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div>
     </div>
   </section>
@@ -767,7 +767,14 @@ function slowLayer(ep, anns, pdr) {
     const gmax = Math.max(...['temporale', 'fronto-centrale'].map(g => Math.max(...SGRP[g].filter(k => o.S[k] !== undefined).map(k => o.S[k]))));
     o.slowAbs = gmax;
     if (best) { o.flag = best.v > 0 ? 'lento sx' : 'lento dx'; o.flagReg = best.r; }
-    else if (gmax >= SLOW.epochAbs) o.flag = o.gS >= SLOW.diffuse ? 'lento diffuso' : 'lento bilaterale'; }
+    else if (gmax >= SLOW.epochAbs) o.flag = o.gS >= SLOW.diffuse ? 'lento diffuso' : 'lento bilaterale';
+    // riga "Rallentamenti" (scelta dell'app, stesse soglie tarate delle segnalazioni): con un lato prevalente, "maggiore a" se anche
+    // l'altro lato è lento (indice ≥ 0,35 in almeno una regione controlaterale), altrimenti "solo a"; senza lato prevalente "diffuso"
+    o.slowCat = null; o.latMax = null;
+    for (const r in o.lat) if (!o.latMax || Math.abs(o.lat[r]) > Math.abs(o.latMax.v)) o.latMax = { r, v: o.lat[r] };
+    if (best) { const other = Math.max(...Object.values(LATREG).map(x => o.S[x[best.v > 0 ? 1 : 0]]).filter(v => v !== undefined));
+      o.slowCat = (other >= SLOW.epochAbs ? 'maggiore a ' : 'solo a ') + (best.v > 0 ? 'sinistra' : 'destra'); }
+    else if (gmax >= SLOW.epochAbs) o.slowCat = 'diffuso'; }
   const pdrSlow = pdr && pdr.freq != null && pdr.freq < SLOW.pdrSlow;
   const diffuse = g50 >= SLOW.diffuse || pdrSlow, intermittent = grp.temporale >= SLOW.intermittent;
   const weakDiffuse = !diffuse && g50 >= SLOW.weakDiffuse, weakIntermittent = !intermittent && Math.max(grp.temporale, grp['fronto-centrale']) >= SLOW.weakIntermittent;
@@ -1664,7 +1671,7 @@ function artZones(P, o, rowH, sec, lab, plotW, H) {
   const els = kind === 'amp' ? (o.artCh && o.artCh.length ? o.artCh : null) : kind === 'eye' ? ['Fp1', 'Fp2'] : kind === 'pop' ? o.popCh : null;
   const ALI = { T7: 'T3', T8: 'T4', P7: 'T5', P8: 'T6' }, has = lbl => !els || lbl.split('-').some(e => els.includes(ALI[e] || e));
   const ia = Math.max(0, Math.round((o.t - S.t) * fs)), ib = Math.min(n, Math.round((o.t + S.A.epoch - S.t) * fs));
-  if (ib <= ia) return; let any = false;
+  if (ib <= ia) return; let any = false; const zones = [];
   P.rows.forEach((row, k) => { if (!row || row.ecg || row.missing || !has(row.label)) return;
     const raw = row.data, off = P.off; let d = raw;
     if (kind === 'eye') { d = new Float32Array(n); let acc = 0; for (let i = 0; i < n; i++) { acc += raw[off + i] || 0; if (i >= sm) acc -= raw[off + i - sm] || 0; d[i] = acc / Math.min(i + 1, sm); } }
@@ -1673,10 +1680,13 @@ function artZones(P, o, rowH, sec, lab, plotW, H) {
     if (!row._pp || row._ppKind !== kind) { const all = []; for (let i = 0; i + win <= n; i += step) all.push(pp(i, i + win)); all.sort((a, b) => a - b); row._pp = all[Math.floor(all.length / 2)] || 1; row._ppKind = kind; }
     const thr = 2.5 * row._pp; let z0 = -1;
     const flush = z1 => { if (z0 < 0) return; const x0 = lab + z0 / (fs * sec) * plotW, x1 = lab + z1 / (fs * sec) * plotW;
-      tctx.fillStyle = hatchOf(col); tctx.fillRect(x0, 6 + k * rowH, x1 - x0, rowH); tctx.strokeStyle = col; tctx.globalAlpha = .7; tctx.lineWidth = 1; tctx.strokeRect(x0 + .5, 6 + k * rowH + .5, x1 - x0 - 1, rowH - 1); tctx.globalAlpha = 1; any = true; z0 = -1; };
+      zones.push([x0, x1]); any = true; z0 = -1; };
     for (let i = ia; i + win <= ib + step; i += step) { const b = Math.min(i + win, n), hot = kind === 'pop' ? true : pp(i, b) > thr;
       if (hot && z0 < 0) z0 = i; if (!hot && z0 >= 0) flush(Math.min(i + win - step, ib)); }
     flush(ib); });
+  // unione dei tratti trovati sulle derivazioni coinvolte, disegnata su tutta l'altezza del tracciato
+  zones.sort((a, b) => a[0] - b[0]); const U = []; for (const z of zones) { const l = U[U.length - 1]; if (l && z[0] <= l[1] + 1) l[1] = Math.max(l[1], z[1]); else U.push(z.slice()); }
+  for (const [x0, x1] of U) { tctx.fillStyle = hatchOf(col); tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.strokeStyle = col; tctx.globalAlpha = .7; tctx.lineWidth = 1; tctx.strokeRect(x0 + .5, .5, x1 - x0 - 1, H - 19); tctx.globalAlpha = 1; }
   if (!any) { const x0 = lab + Math.max(0, o.t - S.t) / sec * plotW, x1 = lab + Math.min(sec, o.t + S.A.epoch - S.t) / sec * plotW;
     tctx.fillStyle = hatchOf(col); tctx.globalAlpha = .35; tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.globalAlpha = 1; }
 }
@@ -1701,9 +1711,8 @@ function drawTrace() {
       tctx.fillStyle = col; tctx.globalAlpha = al; tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.globalAlpha = 1; };
     for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue; const t1 = o.t + A.epoch;
       if (EYEON.has('Artefatti') && (o.artifact || o.annArt || o.eyeDelta || (o.popCh && o.popCh.length))) artZones(P, o, rowH, sec, lab, plotW, H);
-      if (EYEON.has('Onde lente') && o.slowAbs >= 0.2) band(o.t, t1, heat(Math.max(0.15, Math.min(1, (o.slowAbs - 0.2) / 0.8))), .22);
-      if (EYEON.has('Lateralità') && o.lat) { let m = 0; for (const r in o.lat) if (Math.abs(o.lat[r]) > Math.abs(m)) m = o.lat[r]; if (Math.abs(m) >= C.SLOW.epochLat) band(o.t, t1, css(m > 0 ? '--flag' : '--stato'), .12); }
-      if (EYEON.has('Segnalazioni') && o.flag) band(o.t, t1, css(o.flag === 'lento sx' ? '--flag' : o.flag === 'lento dx' ? '--stato' : '--muted'), .14); }
+      if (EYEON.has('Rallentamenti') && o.slowCat) band(o.t, t1, css(SLOWCOL[o.slowCat][0]), .2 * SLOWCOL[o.slowCat][1] + .04);
+      }
     if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) for (const q of A.rpp.patterns) band(q.t0, q.t1, css(q.side === 'sx' ? '--flag' : q.side === 'dx' ? '--stato' : '--ink'), .12); }
   // annotazioni
   for (const a of A.anns) {
@@ -1750,7 +1759,11 @@ function drawTrace() {
 
 /* ---- linea del tempo ---- */
 const tl = $('timeline'), lctx = tl.getContext('2d');
-const TLROWS = ['Annotazioni', 'Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni', 'Pattern ACNS', 'IED (modello)'];
+const SLOWCOL = { 'solo a sinistra': ['--flag', 1], 'maggiore a sinistra': ['--flag', .45], 'solo a destra': ['--stato', 1], 'maggiore a destra': ['--stato', .45], 'diffuso': ['--ink', .55] };
+function slowText(o) { const lm = o.latMax, f = v => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2).replace('.', ',');
+  return (o.slowCat ? 'rallentamento ' + o.slowCat + (o.flagReg && o.slowCat !== 'diffuso' ? ' (' + o.flagReg + ')' : '') + ' · ' : '') + 'indice lento/veloce ' + (isFinite(o.slowAbs) ? f(o.slowAbs) : '–')
+    + (lm ? ' · lateralità ' + f(lm.v) + ' in sede ' + lm.r + (Math.abs(lm.v) >= 0.05 ? (lm.v > 0 ? ' (più lento a sx)' : ' (più lento a dx)') : '') : ''); }
+const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'IED (modello)'];
 const TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
 function tlRows() { const A = S.A; const r = TLROWS.filter(n => !TLOFF.has(n) && (n === 'Pattern ACNS' ? !!(A && A.rpp && A.rpp.patterns && A.rpp.patterns.length) : n === 'IED (modello)' ? !!S.ied : true)); return r.length ? r : ['Annotazioni']; }
@@ -1764,7 +1777,7 @@ function drawTimeline() {
   lctx.font = '11px IBM Plex Sans, system-ui';
   rows.forEach((n, i) => { lctx.fillStyle = css('--muted'); lctx.fillText(n, 4, i * rh + rh * .62); lctx.fillStyle = css('--grid'); lctx.fillRect(lab, i * rh + 2, pw, rh - 4); });
   // annotazioni
-  const yA = RI('Annotazioni') * rh, yR = RI('Artefatti') * rh, yS = RI('Onde lente') * rh, yL = RI('Lateralità') * rh, yF = RI('Segnalazioni') * rh;
+  const yA = RI('Annotazioni') * rh, yR = RI('Artefatti') * rh, yS = RI('Rallentamenti') * rh;
   if (yA >= 0) for (const u of UA) { lctx.fillStyle = css(ucat(u.cat).col); lctx.fillRect(X(u.t0), yA + 1, Math.max(3, (u.t1 - u.t0) / D * pw), rh - 2); }
   if (yA >= 0) for (const a of A.anns) { lctx.fillStyle = css(annCol(a)); const w = Math.max(2, (a.duration || 0) / D * pw); lctx.fillRect(X(a.onset), yA + 3, w, rh - 6); }
   for (const [a, b] of A.zeros) { lctx.fillStyle = css('--zero'); lctx.fillRect(X(a), 0, Math.max(2, X(b) - X(a)), H - 16); }
@@ -1773,13 +1786,8 @@ function drawTimeline() {
     if (o.zero) continue; const x = X(o.t);
     if (o.artifact || o.annArt || (o.popCh && o.popCh.length)) { lctx.fillStyle = css('--art'); lctx.globalAlpha = o.artifact ? 1 : o.annArt ? .55 : .3; if (yR >= 0) lctx.fillRect(x, yR + 3, ew, rh - 6); lctx.globalAlpha = 1; }
     else if (o.eyeDelta && yR >= 0) { lctx.fillStyle = css('--stim'); lctx.globalAlpha = .45; lctx.fillRect(x, yR + 3, ew, rh - 6); lctx.globalAlpha = 1; }
-    // onde lente: indice log10(2-8 Hz / 8-30 Hz), massimo tra le derivazioni bipolari temporali e fronto-centrali; colorato solo da 0,2
-    // (sotto: valori comuni anche nei tracciati normali AOPD), pieno da 1,0
-    if (o.slowAbs != null && isFinite(o.slowAbs) && o.slowAbs >= 0.2) { const z = Math.max(0.15, Math.min(1, (o.slowAbs - 0.2) / 0.8)); lctx.fillStyle = heat(z); if (yS >= 0) lctx.fillRect(x, yS + 3, ew, rh - 6); }
-    // lateralità: asimmetria regionale massima corretta (rosso = più lento a sx, blu = più lento a dx)
-    if (o.lat) { let m = 0; for (const r in o.lat) if (Math.abs(o.lat[r]) > Math.abs(m)) m = o.lat[r];
-      const l = Math.max(-1, Math.min(1, m / 0.8)); if (Math.abs(m) >= C.SLOW.epochLat) { lctx.fillStyle = l > 0 ? css('--flag') : css('--stato'); lctx.globalAlpha = Math.abs(l); if (yL >= 0) lctx.fillRect(x, yL + 3, ew, rh - 6); lctx.globalAlpha = 1; } }
-    if (o.flag) { lctx.fillStyle = o.flag === 'lento sx' ? css('--flag') : o.flag === 'lento dx' ? css('--stato') : css('--ink'); lctx.globalAlpha = o.flag === 'lento bilaterale' ? .5 : 1; if (yF >= 0) lctx.fillRect(x, yF + 3, ew, rh - 6); lctx.globalAlpha = 1; }
+    // rallentamenti: categoria per epoca (rosso = sinistra, blu = destra; pieno = solo da quel lato, chiaro = maggiore da quel lato; grigio = diffuso)
+    if (o.slowCat && yS >= 0) { const [c, a] = SLOWCOL[o.slowCat]; lctx.fillStyle = css(c); lctx.globalAlpha = a; lctx.fillRect(x, yS + 3, ew, rh - 6); lctx.globalAlpha = 1; }
   }
   const yP = RI('Pattern ACNS') * rh, yI = RI('IED (modello)') * rh;
   // pattern ritmici/periodici ACNS (rosso = sx, blu = dx, nero = generalizzato; RDA più chiari)
@@ -1814,9 +1822,7 @@ function tlHit(e) { // cosa c'è sotto il mouse nella linea del tempo
   else if (row === 'IED (modello)') { const ev = S.ied.events.find(q => Math.abs(q.tp - t) <= Math.max(tol, 2)); if (ev) { hit.go = ev.tp - 2; hit.txt = fmtT(ev.tp) + ' · candidato IED p ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : ''); } }
   else if (o && !o.zero) { const ts = fmtT(o.t) + ' · ';
     if (row === 'Artefatti') hit.txt = ts + (o.artifact ? 'artefatto: ampiezza > 350 µV su ≥ 3 canali' : o.annArt ? 'artefatto annotato dal tecnico' : o.popCh && o.popCh.length ? 'elettrodo instabile: ' + o.popCh.join(', ') : o.eyeDelta ? 'delta solo frontopolare (probabile movimento oculare)' : 'nessun artefatto');
-    if (row === 'Onde lente') hit.txt = ts + 'indice lento/veloce ' + (isFinite(o.slowAbs) ? o.slowAbs.toFixed(2) : '–') + (o.slowAbs >= 0.2 ? '' : ' (sotto 0,2: non colorato)');
-    if (row === 'Lateralità') { let m = 0, rg = ''; for (const k in (o.lat || {})) if (Math.abs(o.lat[k]) > Math.abs(m)) { m = o.lat[k]; rg = k; } hit.txt = ts + (rg ? (m > 0 ? 'più lento a sx' : 'più lento a dx') + ' in ' + rg + ' (' + m.toFixed(2) + ')' : 'non calcolata'); }
-    if (row === 'Segnalazioni') hit.txt = ts + (o.flag ? o.flag + (o.flagReg ? ' (' + o.flagReg + ')' : '') : 'nessuna segnalazione'); }
+    if (row === 'Rallentamenti') hit.txt = ts + slowText(o); }
   return hit;
 }
 tl.addEventListener('mousemove', e => { const h = tlHit(e), tip = $('tltip'); if (!h || !h.txt) { tip.style.display = 'none'; return; }
@@ -1829,20 +1835,17 @@ tl.addEventListener('click', e => { if (!S.A) return; const h = tlHit(e); if (h 
 /* legenda del tracciato: cosa c'è sotto il mouse, solo per le sezioni con l'occhio attivo; i candidati IED sono sempre disegnati e quindi sempre descritti */
 function epText(row, o) {
   if (row === 'Artefatti') return o.artifact ? 'ampiezza > 350 µV su ≥ 3 canali' + (o.artCh && o.artCh.length ? ' (' + o.artCh.join(', ') + ')' : '') : o.annArt ? 'annotato dal tecnico' : o.popCh && o.popCh.length ? 'elettrodo instabile: ' + o.popCh.join(', ') : o.eyeDelta ? 'delta solo frontopolare (probabile movimento oculare)' : null;
-  if (row === 'Onde lente') return isFinite(o.slowAbs) ? 'indice lento/veloce ' + (Math.abs(o.slowAbs) < 0.005 ? 0 : o.slowAbs).toFixed(2).replace('.', ',') + (o.slowAbs >= 0.2 ? '' : ' (sotto 0,2)') : null;
-  if (row === 'Lateralità') { let m = 0, rg = ''; for (const k in (o.lat || {})) if (Math.abs(o.lat[k]) > Math.abs(m)) { m = o.lat[k]; rg = k; }
-    return rg && Math.abs(m) >= C.SLOW.epochLat ? (m > 0 ? 'più lento a sx' : 'più lento a dx') + ' in sede ' + rg + ' (' + m.toFixed(2).replace('.', ',') + ')' : null; }
-  if (row === 'Segnalazioni') return o.flag ? o.flag + (o.flagReg ? ' (' + o.flagReg + ')' : '') : null;
+  if (row === 'Rallentamenti') return o.slowCat || isFinite(o.slowAbs) ? slowText(o) : null;
   return null;
 }
-const TIPCOL = { 'Artefatti': '--art', 'Onde lente': '--flag', 'Lateralità': '--stato', 'Segnalazioni': '--muted', 'Pattern ACNS': '--stato', 'IED': '--ied' };
+const TIPCOL = { 'Artefatti': '--art', 'Rallentamenti': '--flag', 'Pattern ACNS': '--stato', 'IED': '--ied' };
 function traceTip(e) {
   const tip = $('trtip'), hide = () => { tip.style.display = 'none'; };
   if (!S.A || !S.geo || (e.target.closest && e.target.closest('.ua'))) return hide();
   const wr = $('traceWrap').getBoundingClientRect(), px = e.clientX - wr.left, py = e.clientY - wr.top, G = S.geo;
   if (px < G.lab || py > G.H - 18) return hide();
   const t = S.t + (px - G.lab) / G.plotW * G.sec, A = S.A, o = A.epochs.find(q => t >= q.t && t < q.t + A.epoch), L = [];
-  if (o && !o.zero) for (const row of ['Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni']) if (EYEON.has(row)) { const x = epText(row, o); if (x) L.push([row, x]); }
+  if (o && !o.zero) for (const row of ['Artefatti', 'Rallentamenti']) if (EYEON.has(row)) { const x = epText(row, o); if (x) L.push([row, x]); }
   if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) A.rpp.patterns.filter(q => t >= q.t0 && t <= q.t1).forEach(q => L.push(['Pattern ACNS', q.name + (q.side === 'G' ? '' : ' ' + q.side) + ', ' + Math.round(q.t1 - q.t0) + ' s']));
   if (S.ied) S.ied.events.forEach(ev => { if (t < ev.t0 || t > ev.t1) return; const Q = ev.loc && ev.loc.found ? ev.loc : null, j = S.review[evKey(ev)];
     const eps = A.epochs.filter(q => q.t + A.epoch > ev.t0 && q.t < ev.t1 && !q.zero), na = eps.filter(q => q.artifact || q.annArt).length;
