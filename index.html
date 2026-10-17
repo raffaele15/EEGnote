@@ -39,6 +39,8 @@ button,select,input{font:inherit;color:inherit}
 #anncats button{border-radius:4px;font-weight:500} #anncats button i{display:inline-block;width:.55rem;height:.55rem;border-radius:2px;margin-right:.3rem;vertical-align:0}
 #annot[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff} #annbar.flash{animation:annfl .6s 2}
 @keyframes annfl{50%{background:var(--accentSoft)}}
+#trtip{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:.25rem .5rem;font-size:.76rem;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.18);display:none;z-index:6;max-width:360px}
+#trtip div{display:flex;gap:.35rem;align-items:baseline} #trtip i{flex:none;width:.6rem;height:.6rem;border-radius:2px;transform:translateY(1px)} #trtip b{font-weight:600;white-space:nowrap}
 #annlayer{position:absolute;inset:0;pointer-events:none;overflow:hidden} #annlayer.on{pointer-events:auto;cursor:crosshair}
 .ua{position:absolute;border:1.5px solid var(--c);background:color-mix(in srgb,var(--c) 10%,transparent);border-radius:3px;pointer-events:auto;cursor:move;box-sizing:border-box}
 .ua.sel{border-width:2px;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 30%,transparent)} .ua.off{border-style:dashed}
@@ -64,8 +66,9 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
 main.closed{grid-template-columns:1fr 40px} main.closed>aside{display:none} .viewer{min-width:0}
-main{position:relative} #railtog{position:absolute;right:366px;top:50%;transform:translateY(-50%);width:14px;height:32px;border:0;border-radius:0 16px 16px 0;background:var(--tab);color:#fff;cursor:pointer;padding:0;font-size:13px;line-height:1;z-index:3}
-main.closed #railtog{right:40px;border-radius:16px 0 0 16px}
+main{position:relative} #railtog{position:absolute;right:360px;top:50%;transform:translateY(-50%);width:20px;height:44px;border:0;border-radius:0 22px 22px 0;background:var(--tab);color:#fff;cursor:pointer;padding:0 3px 0 0;display:grid;place-items:center;z-index:3}
+#railtog svg,#tltab svg{width:16px;height:16px;display:block}
+main.closed #railtog{right:40px;border-radius:22px 0 0 22px;padding:0 0 0 3px}
 #railtog:hover,#tltab:hover{filter:brightness(1.12)}
 aside .sec{display:block} .sec[data-sec=cmp],#rail .rb[data-sec=cmp]{display:none} body.haslabels .sec[data-sec=cmp]{display:block} body.haslabels #rail .rb[data-sec=cmp]{display:grid} aside .sec+.sec{border-top:1px solid var(--line);margin-top:.6rem;padding-top:.1rem}
 #rail{display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.4rem 0;background:var(--panel);border-left:1px solid var(--line)}
@@ -88,10 +91,10 @@ body.notl .tl>*:not(#tltab){display:none} body.notl .tl{padding:0;min-height:8px
 .cg{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
 .cg .chip{border:0;background:transparent} .cg:has(.chip[aria-pressed=true]){border-color:var(--accent);background:var(--accentSoft)}
 .eye .slash{stroke-width:1.6} .eye[aria-pressed=true] .slash{display:none}
-.cg .eye{width:20px;height:16px;margin:0 2px 0 -3px;border:0} .cg .eye[aria-pressed=true]{background:var(--accent);color:#fff;border:0} .eye{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid transparent;border-radius:999px;background:none;color:var(--muted);cursor:pointer;padding:0}
+.cg .eye{width:20px;height:16px;margin:0 2px 0 -3px;border:0} .cg .eye[aria-pressed=true]{background:none;color:var(--ink);border:0} .eye{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid transparent;border-radius:999px;background:none;color:var(--muted);cursor:pointer;padding:0}
 .eye:hover{border-color:var(--line);color:var(--ink)} .eye[aria-pressed=true]{color:var(--accent);background:var(--accentSoft);border-color:var(--accent)}
-#tltab{position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:32px;height:14px;border:0;border-radius:16px 16px 0 0;background:var(--tab);color:#fff;cursor:pointer;padding:0;font-size:12px;line-height:14px;z-index:4}
-body.notl #tltab{top:-14px} #tltip{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:.2rem .45rem;font-size:.78rem;box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;display:none;z-index:5}
+#tltab{position:absolute;left:50%;top:-20px;transform:translateX(-50%);width:44px;height:20px;border:0;border-radius:22px 22px 0 0;background:var(--tab);color:#fff;cursor:pointer;padding:3px 0 0;display:grid;place-items:center;z-index:4}
+body.notl #tltab{top:-20px} #tltip{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:.2rem .45rem;font-size:.78rem;box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;display:none;z-index:5}
 .score{border-left:3px solid var(--accent);padding:.5rem .7rem;background:var(--accentSoft);font-size:.88rem;line-height:1.45;border-radius:0 4px 4px 0}
 .score.abn{border-left-color:var(--flag)} .score h3{margin:0 0 .25rem;font-size:.95rem;font-weight:600} .score p{margin:.12rem 0} .score ul{margin:.2rem 0 .1rem 1rem;padding:0}
 .iedbar{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:.3rem 0 .45rem;font-size:.82rem}
@@ -118,7 +121,7 @@ details.fold>summary .cnt{color:var(--muted);font-size:.8rem} details.fold[open]
 .small{font-size:.78rem;color:var(--muted);line-height:1.4}
 .bandsel{display:flex;gap:.25rem;margin-bottom:.4rem} .bandsel button{flex:1;padding:.2rem 0;font-size:.8rem}
 .bandsel button[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
-#topo,#spec{width:100%;display:block}
+#topo,#spec{width:100%;display:block} aside .sec[data-sec=ann]{min-height:50vh}
 .annlist{list-style:none;margin:0;padding:0;font-size:.82rem;max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:4px}
 .annlist li{display:flex;gap:.5rem;padding:.22rem .5rem;border-bottom:1px solid var(--grid);cursor:pointer}
 .annlist li:hover{background:var(--sel)} .annlist .t{color:var(--muted);min-width:3.4rem}
@@ -166,7 +169,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <main>
   <section class="viewer">
     <div id="traceWrap">
-      <canvas id="trace" aria-label="Tracciato EEG"></canvas><div id="annlayer"></div>
+      <canvas id="trace" aria-label="Tracciato EEG"></canvas><div id="trtip"></div><div id="annlayer"></div>
       <div id="drop"><div class="box">
         <h2>Trascina qui un EEG in formato EDF o EDF+</h2>
         <p>Il file viene letto solo in questo browser: nessun dato esce dal computer.</p>
@@ -227,12 +230,10 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <div id="refbox" class="small">Trascina etichette_referti.json (resta in locale).</div>
    </section>
    <section class="sec" data-sec="map">
-    <h2 title="Potenza relativa per elettrodo, media comune, epoche senza artefatti. Le croci indicano gli elettrodi esclusi.">Mappa delle bande</h2>
+    <h2 title="Potenza relativa per elettrodo, media comune, epoche senza artefatti. Le croci indicano gli elettrodi esclusi.">Mappa delle bande e spettro</h2>
     <div class="bandsel" id="bandsel"></div>
     <canvas id="topo" height="250"></canvas>
-   </section>
-   <section class="sec" data-sec="spec">
-    <h2>Spettro posteriore a occhi chiusi</h2>
+    <h3 class="small">Spettro posteriore a occhi chiusi</h3>
     <canvas id="spec" height="150"></canvas>
    </section>
    <section class="sec" data-sec="ann">
@@ -250,8 +251,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <button class="rb" data-sec="ied" title="Candidati IED" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg></button>
     <button class="rb" data-sec="sum" title="Sintesi automatica" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14h12M4 12V8M8 12V4M12 12V6"/></svg></button>
     <button class="rb" data-sec="cmp" title="Confronto con il referto" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h10l-2.5-2.5M14 11H4l2.5 2.5"/></svg></button>
-    <button class="rb" data-sec="map" title="Mappa delle bande" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="9" r="5.5"/><path d="M6.8 3.6L8 1.5l1.2 2.1"/><circle cx="6" cy="8" r=".6" fill="currentColor"/><circle cx="10" cy="10" r=".6" fill="currentColor"/></svg></button>
-    <button class="rb" data-sec="spec" title="Spettro posteriore" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 14h14M1.5 13c2 0 3-.5 4-3s1.5-7 2.5-7 1.5 4.5 2.5 7 2 3 4 3"/></svg></button>
+    <button class="rb" data-sec="map" title="Mappa delle bande e spettro posteriore" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="9" r="5.5"/><path d="M6.8 3.6L8 1.5l1.2 2.1"/><circle cx="6" cy="8" r=".6" fill="currentColor"/><circle cx="10" cy="10" r=".6" fill="currentColor"/></svg></button>
     <button class="rb" data-sec="ann" title="Annotazioni" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg></button>
   </nav>
 </main>
@@ -1706,7 +1706,7 @@ function drawTrace() {
     if (L && L.found && L.t >= S.t && L.t <= S.t + sec) { const xl = lab + (L.t - S.t) / sec * plotW; tctx.strokeStyle = css('--ied'); tctx.lineWidth = 1.5; tctx.setLineDash(L.quality === 'buona' ? [] : [3, 3]);
       tctx.beginPath(); tctx.moveTo(xl + .5, 16); tctx.lineTo(xl + .5, H - 34); tctx.stroke(); tctx.setLineDash([]); tctx.lineWidth = 1; lx = xl + 3;
       txt = (L.quality === 'artefatto' ? 'artefatto? ' : '') + L.type + ' ' + L.ch + ' ' + L.durMs + ' ms · p ' + ev.pmax.toFixed(2) + (L.quality === 'incerta' ? ' (incerta)' : ''); }
-    tctx.fillStyle = css('--ied'); tctx.font = '600 11px IBM Plex Sans, system-ui'; tctx.fillText(txt + (j ? ' · ' + j : ''), Math.max(lab + 2, lx), H - 22); });
+    tctx.fillStyle = css('--ied'); tctx.font = '600 11px IBM Plex Sans, system-ui'; tctx.fillText((ev.art ? 'su artefatto · ' : '') + txt + (j ? ' · ' + j : ''), Math.max(lab + 2, lx), H - 22); });
   // barra di calibrazione 50 µV
   const cal = 50 * pxPerUv; tctx.strokeStyle = css('--accent'); tctx.lineWidth = 2; tctx.beginPath(); tctx.moveTo(W - 14, H - 26); tctx.lineTo(W - 14, H - 26 - cal); tctx.stroke();
   tctx.fillStyle = css('--accent'); tctx.font = '10px IBM Plex Sans, system-ui'; tctx.textAlign = 'right'; tctx.fillText('50 µV', W - 18, H - 28 - cal / 2); tctx.textAlign = 'left';
@@ -1790,6 +1790,35 @@ tl.addEventListener('mousemove', e => { const h = tlHit(e), tip = $('tltip'); if
 tl.addEventListener('mouseleave', () => { $('tltip').style.display = 'none'; });
 tl.addEventListener('click', e => { if (!S.A) return; const h = tlHit(e); if (h && h.go != null) { goTo(h.go); return; }
   const r = tl.getBoundingClientRect(), lab = 92, pw = r.width - lab - 8; const t = (e.clientX - r.left - lab) / pw * S.A.duration; goTo(t - pageLen() / 2); });
+
+/* legenda del tracciato: cosa c'è sotto il mouse, solo per le sezioni con l'occhio attivo; i candidati IED sono sempre disegnati e quindi sempre descritti */
+function epText(row, o) {
+  if (row === 'Artefatti') return o.artifact ? 'ampiezza > 350 µV su ≥ 3 canali' : o.annArt ? 'annotato dal tecnico' : o.popCh && o.popCh.length ? 'elettrodo instabile: ' + o.popCh.join(', ') : o.eyeDelta ? 'delta solo frontopolare (probabile movimento oculare)' : null;
+  if (row === 'Onde lente') return isFinite(o.slowAbs) ? 'indice lento/veloce ' + (Math.abs(o.slowAbs) < 0.005 ? 0 : o.slowAbs).toFixed(2).replace('.', ',') + (o.slowAbs >= 0.2 ? '' : ' (sotto 0,2)') : null;
+  if (row === 'Lateralità') { let m = 0, rg = ''; for (const k in (o.lat || {})) if (Math.abs(o.lat[k]) > Math.abs(m)) { m = o.lat[k]; rg = k; }
+    return rg && Math.abs(m) >= C.SLOW.epochLat ? (m > 0 ? 'più lento a sx' : 'più lento a dx') + ' in sede ' + rg + ' (' + m.toFixed(2).replace('.', ',') + ')' : null; }
+  if (row === 'Segnalazioni') return o.flag ? o.flag + (o.flagReg ? ' (' + o.flagReg + ')' : '') : null;
+  return null;
+}
+const TIPCOL = { 'Artefatti': '--art', 'Onde lente': '--flag', 'Lateralità': '--stato', 'Segnalazioni': '--muted', 'Pattern ACNS': '--stato', 'IED': '--ied' };
+function traceTip(e) {
+  const tip = $('trtip'), hide = () => { tip.style.display = 'none'; };
+  if (!S.A || !S.geo || (e.target.closest && e.target.closest('.ua'))) return hide();
+  const wr = $('traceWrap').getBoundingClientRect(), px = e.clientX - wr.left, py = e.clientY - wr.top, G = S.geo;
+  if (px < G.lab || py > G.H - 18) return hide();
+  const t = S.t + (px - G.lab) / G.plotW * G.sec, A = S.A, o = A.epochs.find(q => t >= q.t && t < q.t + A.epoch), L = [];
+  if (o && !o.zero) for (const row of ['Artefatti', 'Onde lente', 'Lateralità', 'Segnalazioni']) if (EYEON.has(row)) { const x = epText(row, o); if (x) L.push([row, x]); }
+  if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) A.rpp.patterns.filter(q => t >= q.t0 && t <= q.t1).forEach(q => L.push(['Pattern ACNS', q.name + (q.side === 'G' ? '' : ' ' + q.side) + ', ' + Math.round(q.t1 - q.t0) + ' s']));
+  if (S.ied) S.ied.events.forEach(ev => { if (t < ev.t0 || t > ev.t1) return; const Q = ev.loc && ev.loc.found ? ev.loc : null, j = S.review[evKey(ev)];
+    const eps = A.epochs.filter(q => q.t + A.epoch > ev.t0 && q.t < ev.t1 && !q.zero), na = eps.filter(q => q.artifact || q.annArt).length;
+    L.push(['IED', 'candidato p ' + ev.pmax.toFixed(2).replace('.', ',') + (Q ? ' · ' + (Q.morph || Q.type) + ' ' + Q.ch + ', ' + Q.durMs + ' ms' + (Q.quality !== 'buona' ? ' (' + Q.quality + ')' : '') : ev.ch ? ' · ' + ev.ch : '')
+      + (na ? ' · su artefatto (' + na + '/' + eps.length + ' epoche' + (ev.art ? ', escluso dal conteggio' : '') + ')' : '') + (j ? ' · giudizio: ' + j : '')]); });
+  if (!L.length) return hide();
+  tip.innerHTML = '<div class="small" style="color:var(--muted)">' + fmtT(t) + '</div>' + L.map(([r, x]) => `<div><i style="background:var(${TIPCOL[r]})"></i><span><b>${r === 'IED' ? 'IED' : r}:</b> ${x}</span></div>`).join('');
+  tip.style.display = 'block'; const x = px + 14 + tip.offsetWidth > wr.width ? px - 14 - tip.offsetWidth : px + 14, y = Math.min(py + 14, wr.height - tip.offsetHeight - 4);
+  tip.style.left = Math.max(4, x) + 'px'; tip.style.top = Math.max(4, y) + 'px';
+}
+$('traceWrap').addEventListener('mousemove', traceTip); $('traceWrap').addEventListener('mouseleave', () => { $('trtip').style.display = 'none'; });
 
 /* ---- mappa topografica ---- */
 function drawTopo() {
@@ -2070,6 +2099,8 @@ $('repsave').onclick = () => { if (!S.A) return;
   const txt = $('reptext').value + '\n\n' + 'REPERTI ANNOTATI (' + UA.length + ')\n' + (L.length ? L.join('\n') : 'nessuno') + '\n';
   download(base() + '_referto.txt', txt, 'text/plain;charset=utf-8'); $('repstate').textContent = 'salvato'; };
 
+const CHEV = {"r": "M6 3.5L10.5 8 6 12.5", "l": "M10 3.5L5.5 8l4.5 4.5", "d": "M3.5 6L8 10.5 12.5 6", "u": "M3.5 10L8 5.5l4.5 4.5"};
+const chev = k => '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + CHEV[k] + '"/></svg>';
 /* ---- navigazione ---- */
 function goTo(t) { if (!S.A) return; S.t = Math.max(0, Math.min(S.A.duration - pageLen(), t)); S.cache = null; drawAll(); }
 function sizeTimeline() { tl.style.height = (tlRows().length * 26 + 16) + 'px'; } // altezza fissa per riga: togliere righe restituisce spazio al tracciato
@@ -2078,7 +2109,7 @@ function drawAll() { sizeTimeline(); drawTrace(); drawTimeline(); }
   const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   const main = document.querySelector('main'), side = $('side');
   const redraw = () => requestAnimationFrame(() => { drawAll(); drawTopo(); drawSpec(); });
-  const applySide = () => { const cl = main.classList.contains('closed'); $('railtog').textContent = cl ? '‹' : '›'; $('railtog').title = cl ? 'Espandi il pannello' : 'Comprimi il pannello'; set('eeg.side', cl ? '0' : '1'); redraw(); };
+  const applySide = () => { const cl = main.classList.contains('closed'); $('railtog').innerHTML = chev(cl ? 'l' : 'r'); $('railtog').title = cl ? 'Espandi il pannello' : 'Comprimi il pannello'; set('eeg.side', cl ? '0' : '1'); redraw(); };
   if (get('eeg.side') === '0') main.classList.add('closed');
   $('railtog').onclick = () => { main.classList.toggle('closed'); applySide(); };
   // clic su un'icona: apre il pannello se chiuso e salta alla sezione
@@ -2089,10 +2120,11 @@ function drawAll() { sizeTimeline(); drawTrace(); drawTimeline(); }
   const spy = () => { const y = side.scrollTop + 24; let cur = null;
     side.querySelectorAll('.sec').forEach(x => { if (x.offsetParent !== null && x.offsetTop - side.offsetTop <= y) cur = x.dataset.sec; });
     if (!cur) { const f = [...side.querySelectorAll('.sec')].find(x => x.offsetParent !== null); cur = f && f.dataset.sec; }
+    if (side.scrollTop > 0 && side.scrollTop + side.clientHeight >= side.scrollHeight - 2) { const v = [...side.querySelectorAll('.sec')].filter(x => x.offsetParent !== null); if (v.length) cur = v[v.length - 1].dataset.sec; }
     document.querySelectorAll('#rail .rb[data-sec]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sec === cur))); };
   side.addEventListener('scroll', spy, { passive: true }); spy(); applySide();
   // panoramica
-  const applyTl = () => { const nt = document.body.classList.contains('notl'); $('tltab').textContent = nt ? '⌃' : '⌄'; $('tltab').title = nt ? 'Espandi la panoramica' : 'Comprimi la panoramica'; redraw(); };
+  const applyTl = () => { const nt = document.body.classList.contains('notl'); $('tltab').innerHTML = chev(nt ? 'u' : 'd'); $('tltab').title = nt ? 'Espandi la panoramica' : 'Comprimi la panoramica'; redraw(); };
   if (get('eeg.notl') === '1') document.body.classList.add('notl');
   $('tltab').onclick = () => { set('eeg.notl', document.body.classList.toggle('notl') ? '1' : '0'); applyTl(); };
   (get('eeg.tloff') || '').split('|').filter(Boolean).forEach(n => TLOFF.add(n));
