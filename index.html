@@ -167,6 +167,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <span class="annsep"></span>
   <span class="annseg" id="annevs" aria-label="Evento"></span>
   <span class="spacer"></span>
+  <label class="small" title="Quantificatore nel referto. Auto = calcolato secondo ACNS 2021 (prevalenza dalla durata annotata sul totale per attività lenta e pattern; incidenza dal numero di eventi per gli epilettiformi). Se annoti solo alcuni esempi, l'automatico sottostima: scegli tu. Vale per il riquadro selezionato e per i successivi.">Quantità <select id="annqty"><option value="">auto (ACNS)</option><option value="rara">rari</option><option value="occasionale">occasionali</option><option value="frequente">frequenti</option><option value="abbondante">abbondanti</option><option value="continua">continui</option></select></label>
   <span class="small" id="annhint" title="Clic sul tracciato: segno di 0,5 s su tutte le derivazioni. Trascina: riquadro su tempo e derivazioni (indica anche lato e regione). Sul riquadro: trascina per spostarlo, angolo in basso a destra per ridimensionarlo, × o Canc per eliminarlo; selezionalo e scegli un altro evento per cambiarlo.">clic = segno · trascina = riquadro</span>
 </div>
 <main>
@@ -930,12 +931,16 @@ function generateReport(A, rec, d, ied, format) {
   else if (!diff && (s.weakIntermittent || s.sideWeak)) { // reperto lieve: formula descrittiva dei referti, senza modificare la conclusione
     const temp = s.intRegion === 'temporale';
     parts.push('con evidenza di occasionali rallentamenti theta ' + (temp ? 'bitemporali' : 'sulle regioni anteriori') + ' di medio voltaggio' + (s.sideWeak ? ', con una certa prevalenza a ' + (s.sideWeak === 'sx' ? 'sinistra' : 'destra') : '')); }
+  if (U.by('slow').length) { parts.length = 0; concl.length = 0; m.slowReplaced = true;
+    parts.push('con evidenza di ' + U.by('slow').map(slowPhrase).join(' e di '));
+    U.by('slow').forEach(x => concl.push((QPL[x.quant] || x.quant) + ' ' + (SLOWPL[x.ev] || 'episodi di ' + x.ev) + (x.where ? ' ' + (x.where === 'con distribuzione diffusa' ? 'diffusi' : x.where) : '')));
+    d = Object.assign({}, d, { possible: (d.possible || []).filter(x => !/lent|rallent/i.test(x)) }); }
   body += parts.length ? ', ' + parts.join(', ') + '.' : '.';
   const ant = ['Fp1', 'Fp2', 'F3', 'F4', 'F7', 'F8', 'Fz'].filter(c => A.relMap[c] && !A.bad.has(c)).map(c => A.relMap[c].beta), beta = ant.length ? ant.reduce((a, b) => a + b, 0) / ant.length : null;
   m.betaAnt = beta;
   body += beta == null ? '' : beta > 0.35 ? ' Abbondante attività beta sulle regioni anteriori.' : beta >= 0.05 ? ' Presente attività beta in quantità adeguata sulle regioni anteriori.' : ' Scarsa attività beta.';
   out.push(body);
-  const uSlow = U.by('slow').concat(U.by('bg').filter(x => x.ev !== 'sonnolenza' && x.ev !== 'sonno'));
+  const uSlow = U.by('bg').filter(x => x.ev !== 'sonnolenza' && x.ev !== 'sonno');
   if (uSlow.length) out.push('Si osservano: ' + uSlow.map(uS).join('; ') + '.');
   uSlow.filter(x => x.abn).forEach(x => concl.push(x.ev + (x.where ? ' ' + x.where : '')));
   // anomalie epilettiformi
@@ -978,12 +983,21 @@ function generateReport(A, rec, d, ied, format) {
 /* reperti annotati dall'operatore (A.uann, preparato dall'interfaccia: {cat, ev, t0, t1, where, side}).
    Quantificatori ACNS 2021: incidenza per i transienti (epilettiformi, p. 8), prevalenza per pattern e attività lenta (pp. 13-14). */
 const UCAT_ABN = { epi: 1, slow: 1, rpp: 1, sz: 1 }, UBG_ABN = { 'attenuazione focale': 1, 'asimmetria': 1 };
+/* frase dei rallentamenti annotati, nello stile dei referti AOPD: "con evidenza di occasionali rallentamenti theta polimorfi diffusi di medio voltaggio".
+   Quantificatore = prevalenza ACNS 2021 (rari < 1%, occasionali 1-9%, frequenti 10-49%, abbondanti 50-89%, continui ≥ 90%) o scelto dall'operatore;
+   voltaggio = modificatore ACNS 2021 di ampiezza assoluta (molto basso < 20, basso 20-49, medio 50-149, alto ≥ 150 µV), picco-picco misurato nel riquadro. */
+const QPL = { rara: 'rari', occasionale: 'occasionali', frequente: 'frequenti', abbondante: 'abbondanti', continua: 'continui' };
+const SLOWPL = { 'theta polimorfo': 'rallentamenti theta polimorfi', 'delta polimorfo': 'rallentamenti delta polimorfi', 'theta ritmico': 'rallentamenti theta ritmici', 'delta ritmico': 'rallentamenti delta ritmici' };
+const uvTerm = v => v == null ? '' : v < 20 ? ' di voltaggio molto basso' : v < 50 ? ' di basso voltaggio' : v < 150 ? ' di medio voltaggio' : ' di alto voltaggio';
+function slowPhrase(x) { const w = x.where === 'con distribuzione diffusa' ? 'diffusi' : x.where || '', q = QPL[x.quant] || x.quant;
+  return SLOWPL[x.ev] ? q + ' ' + SLOWPL[x.ev] + (w ? ' ' + w : '') + uvTerm(x.uv) : q + ' episodi di ' + x.ev + (w ? ' ' + (w === 'diffusi' ? 'diffusi' : w) : '') + uvTerm(x.uv); }
 function userFindings(A) {
   const U = A.uann || [], g = {}, mm = t => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(Math.floor(t % 60)).padStart(2, '0'), min = A.duration / 60;
   for (const u of U) { const k = u.cat + '|' + u.ev + '|' + u.where; (g[k] = g[k] || { cat: u.cat, ev: u.ev, where: u.where, items: [] }).items.push(u); }
   const list = Object.values(g).map(x => { x.items.sort((a, b) => a.t0 - b.t0); x.n = x.items.length; x.dur = x.items.reduce((a, u) => a + (u.t1 - u.t0), 0);
     x.times = x.items.slice(0, 5).map(u => mm(u.t0)).join(', ') + (x.n > 5 ? '…' : '');
-    x.quant = x.cat === 'epi' ? incidenceTerm(x.n, min) : prevalenceTerm(x.dur / A.duration * 100);
+    const qs = x.items.map(u => u.q).filter(Boolean); x.qAuto = x.cat === 'epi' ? incidenceTerm(x.n, min) : prevalenceTerm(x.dur / A.duration * 100); x.quant = qs.length ? qs[qs.length - 1] : x.qAuto;
+    const uv = x.items.map(u => u.uv).filter(v => v > 0).sort((a, b) => a - b); x.uv = uv.length ? uv[Math.floor(uv.length / 2)] : null;
     x.text = x.ev + (x.where ? ' ' + x.where : '') + (x.cat === 'epi' ? ', incidenza ' + x.quant : x.cat === 'rpp' || x.cat === 'slow' ? ', prevalenza ' + x.quant : '');
     x.note = x.n + (x.n === 1 ? ' evento' : ' eventi') + ' alle ' + x.times + (x.cat === 'epi' ? '' : ', ' + Math.round(x.dur) + ' s in tutto');
     x.abn = !!UCAT_ABN[x.cat] || (x.cat === 'bg' && !!UBG_ABN[x.ev]); return x; });
@@ -1013,7 +1027,9 @@ function generateReportSCORE(A, rec, d, ied) {
   if (s.side) nf.push('attività lenta polimorfa lateralizzata a ' + (s.side === 'sx' ? 'sinistra' : 'destra') + ' (' + lobesText(s.latRegions.slice(0, 2)) + '), ' + prevalenceTerm(s.prev.side) + ' (' + Math.round(s.prev.side) + '%)');
   else if (s.intermittent && !s.diffuse) nf.push('attività lenta intermittente bitemporale, ' + prevalenceTerm(s.prev.intermittent) + ' (' + Math.round(s.prev.intermittent) + '%)');
   const U = userFindings(A), uL = x => '   - ' + x.text + ' (annotato: ' + x.note + ')';
-  U.by('slow').concat(U.by('bg').filter(x => x.ev !== 'sonnolenza' && x.ev !== 'sonno'), U.by('var')).forEach(x => nf.push(x.text + ' (annotato: ' + x.note + ')'));
+  if (U.by('slow').length) nf.length = 0;
+  U.by('slow').forEach(x => nf.push(slowPhrase(x) + ' (annotato: ' + x.note + ')'));
+  U.by('bg').filter(x => x.ev !== 'sonnolenza' && x.ev !== 'sonno').concat(U.by('var')).forEach(x => nf.push(x.text + ' (annotato: ' + x.note + ')'));
   L.push(nf.length ? nf.map(x => '   - ' + x).join('\n') : '   Nessuno.');
   L.push('', '5. REPERTI INTERCRITICI EPILETTIFORMI');
   if (ied && ied.confirmed && ied.confirmed.length) { const t = iedText(ied, A);
@@ -1366,7 +1382,7 @@ function pdrPeak(acc, fs, nfft) {
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
-G.EEGCore = { STAB_THR, alphaStability, userFindings,  generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+G.EEGCore = { STAB_THR, alphaStability, userFindings, slowPhrase,  generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script id="iedsrc">/* Annotatore EEG — rilevatore di scariche epilettiformi intercritiche (IED).
@@ -2051,7 +2067,14 @@ function uaWhere(u) {
   const adj = rs.slice(0, -1).map(r => REGPRE[r]).concat([rs[rs.length - 1].replace(/e$/, 'i')]).join('-');
   return { side, where: side === 'linea mediana' ? 'sulla linea mediana (' + adj + ')' : 'sulle regioni ' + adj + (side === 'sinistra' ? ' di sinistra' : side === 'destra' ? ' di destra' : ' bilateralmente') };
 }
-function uaForCore() { return UA.map(u => Object.assign({ cat: u.cat, ev: u.ev, t0: u.t0, t1: u.t1 }, uaWhere(u))); }
+function uaVolt(u) { const key = [u.t0, u.t1, (u.ch || []).join(',')].join('|'); if (u._uvKey === key) return u._uv;
+  let v = null; try { const A = S.A, rec = S.rec, fs = A.fs, i0 = Math.max(0, Math.floor(u.t0 * fs)), i1 = Math.min(rec.signals[0].data.length, Math.ceil(u.t1 * fs)), F = C.makeFilters(fs, 1, 30, 0);
+    const ALI = { T7: 'T3', T8: 'T4', P7: 'T5', P8: 'T6' }, pairs = (u.ch ? u.ch.map(l => l.split('-').map(e => ALI[e] || e)) : C.BIP).filter(pr => pr.length === 2 && A.cmap[pr[0]] !== undefined && A.cmap[pr[1]] !== undefined && !A.bad.has(pr[0]) && !A.bad.has(pr[1]));
+    const pad = Math.round(fs), vals = pairs.map(pr => { const d = C.filtfilt(C.derivation(rec, A.cmap, pr, Math.max(0, i0 - pad), Math.min(rec.signals[0].data.length, i1 + pad)), F); let mn = Infinity, mx = -Infinity;
+      for (let i = i0 - Math.max(0, i0 - pad); i < d.length - (Math.min(rec.signals[0].data.length, i1 + pad) - i1); i++) { if (d[i] < mn) mn = d[i]; if (d[i] > mx) mx = d[i]; } return mx - mn; }).filter(isFinite).sort((a, b) => a - b);
+    if (vals.length) v = vals[Math.floor(vals.length / 2)]; } catch (e) { v = null; }
+  u._uvKey = key; u._uv = v; return v; }
+function uaForCore() { return UA.map(u => Object.assign({ cat: u.cat, ev: u.ev, t0: u.t0, t1: u.t1, q: u.q, uv: u.cat === 'slow' ? uaVolt(u) : null }, uaWhere(u))); }
 // barra di scelta: categorie (schede) ed eventi (pulsanti); la ricerca filtra su tutte le categorie
 function renderAnnBar() {
   $('anncats').innerHTML = ANNCAT.map(c => `<button data-k="${c.k}" aria-pressed="${c.k === ANNTAB && !$('annq').value}" title="${c.n}: ${c.src}"><i style="background:var(${c.col})"></i>${c.n}</button>`).join('');
@@ -2062,6 +2085,7 @@ function renderAnnBar() {
     const u = S.uaSel && UA.find(x => x.id === S.uaSel); if (u) { u.cat = ANNCUR.cat; u.ev = ANNCUR.ev; saveUA(); renderUA(); } renderAnnBar(); });
 }
 $('annq').oninput = renderAnnBar;
+$('annqty').onchange = () => { const u = S.uaSel && UA.find(x => x.id === S.uaSel); if (u) { if ($('annqty').value) u.q = $('annqty').value; else delete u.q; saveUA(); } };
 $('annq').onkeydown = e => { if (e.key === 'Enter') { const b = $('annevs').querySelector('button'); if (b) b.click(); $('annq').blur(); } if (e.key === 'Escape') { $('annq').value = ''; renderAnnBar(); $('annq').blur(); } };
 function setAnnot(on) { ANNOT = on; $('annot').setAttribute('aria-pressed', String(on)); $('annbar').hidden = !on; $('annlayer').classList.toggle('on', on); if (on) renderAnnBar(); requestAnimationFrame(drawAll); }
 $('annot').onclick = () => setAnnot(!ANNOT);
@@ -2098,7 +2122,7 @@ function delUA(id) { UA = UA.filter(u => u.id !== id); if (S.uaSel === id) S.uaS
     if (box || ANNOT) { e.preventDefault(); const sel = window.getSelection && window.getSelection(); if (sel && sel.removeAllRanges) sel.removeAllRanges(); }
     if (box) { const u = UA.find(x => x.id === box.dataset.id); if (!u) return; e.stopPropagation();
       if (e.target.classList.contains('ux')) { delUA(u.id); return; }
-      S.uaSel = u.id; lay.querySelectorAll('.ua').forEach(x => x.classList.toggle('sel', x === box));
+      S.uaSel = u.id; lay.querySelectorAll('.ua').forEach(x => x.classList.toggle('sel', x === box)); $('annqty').value = u.q || '';
       const r = uaRows(u); drag = { mode: e.target.classList.contains('ur') ? 'size' : 'move', u, box, p, t0: u.t0, t1: u.t1, i0: r.i0, i1: r.i1, moved: false };
       lay.setPointerCapture(e.pointerId); return; }
     if (!ANNOT || p.x < S.geo.lab) return;
@@ -2121,7 +2145,7 @@ function delUA(id) { UA = UA.filter(u => u.id !== id); if (S.uaSel === id) S.uaS
     const p = pos(e); let u;
     if (!d.moved) { const t = tOf(p.x); u = { t0: Math.max(0, t - 0.25), t1: t + 0.25, ch: null }; }
     else { const ta = tOf(Math.min(p.x, d.p.x)), tb = tOf(Math.max(p.x, d.p.x)), ch = labsIn(rowOf(d.p.y), rowOf(p.y)); u = { t0: Math.max(0, ta), t1: Math.max(ta + 0.1, tb), ch: ch.length === S.geo.labels.filter(Boolean).length ? null : ch }; }
-    Object.assign(u, { id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), cat: ANNCUR.cat, ev: ANNCUR.ev });
+    Object.assign(u, { id: 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), cat: ANNCUR.cat, ev: ANNCUR.ev }); if ($('annqty').value) u.q = $('annqty').value;
     UA.push(u); UA.sort((a, b) => a.t0 - b.t0); S.uaSel = null; $('annhint').textContent = 'clic = segno · trascina = riquadro'; saveUA(); renderUA(); };
   lay.addEventListener('pointerup', end); lay.addEventListener('pointercancel', end);
 })();
