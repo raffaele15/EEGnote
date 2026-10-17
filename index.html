@@ -13,16 +13,16 @@
   --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#CFD8DF;
   --trace:#1C2A38; --accent:#0E6E78; --accentSoft:#D7ECEE;
   --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#7A8791; --zero:#9AA6AF; --flag:#C2410C;
-  --sel:rgba(14,110,120,.14); --sli:#D9A400; --sliFill:#FFF2A6; --hvFill:#E6DAF7; --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00; --ecg:#D00000;
+  --sel:rgba(14,110,120,.14); --slow:#B5651D; --sli:#D9A400; --sliFill:#FFF2A6; --hvFill:#E6DAF7; --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00; --ecg:#D00000;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg);
   font-variant-numeric:tabular-nums;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --sli:#E8C547; --sliFill:#4D4300; --hvFill:#35264F;}}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#4D4300; --hvFill:#35264F;}}
 :root[data-theme="dark"]{--bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --sli:#E8C547; --sliFill:#4D4300; --hvFill:#35264F;}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#4D4300; --hvFill:#35264F;}
 /* tema chiaro: sfondo bianco, tracciato nero (come la carta EEG) */
 :root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
   --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
@@ -166,7 +166,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <label class="ctl" title="Durata della pagina">Pag. <select id="page"><option>5</option><option>10</option><option>15</option><option selected>20</option><option>30</option></select> s</label>
   <button class="btn" id="prev" title="Pagina precedente (← o PagSu; Ctrl+← = 1 s)">◀</button>
   <button class="btn" id="next" title="Pagina successiva (→ o PagGiù; Ctrl+→ = 1 s)">▶</button>
-  <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors" multiple hidden>
+  <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors,.onnx" multiple hidden>
 </header>
 <div id="annbar" hidden>
   <input id="annq" type="search" placeholder="Cerca evento…" aria-label="Cerca un evento da annotare">
@@ -188,7 +188,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       <div class="busy" id="busy" role="status" aria-live="polite"><div class="spin" aria-hidden="true"></div><span id="busytxt">Caricamento e analisi in corso…</span></div>
     </div>
     <div class="tl"><button id="tltab" title="Comprimi la panoramica" aria-label="Comprimi o espandi la panoramica">⌄</button>
-      <div class="tlhead"><span class="chips"><span class="cg allbtns"><button class="chip" id="eyesall" title="Mostra sul tracciato tutti i reperti della panoramica (accende tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/></svg><span>mostra tutto</span></button><button class="chip" id="eyesnone" title="Nascondi dal tracciato tutti i reperti della panoramica (spegne tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path d="M2.5 13.5l11-11"/></svg><span>nascondi tutto</span></button></span><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni: segnalate dal tecnico (nell'EDF). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti (calcolati dall'app): > 350 µV su ≥ 3 canali o annotati dal tecnico; viola chiaro = delta solo frontopolare (oculare). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Rallentamenti" aria-pressed="true" title="Rallentamenti per epoca di 4 s: rosso = sinistra, blu = destra (pieno = solo da quel lato, chiaro = maggiore da quel lato), grigio = diffuso. Al passaggio del mouse: indice lento/veloce e lateralità. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Rallentamenti</span></button><button class="eye" data-eye="Rallentamenti" aria-pressed="false" title="Mostra rallentamenti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati automaticamente. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="IED: probabilità del modello e candidati. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
+      <div class="tlhead"><span class="chips"><span class="cg allbtns"><button class="chip" id="eyesall" title="Mostra sul tracciato tutti i reperti della panoramica (accende tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/></svg><span>mostra tutto</span></button><button class="chip" id="eyesnone" title="Nascondi dal tracciato tutti i reperti della panoramica (spegne tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path d="M2.5 13.5l11-11"/></svg><span>nascondi tutto</span></button></span><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni: segnalate dal tecnico (nell'EDF). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti (calcolati dall'app): > 350 µV su ≥ 3 canali o annotati dal tecnico; viola chiaro = delta solo frontopolare (oculare). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Rallentamenti" aria-pressed="true" title="Rallentamenti per epoca di 4 s: rosso = sinistra, blu = destra (pieno = solo da quel lato, chiaro = maggiore da quel lato), grigio = diffuso. Al passaggio del mouse: attività lenta % (potenza theta+delta 2–8 Hz sulla potenza 2–30 Hz, derivazione temporale o fronto-centrale più lenta) e asimmetria tra i lati (lieve 1,6–2,5 volte, marcata ≥ 2,5 volte; soglie tarate sui referti AOPD). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Rallentamenti</span></button><button class="eye" data-eye="Rallentamenti" aria-pressed="false" title="Mostra rallentamenti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati automaticamente. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="IED: probabilità del modello e candidati. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
       <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div>
     </div>
   </section>
@@ -212,10 +212,13 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     </div>
    </section>
    <section class="sec" data-sec="ied">
-    <h2 title="Modello IED: SenuaLab EEG-IED-Detection (resnet_attention), pesi CC BY 4.0, addestrato su vEpiSet. Tasti: N/P candidato successivo/precedente, 1/2/3 giudizio sì/no/dubbio.">Candidati IED (modello)</h2>
+    <h2 title="Modelli IED: SenuaLab EEG-IED-Detection (resnet_attention, CC BY 4.0, vEpiSet); CBraMod v2/v3 (nostri); SpikeNet2 (BDSP, uso didattico e di ricerca non commerciale). Tasti: N/P candidato successivo/precedente, 1/2/3 giudizio sì/no/dubbio.">Candidati IED (modello)</h2>
     <div id="iedbox">
       <div class="small" id="iedstatus">Modello non caricato.</div>
       <div class="prog" id="iedprog" hidden><i></i></div>
+      <div class="iedbar">
+        <label title="Rilevatore da usare. SenuaLab: pesi pubblici (vEpiSet). CBraMod v2/v3: nostri (vEpiSet, TUEV, TUSL, HMS; v3 anche TUAR), file in modelli/ o modelli_locali/. SpikeNet2 (Li et al., NEJM AI 2025): pesi distribuiti con il permesso di BDSP, solo uso didattico e di ricerca non commerciale. Valori sugli 87 EEG AOPD (franche vs resto): SenuaLab 0,70 (49 EEG), v2 0,89, v3 0,89, SpikeNet2 0,87.">Modello <select id="iedmodel"><option value="senualab">SenuaLab</option><option value="v2">CBraMod v2</option><option value="v3">CBraMod v3</option><option value="sn2">SpikeNet2</option></select></label>
+      </div>
       <div class="iedbar">
         <label title="Probabilità minima che il modello deve dare a una finestra di 4 s perché diventi candidato IED. 0,69 = soglia che massimizza F1 nella validazione del modello (config.json). Più bassa: più candidati e più falsi positivi; più alta: meno candidati, rischio di perderne.">Soglia <select id="iedthr"><option value="0.5">0,50</option><option value="0.6944" selected>0,69 (validazione)</option><option value="0.8">0,80</option><option value="0.9">0,90</option><option value="0.95">0,95</option></select></label>
         <label title="Spostamento tra una finestra di 4 s e la successiva durante la scansione del modello. 0,5 s: più fine ma circa il doppio del tempo; 2 s: più rapido ma può perdere scariche brevi tra due finestre. Cambiandolo la scansione riparte.">Passo <select id="iedstep"><option value="0.5">0,5 s</option><option value="1" selected>1 s</option><option value="2">2 s</option></select></label>
@@ -1611,6 +1614,88 @@ function makePreprocessor(fs) {
 G.EEGIED = { IED_CH, IED_THR, readSafetensors, prepareModel, forward, makePreprocessor, makeFiltfilt, makeResampler, butterBandSOS };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+<script id="onnxsrc">/* Annotatore EEG — rilevatori IED in ONNX (onnxruntime-web 1.20.1, WASM, un thread per worker).
+   - CBraMod v2 e v3: addestrati da noi (vepiset_ied.py) su vEpiSet, TUEV, TUSL, HMS (+ TUAR per v3). 18 bipolari (doppia banana
+     + Fz-Cz, Cz-Pz), 0,3-75 Hz, notch 50 Hz, 200 Hz, unità 100 µV, finestre di 4 s. Uscita: logit IED + 5 logit di sede.
+   - SpikeNet2 (Li et al., NEJM AI 2025; codice CC BY-NC 4.0): pesi distribuiti con il permesso di BDSP (email del 17/10/2026),
+     solo uso didattico e di ricerca non commerciale; il permesso può essere revocato.
+     19 elettrodi a 128 Hz -> 18 bipolari + 19 media comune, finestre di 1 s a passo 0,25 s, canali con picco-picco < 20 o > 2000 µV
+     azzerati, normalizzazione per il 95° percentile di |x|; la rete restituisce già la probabilità. Per ogni finestra di 4 s
+     dell'app si prende il massimo delle finestre di 1 s che vi cadono dentro.
+   Differenza nota dagli script Python: filtri IIR Butterworth/notch a fase zero e ricampionamento polifase al posto dei FIR e
+   del ricampionamento FFT di MNE (verificato su EEG AOPD con lo stesso ONNX, vedi CONTESTO). */
+(function (G) {
+'use strict';
+const ORT_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
+const MODELS = {
+  v2: { label: 'CBraMod v2', file: 'ied_cbramod_v2.onnx', kind: 'cbramod', thr: 0.37,
+        info: 'CBraMod (pre-addestrato su TUEG) rifinito su vEpiSet + TUEV + TUSL + HMS. EEG AOPD: AUROC franche vs resto 0,89, franche vs assenti 0,94.' },
+  v3: { label: 'CBraMod v3', file: 'ied_cbramod_v3.onnx', kind: 'cbramod', thr: 0.57,
+        info: 'Come v2 più TUAR (artefatti). EEG AOPD: AUROC 0,89 / 0,94; più sensibile alle anomalie "non franche" (0,82 contro 0,76).' },
+  sn2: { label: 'SpikeNet2', file: 'spikenet2.onnx', kind: 'spikenet2', thr: 0.5,
+        info: 'SpikeNet2 (Li et al., NEJM AI 2025; bdsp-core/SpikeNet2). Pesi distribuiti con il permesso di BDSP (17/10/2026), solo per uso didattico e di ricerca non commerciale; codice CC BY-NC 4.0. EEG AOPD: AUROC 0,87 / 0,92.' } };
+const CB_CH = ['Fp1','F7','T3','T5','O1','Fp2','F8','T4','T6','O2','F3','C3','P3','F4','C4','P4','Fz','Cz','Pz'];
+const CB_BIP = [[0,1],[1,2],[2,3],[3,4],[5,6],[6,7],[7,8],[8,9],[0,10],[10,11],[11,12],[12,4],[5,13],[13,14],[14,15],[15,9],[16,17],[17,18]];
+const SN_CH = ['Fp1','F3','C3','P3','F7','T3','T5','O1','Fz','Cz','Pz','Fp2','F4','C4','P4','F8','T4','T6','O2'];
+const SN_BIP = [['Fp1','F7'],['F7','T3'],['T3','T5'],['T5','O1'],['Fp2','F8'],['F8','T4'],['T4','T6'],['T6','O2'],['Fp1','F3'],['F3','C3'],['C3','P3'],['P3','O1'],['Fp2','F4'],['F4','C4'],['C4','P4'],['P4','O2'],['Fz','Cz'],['Cz','Pz']].map(([a, b]) => [SN_CH.indexOf(a), SN_CH.indexOf(b)]);
+const SEDI = ['generalizzata', 'frontale', 'temporale', 'centro-parietale', 'occipitale'];
+
+/* filtri a fase zero (come scipy.sosfiltfilt, padding dispari) */
+function sosZi(sos) { let scale = 1; return sos.map(([b0, b1, b2, , a1, a2]) => { const g = (b0 + b1 + b2) / (1 + a1 + a2), z1 = b2 - a2 * g, z0 = b1 - a1 * g + z1; const r = [z0 * scale, z1 * scale]; scale *= g; return r; }); }
+function sosRun(sos, y, zi, x0) { sos.forEach((s, i) => { const [b0, b1, b2, , a1, a2] = s; let z0 = zi[i][0] * x0, z1 = zi[i][1] * x0;
+  for (let t = 0; t < y.length; t++) { const xi = y[t], yi = b0 * xi + z0; z0 = b1 * xi - a1 * yi + z1; z1 = b2 * xi - a2 * yi; y[t] = yi; } }); }
+function makeFF(sos) { const zi = sosZi(sos), padlen = 3 * (2 * sos.length + 1);
+  return x => { const n = x.length, p = Math.min(padlen, n - 1), e = new Float64Array(n + 2 * p);
+    for (let i = 0; i < p; i++) { e[i] = 2 * x[0] - x[p - i]; e[n + p + i] = 2 * x[n - 1] - x[n - 2 - i]; }
+    for (let i = 0; i < n; i++) e[p + i] = x[i];
+    sosRun(sos, e, zi, e[0]); e.reverse(); sosRun(sos, e, zi, e[0]); e.reverse(); return e.subarray(p, p + n); }; }
+function notchSOS(f0, Q, fs) { const w0 = 2 * Math.PI * f0 / fs, al = Math.sin(w0) / (2 * Q), a0 = 1 + al;
+  return [[1 / a0, -2 * Math.cos(w0) / a0, 1 / a0, 1, -2 * Math.cos(w0) / a0, (1 - al) / a0]]; }
+function makeChain(fs, lo, hi, fsOut) { const IED = G.EEGIED, hi2 = Math.min(hi, 0.45 * fs);
+  const bp = makeFF(IED.butterBandSOS(2, lo, hi2, fs)), nt = fs > 110 ? makeFF(notchSOS(50, 30, fs)) : (x => x), rs = IED.makeResampler(fs, fsOut);
+  return x => rs(nt(bp(Float64Array.from(x)))); }
+/* CBraMod: seg = 19 canali in ordine CB_CH (µV, a fs) -> 18 bipolari a 200 Hz in unità di 100 µV */
+function prepCB(seg, fs) { const ch = makeChain(fs, 0.3, 75, 200), Y = seg.map(ch), n = Y[0].length;
+  return CB_BIP.map(([a, b]) => { const z = new Float32Array(n); for (let i = 0; i < n; i++) z[i] = (Y[a][i] - Y[b][i]) / 100; return z; }); }
+/* SpikeNet2: seg = 19 canali in ordine SN_CH -> 19 canali a 128 Hz (µV) */
+function prepSN(seg, fs) { const ch = makeChain(fs, 0.5, 60, 128); return seg.map(ch); }
+function q95abs(v) { const a = Float64Array.from(v, Math.abs).sort(), h = 0.95 * (a.length - 1), i = Math.floor(h); return a[i] + (h - i) * ((a[Math.min(i + 1, a.length - 1)]) - a[i]); }
+function snWindow(Y, s0, out, o) { // 37 x 128 a partire dal campione s0 (128 Hz)
+  const rows = [];
+  for (const [a, b] of SN_BIP) { const r = new Float64Array(128); for (let t = 0; t < 128; t++) r[t] = Y[a][s0 + t] - Y[b][s0 + t]; rows.push(r); }
+  for (let c = 0; c < 19; c++) { const r = new Float64Array(128); for (let t = 0; t < 128; t++) { let m = 0; for (let k = 0; k < 19; k++) m += Y[k][s0 + t]; r[t] = Y[c][s0 + t] - m / 19; } rows.push(r); }
+  rows.forEach((r, c) => { let mn = Infinity, mx = -Infinity; for (const v of r) { if (v < mn) mn = v; if (v > mx) mx = v; }
+    if (mx - mn < 20 || mx - mn > 2000) r.fill(0); const q = q95abs(r) + 1e-8; for (let t = 0; t < 128; t++) out[o + c * 128 + t] = r[t] / q; }); }
+const flat = w => { let mn = Infinity, mx = -Infinity; for (let i = 0; i < w.length; i++) { if (w[i] < mn) mn = w[i]; if (w[i] > mx) mx = w[i]; } return mx - mn === 0; };
+/* job: seg grezzo (canali nell'ordine del modello) da a-pad a b+pad; offs = inizi delle finestre di 4 s rispetto a seg (campioni a fs) */
+async function runJob(sess, kind, seg, fs, offs, ort) {
+  const win4 = Math.round(4 * fs), res = offs.map(off => seg.some(ch => flat(ch.subarray(off, off + win4))) ? null : undefined);
+  const keep = offs.map((o, i) => i).filter(i => res[i] === undefined); if (!keep.length) return res;
+  if (kind === 'cbramod') {
+    const X = prepCB(seg, fs), n = X[0].length, inp = new Float32Array(keep.length * 18 * 800); const ok = [];
+    keep.forEach(i => { const s0 = Math.round(offs[i] / fs * 200); if (s0 + 800 > n) { res[i] = null; return; }
+      let mx = 0, sm = 0, sq = 0; for (let c = 0; c < 18; c++) for (let t = s0; t < s0 + 800; t++) { const v = X[c][t]; if (Math.abs(v) > mx) mx = Math.abs(v); sm += v; sq += v * v; }
+      const sd = Math.sqrt(Math.max(0, sq / 14400 - (sm / 14400) ** 2));
+      if (!(mx < 10 && sd > 0.01)) { res[i] = null; return; }        // come vepiset_ied.py: saturazioni (> 1000 µV) e tratti piatti esclusi
+      ok.push(i); for (let c = 0; c < 18; c++) inp.set(X[c].subarray(s0, s0 + 800), (ok.length - 1) * 14400 + c * 800); });
+    if (!ok.length) return res;
+    const o = await sess.run({ x: new ort.Tensor('float32', inp.subarray(0, ok.length * 14400), [ok.length, 18, 800]) }), L = o[sess.outputNames[0]].data;
+    ok.forEach((i, j) => { const l = L.subarray(j * 6, j * 6 + 6), p = 1 / (1 + Math.exp(-l[0])); let bs = 1; for (let k = 2; k < 6; k++) if (l[k] > l[bs]) bs = k; res[i] = [p, SEDI[bs - 1]]; });
+    return res; }
+  // SpikeNet2: tutte le finestre di 1 s (passo 0,25 s = 32 campioni) che servono, poi il massimo per finestra di 4 s
+  const Y = prepSN(seg, fs), n = Y[0].length, need = new Map();
+  keep.forEach(i => { const s0 = Math.round(offs[i] / fs * 128); for (let k = 0; k <= 12; k++) { const s = s0 + 32 * k; if (s + 128 <= n) need.set(s, -1); } });
+  const starts = [...need.keys()], inp = new Float32Array(starts.length * 37 * 128);
+  starts.forEach((s, j) => { snWindow(Y, s, inp, j * 4736); need.set(s, j); });
+  const P = new Float32Array(starts.length);
+  for (let b = 0; b < starts.length; b += 256) { const m = Math.min(256, starts.length - b);
+    const o = await sess.run({ x: new ort.Tensor('float32', inp.subarray(b * 4736, (b + m) * 4736), [m, 37, 128]) }); P.set(o[sess.outputNames[0]].data.subarray(0, m), b); }
+  keep.forEach(i => { const s0 = Math.round(offs[i] / fs * 128); let p = -1; for (let k = 0; k <= 12; k++) { const j = need.get(s0 + 32 * k); if (j !== undefined && j >= 0 && P[j] > p) p = P[j]; } res[i] = p >= 0 ? [p, null] : null; });
+  return res;
+}
+G.EEGONNX = { ORT_URL, MODELS, CB_CH, SN_CH, SEDI, prepCB, prepSN, snWindow, runJob };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
 <script>
 (() => {
 'use strict';
@@ -1637,6 +1722,8 @@ document.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 async function handleFiles(files) {
   for (const f of files) {
     if (/\.safetensors$/i.test(f.name)) { await loadModel(await f.arrayBuffer(), f.name); continue; }
+    if (/\.onnx$/i.test(f.name)) { const k = /spike/i.test(f.name) ? 'sn2' : /v3/i.test(f.name) ? 'v3' : 'v2'; ONNXBUF[k] = { buf: await f.arrayBuffer(), name: f.name };
+      $('iedmodel').value = k; await selectModel(k); continue; }
     if (/\.json$/i.test(f.name)) { try { const j = JSON.parse(await f.text());
       if (j && j.tipo === 'revisione-ied') importReview(j); else { S.labels = j; renderRef(); renderScore(); } } catch (err) { $('refbox').textContent = 'Il file JSON non è leggibile: ' + err.message; } }
   }
@@ -1722,6 +1809,11 @@ function artZones(P, o, rowH, sec, lab, plotW, H) {
   if (!any) { const x0 = lab + Math.max(0, o.t - S.t) / sec * plotW, x1 = lab + Math.min(sec, o.t + S.A.epoch - S.t) / sec * plotW;
     tctx.fillStyle = hatchOf(col); tctx.globalAlpha = .35; tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.globalAlpha = 1; }
 }
+function slowTag(r, lab, sec, plotW) { const x0 = lab + Math.max(0, r.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, r.t1 - S.t) / sec * plotW; if (x1 - x0 < 30) return;
+  tctx.font = '600 10.5px IBM Plex Sans, system-ui'; const tw = tctx.measureText(r.sd).width, w = Math.min(x1 - x0 - 4, tw + 30), x = x0 + 3, y = 3, c = css('--slow');
+  tctx.fillStyle = c; tctx.globalAlpha = .92; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x, y, w, 15, 4); else tctx.rect(x, y, w, 15); tctx.fill(); tctx.globalAlpha = 1;
+  tctx.strokeStyle = '#fff'; tctx.lineWidth = 1.4; tctx.beginPath(); for (let i = 0; i <= 14; i++) { const px = x + 5 + i, py = y + 7.5 - 3.2 * Math.sin(i / 14 * 2 * Math.PI); i ? tctx.lineTo(px, py) : tctx.moveTo(px, py); } tctx.stroke();
+  tctx.save(); tctx.beginPath(); tctx.rect(x, y, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(r.sd, x + 23, y + 11); tctx.restore(); }
 function drawTrace() { S.artZ = [];
   const r = tc.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   tc.width = r.width * dpr; tc.height = r.height * dpr; tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1741,10 +1833,12 @@ function drawTrace() { S.artZ = [];
   // reperti della panoramica mostrati sul tracciato (pulsante "occhio"): fasce colorate trasparenti per epoca di 4 s
   if (EYEON.size) { const band = (t0, t1, col, al) => { const x0 = lab + Math.max(0, t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, t1 - S.t) / sec * plotW; if (x1 <= x0) return;
       tctx.fillStyle = col; tctx.globalAlpha = al; tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.globalAlpha = 1; };
-    for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue; const t1 = o.t + A.epoch;
+    const SR = []; for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue; const t1 = o.t + A.epoch;
       if (EYEON.has('Artefatti') && (o.artifact || o.annArt || o.eyeDelta || (o.popCh && o.popCh.length))) artZones(P, o, rowH, sec, lab, plotW, H);
-      if (EYEON.has('Rallentamenti') && o.slowCat) band(o.t, t1, css(SLOWCOL[o.slowCat][0]), .2 * SLOWCOL[o.slowCat][1] + .04);
+      if (EYEON.has('Rallentamenti') && o.slowCat) { const sd = /sinistra/.test(o.slowCat) ? 'sinistra' : /destra/.test(o.slowCat) ? 'destra' : 'diffuso', l = SR[SR.length - 1];
+        if (l && l.sd === sd && Math.abs(l.t1 - o.t) < .01) l.t1 = t1; else SR.push({ t0: o.t, t1, sd }); }
       }
+    for (const r of SR) { band(r.t0, r.t1, css('--slow'), .16); slowTag(r, lab, sec, plotW); }
     if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) for (const q of A.rpp.patterns) band(q.t0, q.t1, css(q.side === 'sx' ? '--flag' : q.side === 'dx' ? '--stato' : '--ink'), .12); }
   // annotazioni
   for (const a of A.anns) {
@@ -1792,9 +1886,14 @@ function drawTrace() { S.artZ = [];
 /* ---- linea del tempo ---- */
 const tl = $('timeline'), lctx = tl.getContext('2d');
 const SLOWCOL = { 'solo a sinistra': ['--flag', 1], 'maggiore a sinistra': ['--flag', .45], 'solo a destra': ['--stato', 1], 'maggiore a destra': ['--stato', .45], 'diffuso': ['--ink', .55] };
-function slowText(o) { const lm = o.latMax, f = v => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2).replace('.', ',');
-  return (o.slowCat ? 'rallentamento ' + o.slowCat + (o.flagReg && o.slowCat !== 'diffuso' ? ' (' + o.flagReg + ')' : '') + ' · ' : '') + 'indice lento/veloce ' + (isFinite(o.slowAbs) ? f(o.slowAbs) : '–')
-    + (lm ? ' · lateralità ' + f(lm.v) + ' in sede ' + lm.r + (Math.abs(lm.v) >= 0.05 ? (lm.v > 0 ? ' (più lento a sx)' : ' (più lento a dx)') : '') : ''); }
+/* attività lenta % = potenza theta+delta (2-8 Hz) / potenza 2-30 Hz, nella derivazione temporale o fronto-centrale più lenta dell'epoca;
+   asimmetria = rapporto tra i due lati della quota lenta nella regione più asimmetrica: lieve da 1,6 a 2,5 volte, marcata ≥ 2,5 volte
+   (soglie tarate sui referti AOPD; ACNS 2021 definisce lieve/marcata solo per voltaggio e frequenza del ritmo di fondo) */
+function slowText(o) { const lm = o.latMax, pct = isFinite(o.slowAbs) ? Math.round(100 * Math.pow(10, o.slowAbs) / (1 + Math.pow(10, o.slowAbs))) : null;
+  let asym = ''; if (lm) { const k = Math.pow(10, Math.abs(lm.v)), sd = lm.v > 0 ? 'sinistra' : 'destra';
+    asym = k >= 2.5 ? 'asimmetria marcata: a ' + sd + ' ' + k.toFixed(1).replace('.', ',') + ' volte più lenta (' + lm.r + ')' : k >= 1.6 ? 'asimmetria lieve: a ' + sd + ' ' + k.toFixed(1).replace('.', ',') + ' volte più lenta (' + lm.r + ')' : 'nessuna asimmetria rilevante'; }
+  if (lm && Math.pow(10, Math.abs(lm.v)) >= 1.6 && !(o.slowCat && /destra|sinistra/.test(o.slowCat))) asym += ' — non contata come lateralizzata: quel lato non è più lento del suo solito nel tracciato';
+  return (o.slowCat ? 'rallentamento ' + o.slowCat + (o.flagReg && o.slowCat !== 'diffuso' ? ' (' + o.flagReg + ')' : '') + ' · ' : '') + (pct != null ? 'attività lenta ' + pct + '%' : '') + (asym ? ' · ' + asym : ''); }
 const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'IED (modello)'];
 const TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
@@ -2270,8 +2369,7 @@ async function loadModel(buf, name) {
     S.model = { buf, name };
     POOL.forEach(w => w.terminate()); POOL = [];
     $('iedstatus').textContent = 'Modello caricato: ' + name + ' (' + (buf.byteLength / 1048576).toFixed(1) + ' MB).';
-    $('iedrun').disabled = false;
-    if (S.A && !S.ied) runIED();
+    if (iedKind() === 'senualab') { $('iedrun').disabled = false; if (S.A && !S.ied) runIED(); }
   } catch (err) { $('iedstatus').innerHTML = '<span class="warnline">File del modello non valido: ' + err.message + '</span>'; }
 }
 (async () => { // caricamento automatico dalla cartella modelli/ (GitHub Pages o server locale)
@@ -2300,8 +2398,77 @@ function makePool(fs) {
   const ws = []; for (let i = 0; i < n; i++) ws.push(new Worker(url));
   return Promise.all(ws.map(w => new Promise(res => { w.onmessage = e => e.data.type === 'ready' && res(); w.postMessage({ type: 'init', buf: S.model.buf.slice(0), fs }); }))).then(() => ws);
 }
+/* ---- rilevatori ONNX (CBraMod v2/v3, SpikeNet2) ---- */
+const OX = window.EEGONNX, ONNXBUF = {}; let OPOOL = [];
+function iedKind() { return $('iedmodel').value; }
+async function fetchOnnx(k) { const m = OX.MODELS[k];
+  for (const dir of ['modelli/', 'modelli_locali/']) {
+    try { const r = await fetch(dir + m.file); if (r.ok) return { buf: await r.arrayBuffer(), name: dir + m.file };
+      const parts = []; for (let i = 0; i < 20; i++) { const q = await fetch(dir + m.file + '.part' + String(i).padStart(2, '0')); if (!q.ok) break; parts.push(new Uint8Array(await q.arrayBuffer())); }
+      if (parts.length) { const n = parts.reduce((a, x) => a + x.length, 0), u = new Uint8Array(n); let o = 0; for (const x of parts) { u.set(x, o); o += x.length; }
+        return { buf: u.buffer, name: dir + m.file + ' (' + parts.length + ' parti)' }; } } catch (e) { /* pagina da disco */ } }
+  return null; }
+function setThrFor(k) { const thr = k === 'senualab' ? 0.6944 : OX.MODELS[k].thr, sel = $('iedthr');
+  let o = [...sel.options].find(x => Math.abs(+x.value - thr) < 1e-4);
+  if (!o) { o = new Option(thr.toFixed(2).replace('.', ',') + ' (validazione)', String(thr)); sel.add(o, 0); }
+  sel.value = o.value; }
+async function selectModel(k) {
+  try { localStorage.setItem('ied-model', k); } catch (e) { /* */ }
+  setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
+  if (k === 'senualab') { $('iedrun').disabled = !S.model; $('iedstatus').textContent = S.model ? 'Modello: SenuaLab resnet_attention.' : 'Modello SenuaLab non caricato.'; if (S.model && S.A) runIED(); return; }
+  const m = OX.MODELS[k];
+  if (!ONNXBUF[k]) { $('iedstatus').textContent = 'Caricamento di ' + m.file + '…'; const r = await fetchOnnx(k); if (r) ONNXBUF[k] = r; }
+  if (!ONNXBUF[k]) { $('iedrun').disabled = true;
+    $('iedstatus').innerHTML = '<span class="warnline">' + m.label + ': file ' + m.file + ' non trovato in modelli/ né in modelli_locali/. Trascinalo nella pagina.</span>'; return; }
+  $('iedrun').disabled = false; $('iedstatus').textContent = m.label + ' caricato (' + (ONNXBUF[k].buf.byteLength / 1048576).toFixed(0) + ' MB). ' + m.info;
+  if (S.A) runIED();
+}
+$('iedmodel').onchange = () => selectModel(iedKind());
+function makeOnnxPool(k) {
+  const n = Math.max(1, Math.min(k === 'sn2' ? 3 : 4, (navigator.hardwareConcurrency || 4) - 1));
+  const src = document.getElementById('iedsrc').textContent + '\n' + document.getElementById('onnxsrc').textContent + `
+    importScripts('${OX.ORT_URL}ort.min.js'); ort.env.wasm.numThreads = 1; ort.env.wasm.wasmPaths = '${OX.ORT_URL}';
+    let sess = null, kind = null;
+    self.onmessage = async e => { const d = e.data;
+      if (d.type === 'init') { try { kind = d.kind; sess = await ort.InferenceSession.create(new Uint8Array(d.buf), { executionProviders: ['wasm'] }); postMessage({ type: 'ready' }); }
+        catch (err) { postMessage({ type: 'error', msg: String(err && err.message || err) }); } return; }
+      try { const out = await EEGONNX.runJob(sess, kind, d.seg, d.fs, d.offs, ort); postMessage({ type: 'res', id: d.id, out }); }
+      catch (err) { postMessage({ type: 'res', id: d.id, out: d.offs.map(() => null), err: String(err && err.message || err) }); } };`;
+  const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+  const ws = []; for (let i = 0; i < n; i++) ws.push(new Worker(url));
+  return Promise.all(ws.map(w => new Promise((res, rej) => { w.onmessage = e => e.data.type === 'ready' ? res() : e.data.type === 'error' && rej(new Error(e.data.msg));
+    w.postMessage({ type: 'init', buf: ONNXBUF[k].buf.slice(0), kind: OX.MODELS[k].kind }); }))).then(() => ws);
+}
+async function runONNX(k) {
+  const run = ++iedRun, A = S.A, rec = S.rec, fs = A.fs, win = Math.round(4 * fs), step = +$('iedstep').value, hop = Math.round(step * fs), m = OX.MODELS[k];
+  const CH = m.kind === 'cbramod' ? OX.CB_CH : OX.SN_CH, missing = CH.filter(c => A.cmap[c] === undefined);
+  if (missing.length) { $('iedstatus').innerHTML = '<span class="warnline">Mancano gli elettrodi ' + missing.join(', ') + ': il modello richiede i 19 canali 10-20.</span>'; return; }
+  const N = rec.signals[A.cmap[CH[0]]].data.length, starts = []; for (let s0 = 0; s0 + win <= N; s0 += hop) starts.push(s0);
+  if (!OPOOL.length || OPOOL.k !== k) { $('iedstatus').textContent = 'Avvio dei worker (' + m.label + ', scaricamento di onnxruntime-web al primo uso)…'; OPOOL.forEach(w => w.terminate());
+    try { OPOOL = await makeOnnxPool(k); OPOOL.k = k; } catch (err) { OPOOL = []; $('iedstatus').innerHTML = '<span class="warnline">Avvio non riuscito: ' + err.message + ' (serve la connessione per onnxruntime-web).</span>'; return; } }
+  const per = 24, pad = Math.round(5 * fs), chunks = []; for (let i = 0; i < starts.length; i += per) chunks.push(starts.slice(i, i + per));
+  const p = new Array(starts.length).fill(null), chn = new Array(starts.length).fill(null), t0 = performance.now(); let done = 0, next = 0, errs = 0;
+  $('iedprog').hidden = false; $('iedrun').disabled = true;
+  await new Promise(resolve => {
+    const feed = w => { if (run !== iedRun) return resolve(); if (next >= chunks.length) { if (done >= starts.length) resolve(); return; }
+      const ci = next++, ch = chunks[ci], a = Math.max(0, ch[0] - pad), b = Math.min(N, ch[ch.length - 1] + win + pad);
+      const seg = CH.map(c => rec.signals[A.cmap[c]].data.slice(a, b));
+      w.onmessage = e => { if (e.data.err) errs++; const base = ci * per; e.data.out.forEach((r, j) => { if (r) { p[base + j] = r[0]; chn[base + j] = r[1]; } }); done += e.data.out.length;
+        $('iedprog').firstChild.style.width = (100 * done / starts.length) + '%';
+        $('iedstatus').textContent = m.label + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
+        if (done >= starts.length) resolve(); else feed(w); };
+      w.postMessage({ type: 'job', id: ci, seg, fs, offs: ch.map(s0 => s0 - a) }, seg.map(x => x.buffer)); };
+    OPOOL.forEach(feed);
+  });
+  if (run !== iedRun) return;
+  S.ied = { t: starts.map(s0 => s0 / fs), p, ch: chn, step, sec: (performance.now() - t0) / 1000, workers: OPOOL.length, model: m.label, errs };
+  $('iedprog').hidden = true; $('iedrun').disabled = false;
+  buildEvents(); renderIED(); renderScore(); renderRef(); drawAll();
+}
+(async () => { let k = 'senualab'; try { k = localStorage.getItem('ied-model') || 'senualab'; } catch (e) { /* */ }
+  if (k !== 'senualab' && OX.MODELS[k]) { $('iedmodel').value = k; await selectModel(k); } })();
 let iedRun = 0;
-async function runIED() { $('iedbusy').hidden = false; try { return await runIED0(); } finally { $('iedbusy').hidden = true; } }
+async function runIED() { $('iedbusy').hidden = false; try { return iedKind() === 'senualab' ? await runIED0() : await runONNX(iedKind()); } finally { $('iedbusy').hidden = true; } }
 $('iedbusy').onclick = () => { const b = document.querySelector('#rail .rb[data-sec="ied"]'); if (b) b.click(); };
 async function runIED0() {
   if (!S.model || !S.A) return;
@@ -2325,7 +2492,7 @@ async function runIED0() {
     POOL.forEach(feed);
   });
   if (run !== iedRun) return;
-  S.ied = { t: starts.map(s => s / fs), p, ch: chn, step, sec: (performance.now() - t0) / 1000, workers: POOL.length };
+  S.ied = { t: starts.map(s => s / fs), p, ch: chn, step, sec: (performance.now() - t0) / 1000, workers: POOL.length, model: 'SenuaLab resnet_attention' };
   $('iedprog').hidden = true; $('iedrun').disabled = false;
   buildEvents(); renderIED(); renderScore(); renderRef(); drawAll();
 }
@@ -2359,7 +2526,7 @@ function renderIED() {
   const ul = $('iedlist'); ul.innerHTML = '';
   if (!S.ied) { $('iedcount').textContent = ''; return; }
   const I = S.ied, ev = I.events, nJ = ev.filter(e => S.review[evKey(e)]).length;
-  $('iedstatus').textContent = `${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker.`;
+  $('iedstatus').textContent = `${I.model || 'SenuaLab'}: ${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker${I.errs ? ', ' + I.errs + ' blocchi non riusciti' : ''}.`;
   $('iedcount').textContent = `Rivisti ${nJ}/${ev.length} · sì ${ev.filter(e => S.review[evKey(e)] === 'si').length} · no ${ev.filter(e => S.review[evKey(e)] === 'no').length} · dubbi ${ev.filter(e => S.review[evKey(e)] === 'dubbio').length}`;
   ev.forEach((e, i) => {
     const li = document.createElement('li'), j = S.review[evKey(e)]; li.tabIndex = 0; if (i === S.iedCur) li.className = 'cur';
@@ -2382,10 +2549,10 @@ $('iedcsv').onclick = () => { if (!S.ied) return;
   const rows = [['eeg', 'istante_s', 'istante_mm:ss', 'canale', 'tipo', 'morfologia', 'inversione_fase', 'sede', 'durata_ms', 'ampiezza_uV', 'polarita', 'campo', 'transienti_in_zona', 'qualita_localizzazione', 'zona_inizio_s', 'zona_fine_s', 'finestre_inizio_s', 'finestre_fine_s', 'p_max', 'finestre', 'contesto', 'epoca_con_artefatti', 'giudizio', 'soglia', 'modello']];
   S.ied.events.forEach(e => { const L = e.loc && e.loc.found ? e.loc : null, z = e.loc && e.loc.zone;
     rows.push([base(), L ? L.t.toFixed(2) : '', L ? fmtT(L.t) + '.' + String(Math.floor((L.t % 1) * 10)) : '', L ? L.ch : '', L ? L.type : '', L ? L.morph || '' : '', L ? L.reversal || '' : '', L ? L.where || '' : '', L ? L.durMs : '', L ? L.ampUv : '', L ? L.polarity : '', L ? L.field.join(' ') : '', L ? L.n : '',
-      L ? L.quality + (L.qualityWhy ? ' (' + L.qualityWhy + ')' : '') : 'non localizzato', z ? z[0].toFixed(2) : '', z ? z[1].toFixed(2) : '', e.t0.toFixed(1), e.t1.toFixed(1), e.pmax.toFixed(3), e.n, e.ctx, e.art ? 'sì' : 'no', S.review[evKey(e)] || '', S.ied.thr, 'SenuaLab resnet_attention']); });
+      L ? L.quality + (L.qualityWhy ? ' (' + L.qualityWhy + ')' : '') : 'non localizzato', z ? z[0].toFixed(2) : '', z ? z[1].toFixed(2) : '', e.t0.toFixed(1), e.t1.toFixed(1), e.pmax.toFixed(3), e.n, e.ctx, e.art ? 'sì' : 'no', S.review[evKey(e)] || '', S.ied.thr, S.ied.model || 'SenuaLab resnet_attention']); });
   download(base() + '_ied_revisione.csv', '﻿' + rows.map(r => r.map(v => /[;"\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(';')).join('\r\n'), 'text/csv'); };
 $('iedjson').onclick = () => { if (!S.ied) return;
-  const out = { tipo: 'revisione-ied', file: S.fname, modello: 'SenuaLab EEG-IED-Detection resnet_attention', soglia: S.ied.thr, passo_s: S.ied.step, data: new Date().toISOString(),
+  const out = { tipo: 'revisione-ied', file: S.fname, modello: S.ied.model || 'SenuaLab EEG-IED-Detection resnet_attention', soglia: S.ied.thr, passo_s: S.ied.step, data: new Date().toISOString(),
     giudizi: S.review, candidati: S.ied.events.map(e => ({ inizio: +e.t0.toFixed(1), fine: +e.t1.toFixed(1), picco: +e.tp.toFixed(1), p_max: +e.pmax.toFixed(4), canale: e.ch, contesto: e.ctx, artefatto: e.art, giudizio: S.review[evKey(e)] || null,
       localizzazione: e.loc && e.loc.found ? { istante: +e.loc.t.toFixed(3), canale: e.loc.ch, tipo: e.loc.type, morfologia: e.loc.morph, inversione_fase: e.loc.reversal || null, sede: e.loc.where, durata_ms: e.loc.durMs, ampiezza_uV: e.loc.ampUv, polarita: e.loc.polarity, campo: e.loc.field, transienti: e.loc.all.map(x => +x.toFixed(3)), qualita: e.loc.quality, motivo: e.loc.qualityWhy, zona: e.loc.zone.map(x => +x.toFixed(2)) } : null })) };
   download(base() + '_ied_revisione.json', JSON.stringify(out, null, 1), 'application/json'); };
