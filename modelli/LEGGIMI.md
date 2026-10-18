@@ -10,3 +10,26 @@
 - Uso di ricerca: non è un dispositivo medico; ogni candidato va rivisto sul tracciato.
 
 Il file è binario: caricarlo solo con GitHub Desktop (mai con "Edit" sul sito) e controllare che resti di 20.011.088 byte.
+
+# Altri modelli (dal 17-18/10/2026)
+
+Uso didattico e di ricerca, non commerciale. Non sono dispositivi medici: ogni candidato va rivisto sul tracciato.
+
+| File | Modello | Addestramento | Licenza / permesso |
+|---|---|---|---|
+| `ied_resnet_attention.safetensors` | SenuaLab EEG-IED-Detection, resnet_attention | vEpiSet | CC BY 4.0 (SenuaLab) |
+| `ied_cbramod_v2.onnx` | CBraMod v2 (EEGnote) | pesi pre-addestrati CBraMod (braindecode, BSD-3-Clause), rifiniti su vEpiSet (CC BY 4.0), TUEV e TUSL (TUH EEG Corpus, NEDC), HMS (BDSP) | pubblicato con il permesso di NEDC e BDSP (18/10/2026); solo uso didattico e di ricerca |
+| `ied_cbramod_v3.onnx` | CBraMod v3 (EEGnote) | come v2, più TUAR (TUH EEG Corpus) | come v2 |
+| `spikenet2.onnx.part00`, `.part01` | SpikeNet2 (Li et al., NEJM AI 2025; github.com/bdsp-core/SpikeNet2) | dati BDSP | pubblicato con il permesso di BDSP (17/10/2026); codice CC BY-NC 4.0; solo uso non commerciale |
+
+I permessi possono essere revocati: in quel caso i file vanno rimossi da questa cartella.
+Per usare i dati (vEpiSet, TUH, HMS, BDSP) serve l'accesso presso chi li distribuisce; il repository non contiene dati.
+
+Citazioni: CBraMod (Wang et al., ICLR 2025); vEpiSet (doi:10.6084/m9.figshare.28069568); TUH EEG Corpus (Obeid & Picone, Front. Neurosci. 2016); HMS Harmful Brain Activity Classification (Kaggle/BDSP); SpikeNet2 (Li et al., NEJM AI 2025, doi:10.1056/AIoa2401221).
+
+
+## Controllo dopo il caricamento (dimensioni e SHA-256)
+- `ied_cbramod_v2.onnx`: 39.264.556 byte, `d891ae08f4182611e78182b94613ff8f01759e44ffebb3707814f2c322842fb8`
+- `ied_cbramod_v3.onnx`: 39.264.556 byte, `7b5ac684ddbcd4d8f13fab559bb6f984ef203bda8e70c121238e71380792cb80`
+- `spikenet2.onnx.part00`: 99.614.720 byte, `ff24b8523e08419d8d68b2459d1d0c545def8ecc67854c31bf6ab605f1cc9e71`
+- `spikenet2.onnx.part01`: 23.538.830 byte, `9bf0e72257ab27d9f892e51347d637aa950d1295ea2225530d0166f5a58e164a`

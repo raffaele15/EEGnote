@@ -217,7 +217,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       <div class="small" id="iedstatus">Modello non caricato.</div>
       <div class="prog" id="iedprog" hidden><i></i></div>
       <div class="iedbar">
-        <label title="Rilevatore da usare. SenuaLab: pesi pubblici (vEpiSet). CBraMod v2/v3: nostri (vEpiSet, TUEV, TUSL, HMS; v3 anche TUAR), file in modelli/ o modelli_locali/. SpikeNet2 (Li et al., NEJM AI 2025): pesi distribuiti con il permesso di BDSP, solo uso didattico e di ricerca non commerciale. Valori sugli 87 EEG AOPD (franche vs resto): SenuaLab 0,70 (49 EEG), v2 0,89, v3 0,89, SpikeNet2 0,87.">Modello <select id="iedmodel"><option value="senualab">SenuaLab</option><option value="v2">CBraMod v2</option><option value="v3">CBraMod v3</option><option value="sn2">SpikeNet2</option></select></label>
+        <label title="Rilevatore da usare. SenuaLab: pesi pubblici (vEpiSet). CBraMod v2/v3: nostri (vEpiSet, TUEV, TUSL, HMS; v3 anche TUAR), pubblicati con il permesso di NEDC e BDSP, solo uso didattico e di ricerca. SpikeNet2 (Li et al., NEJM AI 2025): pesi distribuiti con il permesso di BDSP, solo uso didattico e di ricerca non commerciale. Valori sugli 87 EEG AOPD (franche vs resto): SenuaLab 0,70 (49 EEG), v2 0,89, v3 0,89, SpikeNet2 0,87.">Modello <select id="iedmodel"><option value="senualab">SenuaLab</option><option value="v2">CBraMod v2</option><option value="v3">CBraMod v3</option><option value="sn2">SpikeNet2</option></select></label>
       </div>
       <div class="iedbar">
         <label title="Probabilità minima che il modello deve dare a una finestra di 4 s perché diventi candidato IED. 0,69 = soglia che massimizza F1 nella validazione del modello (config.json). Più bassa: più candidati e più falsi positivi; più alta: meno candidati, rischio di perderne.">Soglia <select id="iedthr"><option value="0.5">0,50</option><option value="0.6944" selected>0,69 (validazione)</option><option value="0.8">0,80</option><option value="0.9">0,90</option><option value="0.95">0,95</option></select></label>
@@ -1629,9 +1629,9 @@ G.EEGIED = { IED_CH, IED_THR, readSafetensors, prepareModel, forward, makePrepro
 const ORT_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
 const MODELS = {
   v2: { label: 'CBraMod v2', file: 'ied_cbramod_v2.onnx', kind: 'cbramod', thr: 0.37,
-        info: 'CBraMod (pre-addestrato su TUEG) rifinito su vEpiSet + TUEV + TUSL + HMS. EEG AOPD: AUROC franche vs resto 0,89, franche vs assenti 0,94.' },
+        info: 'CBraMod (Wang et al., ICLR 2025; pesi pre-addestrati braindecode, BSD-3-Clause) rifinito su vEpiSet (CC BY 4.0), TUEV e TUSL (TUH EEG Corpus, NEDC) e HMS (BDSP); pubblicato con il permesso di NEDC e BDSP, solo uso didattico e di ricerca. EEG AOPD: AUROC franche vs resto 0,89, franche vs assenti 0,94.' },
   v3: { label: 'CBraMod v3', file: 'ied_cbramod_v3.onnx', kind: 'cbramod', thr: 0.57,
-        info: 'Come v2 più TUAR (artefatti). EEG AOPD: AUROC 0,89 / 0,94; più sensibile alle anomalie "non franche" (0,82 contro 0,76).' },
+        info: 'Come v2 più TUAR (artefatti, TUH EEG Corpus); stesse licenze e permessi. EEG AOPD: AUROC 0,89 / 0,94; più sensibile alle anomalie "non franche" (0,82 contro 0,76).' },
   sn2: { label: 'SpikeNet2', file: 'spikenet2.onnx', kind: 'spikenet2', thr: 0.5,
         info: 'SpikeNet2 (Li et al., NEJM AI 2025; bdsp-core/SpikeNet2). Pesi distribuiti con il permesso di BDSP (17/10/2026), solo per uso didattico e di ricerca non commerciale; codice CC BY-NC 4.0. EEG AOPD: AUROC 0,87 / 0,92.' } };
 const CB_CH = ['Fp1','F7','T3','T5','O1','Fp2','F8','T4','T6','O2','F3','C3','P3','F4','C4','P4','Fz','Cz','Pz'];
