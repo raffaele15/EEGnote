@@ -1,0 +1,5 @@
+# Configurazione minima per il deploy automatico della funzione dell'assistente (vedi .github/workflows/deploy-supabase.yml)
+project_id = "rohrlatfkufknrkkywal"
+
+[functions.eeg-chat]
+verify_jwt = false

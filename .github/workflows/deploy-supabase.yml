@@ -1,0 +1,23 @@
+# Pubblica automaticamente la funzione Supabase "eeg-chat" a ogni push che modifica supabase/functions/.
+# Serve un solo segreto del repository: SUPABASE_ACCESS_TOKEN (Settings → Secrets and variables → Actions).
+# La chiave Gemini resta nei segreti di Supabase, non qui.
+name: Deploy funzione Supabase
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/functions/**', 'supabase/config.toml']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_ID: rohrlatfkufknrkkywal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase functions deploy eeg-chat --project-ref $PROJECT_ID --no-verify-jwt --use-api
