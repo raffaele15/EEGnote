@@ -98,7 +98,10 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .spacer{flex:1}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
-main.cmp{grid-template-columns:1fr 340px 340px 40px} main.cmp #railtog{right:700px} #side2{border-left:2px solid var(--accent)} #side2[hidden]{display:none} main.closed{grid-template-columns:1fr 40px}
+main.cmp2{grid-template-columns:1fr 700px 40px} main.cmp2 #railtog{right:740px}
+#side.dual .cmprow{display:grid;grid-template-columns:1fr 1fr;gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
+#side.dual .cmpR{border-left:2px solid var(--accent);padding-left:.8rem;min-width:0} #side.dual .cmpL{min-width:0} #side.dual .cmpR button,#side.dual .cmpR select,#side.dual .cmpR textarea,#side.dual .cmpR input{pointer-events:none} #side.dual .cmpR h2 .helpq,#side.dual .cmpR .pdfl{display:none}
+.cmphead{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;font-size:.82rem} .cmphead select{font:inherit;font-weight:600} #side2{border-left:2px solid var(--accent)} #side2[hidden]{display:none} main.closed{grid-template-columns:1fr 40px}
 .c2head{position:sticky;top:-.8rem;z-index:2;background:var(--panel);margin:-.8rem -1rem .6rem;padding:.45rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.4rem;font-size:.82rem} .c2head b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #cmpsum{border:1px solid var(--accent);border-radius:6px;padding:.4rem .6rem;margin-bottom:.6rem;background:color-mix(in srgb,var(--accent) 5%,transparent)} #cmpsumbox table{border-collapse:collapse;width:100%;font-size:.78rem} #cmpsumbox th,#cmpsumbox td{padding:.18rem .3rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top} #cmpsumbox th{color:var(--muted);font-weight:600} #cmpsumbox tr.diff td{background:color-mix(in srgb,var(--flag) 12%,transparent)} #cmpsumbox p{margin:.2rem 0 .4rem}
 #side2 [data-c2-off]{pointer-events:none} #side2 button,#side2 select,#side2 textarea{pointer-events:none} main.closed>aside{display:none} .viewer{min-width:0}
@@ -194,7 +197,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <button class="btn" id="rulerbtn" aria-pressed="false" title="Righello: trascina sul tracciato per misurare la durata e il picco-picco di tutte le derivazioni (tasto R)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 10.5l9-9 4 4-9 9z"/><path d="M4.5 7.5l1.5 1.5M6.5 5.5l1 1M8.5 3.5l1.5 1.5M2.5 9.5l1 1"/></svg></button>
   <button class="btn" id="cmpbtn" title="Confronta con un altro EEG: apre un secondo EDF come tracciato e mostra l'EEG attuale in una seconda colonna laterale"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="5.5" height="11" rx="1"/><rect x="9" y="2.5" width="5.5" height="11" rx="1"/><path d="M2.8 8l1-1.5 1 3 1-1.5M10.3 8l1-1.5 1 3 1-1.5"/></svg></button>
   <input type="file" id="cmpfile" accept=".edf,.EDF" hidden>
-  <button class="btn" id="cmpcol" hidden aria-pressed="false" title="Mostra o nascondi la colonna laterale dell'altro EEG (scorre insieme a quella principale)">⇆ Confronto</button>
+  <button class="btn" id="cmpcol" hidden aria-pressed="false" title="Confronto: affianca nel pannello le sezioni dell'altro EEG aperto">⇆</button>
   <span class="fname" id="fname">nessun file</span><select id="filesel" hidden title="EEG aperti in questa finestra: scegli quale vedere (per aprirne un altro usa Apri EDF)" aria-label="EEG aperti"></select>
   <span class="spacer"></span>
   <label class="ctl">Montaggio <select id="montage"></select></label>
@@ -2588,7 +2591,8 @@ async function runONNX(k) {
 }
 (async () => { await selectModel('casc'); })();
 let iedRun = 0;
-async function runIED() { $('iedbusy').hidden = false; try { return await runONNX(iedKind()); } finally { $('iedbusy').hidden = true; } }
+async function runIED() { $('iedbusy').hidden = false; try { return await runONNX(iedKind()); } finally { $('iedbusy').hidden = true;
+  sessSave(); if (CMPCOL) renderSide2(); } } // patch45: salva l'esito nella sessione e aggiorna la colonna di confronto
 $('iedbusy').onclick = () => { const b = document.querySelector('#rail .rb[data-sec="ied"]'); if (b) b.click(); };
 async function runIED0() {
   if (!S.model || !S.A) return;
@@ -2763,7 +2767,7 @@ function cmpMeasures(A, rec, name, ied) { const p = A.pdr || {}, s = A.slow || {
     ['Potenza relativa δ / θ / α / β', [rb.d1 + rb.d2, rb.theta, rb.alpha, rb.beta].map(pc).join(' / ')],
     ['Indice di rallentamento globale', s.g50 != null ? s.g50.toFixed(2).replace('.', ',') : '–'],
     ['Rallentamento lateralizzato', s.side ? (s.side === 'sx' ? 'sinistra' : 'destra') + ' (' + (s.latRegions || []).join(', ') + ')' : s.sideWeak ? 'lieve prevalenza ' + s.sideWeak : 'no'],
-    ['Pattern ACNS (≥ 1%)', rp || 'nessuno'], ['Anomalie sospette', ied ? ied.total + ' (' + ied.confirmed.length + ' confermate)' : 'modello non eseguito su questo EEG'],
+    ['Pattern ACNS (≥ 1%)', rp || 'nessuno'], ['Anomalie sospette', ied ? ied.total + ' (' + ied.confirmed.length + ' confermate)' : ied === undefined ? 'analisi in corso…' : 'modello non eseguito su questo EEG'],
     ['Livello decisionale', d ? (d.abnormal ? 'Anormale' : 'Normale') + (d.labels.length ? ': ' + d.labels.join(' + ') : '') : '–']]; }
 let CMP = null;
 function renderCmp() { if (!S.A || !CMP) return; const a = cmpMeasures(S.A, S.rec, S.fname, iedSummary()), b = cmpMeasures(CMP.A, CMP.rec, CMP.name, null);
@@ -2799,30 +2803,31 @@ function snapSide(i) { // genera il pannello dell'EEG i e ne restituisce una cop
   renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); renderAnaRes(); drawTopo(); drawSpec();
   setTimeout(() => { $('reptext').value = keepRep; repDirty = keepDirty; }, 0);
   return { html, rep, cv }; }
-function renderSide2() { const b = $('side2'); if (!CMPCOL) return; const others = SESS.map((x, i) => i).filter(i => i !== SCUR); if (!others.length) return setCmpCol(false);
+function dualOff() { const side = $('side'); side.querySelectorAll(':scope > .cmprow').forEach(r => { const live = r.querySelector(':scope > .cmpL > .sec'); if (live) side.insertBefore(live, r); r.remove(); }); side.classList.remove('dual'); }
+function renderSide2() { if (!CMPCOL) return; const others = SESS.map((x, i) => i).filter(i => i !== SCUR); if (!others.length) return setCmpCol(false);
   if (!others.includes(CMPI)) CMPI = others[0];
-  const sn = snapSide(CMPI);
-  b.innerHTML = '<div class="c2head"><b title="EEG mostrato in questa colonna">' + SESS[CMPI].fname + '</b>' + (others.length > 1 ? '<select id="c2sel">' + others.map(i => `<option value="${i}"${i === CMPI ? ' selected' : ''}>${SESS[i].fname}</option>`).join('') + '</select>' : '')
-    + '<button class="btn" id="c2tab" title="Tabella delle misure principali affiancate">Tabella</button><button class="btn ib" id="c2x" title="Chiudi la colonna di confronto">×</button></div>' + sn.html;
-  b.querySelectorAll('canvas').forEach((c, k) => { if (!sn.cv[k]) return; const im = new Image(); im.onload = () => { c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); }; im.src = sn.cv[k]; });
-  const ta = b.querySelector('textarea'); if (ta) { ta.value = sn.rep; ta.readOnly = true; }
-  b.querySelectorAll('[hidden]').forEach(x => { if (x.id === 'c2-anares' && !x.innerHTML.trim()) return; });
-  { const x = b.querySelector('#c2-cmpsum'); if (x) x.remove(); }
-  renderCmpSum();
-  if ($('c2sel')) $('c2sel').onchange = () => { CMPI = +$('c2sel').value; renderSide2(); };
-  $('c2x').onclick = () => setCmpCol(false);
-  $('c2tab').onclick = () => { const o = SESS[CMPI]; CMP = { rec: o.rec, A: o.A, name: o.fname }; renderCmp(); };
-  syncSide2(); }
+  dualOff(); const sn = snapSide(CMPI), tmp = document.createElement('div'); tmp.innerHTML = sn.html;
+  tmp.querySelectorAll('canvas').forEach((c, k) => { if (!sn.cv[k]) return; const im = new Image(); im.onload = () => { c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); }; im.src = sn.cv[k]; });
+  const ta = tmp.querySelector('textarea'); if (ta) { ta.value = sn.rep; ta.readOnly = true; }
+  // una riga per sezione: a sinistra la sezione dell'EEG sul tracciato, a destra quella dell'altro; la riga è alta quanto la più lunga
+  const side = $('side'); side.classList.add('dual');
+  [...side.children].filter(x => x.classList.contains('sec') && x.id !== 'cmpsum').forEach(x => { const row = document.createElement('div'); row.className = 'cmprow';
+    const L = document.createElement('div'), Rr = document.createElement('div'); L.className = 'cmpL'; Rr.className = 'cmpR'; side.insertBefore(row, x); L.appendChild(x);
+    const c = tmp.querySelector('.sec[data-sec="' + x.dataset.sec + '"]'); if (c) Rr.appendChild(c); row.append(L, Rr); });
+  renderCmpSum(); }
 function renderCmpSum() { const box = $('cmpsumbox'), o = SESS[CMPI]; if (!CMPCOL || !o || !S.A) { $('cmpsum').style.display = 'none'; return; }
   const oi = o.ied ? { total: o.ied.events.filter(e => !e.art).length, confirmed: [], pending: 0, inArt: 0 } : null;
-  const a = cmpMeasures(S.A, S.rec, S.fname, iedSummary()), b = cmpMeasures(o.A, o.rec, o.fname, oi);
+  const a = cmpMeasures(S.A, S.rec, S.fname, S.ied ? iedSummary() : (!$('iedbusy').hidden || needOf(iedKind()).every(j => ONNXBUF[j]) ? undefined : null)), b = cmpMeasures(o.A, o.rec, o.fname, oi);
   const dif = a.map((r, i) => i > 2 && r[1] !== b[i][1] ? r[0] : null).filter(Boolean);
-  box.innerHTML = '<p>' + (dif.length ? '<b>Differenze:</b> ' + dif.join(', ') + '.' : 'Nessuna differenza nelle misure principali.') + '</p>'
+  const others = SESS.map((x, i) => i).filter(i => i !== SCUR);
+  box.innerHTML = '<div class="cmphead"><span><b>' + S.fname + '</b> (tracciato)</span><span>⇆</span><span>' + (others.length > 1 ? '<select id="c2sel">' + others.map(i => `<option value="${i}"${i === CMPI ? ' selected' : ''}>${SESS[i].fname}</option>`).join('') + '</select>' : '<b>' + o.fname + '</b>') + '</span><span class="spacer"></span><button class="btn" id="c2x" title="Chiudi il confronto">×</button></div>'
+    + '<p>' + (dif.length ? '<b>Differenze:</b> ' + dif.join(', ') + '.' : 'Nessuna differenza nelle misure principali.') + '</p>'
     + '<table><thead><tr><th></th><th>' + S.fname + '<br><span style="font-weight:400">(tracciato)</span></th><th>' + o.fname + '<br><span style="font-weight:400">(colonna di confronto)</span></th></tr></thead><tbody>'
     + a.slice(3).map((r, i) => `<tr class="${r[1] !== b[i + 3][1] ? 'diff' : ''}"><th>${r[0]}</th><td>${r[1]}</td><td>${b[i + 3][1]}</td></tr>`).join('') + '</tbody></table>';
-  $('cmpsum').style.display = ''; }
+  $('cmpsum').style.display = '';
+  if ($('c2sel')) $('c2sel').onchange = () => { CMPI = +$('c2sel').value; renderSide2(); }; $('c2x').onclick = () => setCmpCol(false); }
 function setCmpCol(on) { if (on && SESS.length < 2) return; if (on && !$('iedbusy').hidden) { toast('Attendi la fine dell’analisi IED.'); return; }
-  CMPCOL = on; if (!on) $('cmpsum').style.display = 'none'; const main = document.querySelector('main'); main.classList.toggle('cmp', on); $('side2').hidden = !on; $('cmpcol').setAttribute('aria-pressed', String(on));
+  CMPCOL = on; if (!on) { $('cmpsum').style.display = 'none'; dualOff(); } const main = document.querySelector('main'); main.classList.toggle('cmp2', on); $('side2').hidden = true; $('cmpcol').setAttribute('aria-pressed', String(on));
   if (on) { if (main.classList.contains('closed')) $('railtog').click(); renderSide2(); } else $('side2').innerHTML = ''; setTimeout(drawAll, 50); }
 function syncSide2(from) { if (!CMPCOL || C2SYNC) return; const a = from === 'b' ? $('side2') : $('side'), b = from === 'b' ? $('side') : $('side2'), pa = from === 'b' ? 'c2-' : '';
   const secs = [...a.querySelectorAll('.sec')].filter(x => x.offsetParent !== null); let cur = secs[0];
@@ -2838,7 +2843,8 @@ $('cmpclose').onclick = () => { $('cmpmodal').hidden = true; };
 $('cmpmodal').onclick = e => { if (e.target === $('cmpmodal')) $('cmpmodal').hidden = true; };
 $('cmpwin').onclick = () => window.open(location.href.split('#')[0], '_blank', 'width=' + Math.round(screen.availWidth / 2) + ',height=' + screen.availHeight + ',left=' + Math.round(screen.availWidth / 2) + ',top=0');
 $('cmpfile').onchange = async () => { const f = $('cmpfile').files[0]; $('cmpfile').value = ''; if (!f) return;
-  if (S.A) { await handleFiles([f]); if (SESS.length > 1) { toast('EEG di confronto aperto. La colonna di confronto mostra l\'altro EEG; cambia EEG dal menu sul titolo.'); setCmpCol(true); } return; }
+  if (S.A && !$('iedbusy').hidden) { toast('Attendo la fine dell’analisi IED dell’EEG aperto, poi apro ' + f.name + '…'); while (!$('iedbusy').hidden) await new Promise(r => setTimeout(r, 300)); }
+  if (S.A) { await handleFiles([f]); if (SESS.length > 1) { toast('Confronto aperto: le sezioni dei due EEG sono affiancate e scorrono insieme. Cambia l\'EEG sul tracciato dal menu sul titolo.'); setCmpCol(true); } return; }
   $('busy').style.display = 'flex'; $('busytxt').textContent = 'Analisi di ' + f.name + ' per il confronto…';
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); await new Promise(r => setTimeout(r, 30));
   try { const rec = C.parseEDF(await f.arrayBuffer()); CMP = { rec, A: C.analyze(rec), name: f.name }; renderCmp(); }
