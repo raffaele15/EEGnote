@@ -13,16 +13,16 @@
   --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#CFD8DF;
   --trace:#1C2A38; --accent:#0E6E78; --accentSoft:#D7ECEE;
   --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#7A8791; --zero:#9AA6AF; --flag:#C2410C;
-  --sel:rgba(14,110,120,.14); --slow:#B5651D; --sli:#D9A400; --sliFill:#FFFBE3; --hvFill:#E6DAF7; --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00; --ecg:#D00000;
+  --sel:rgba(14,110,120,.14); --slow:#B5651D; --sli:#D9A400; --sliFill:#FFFBE3; --rpp:#3F51B5; --hvFill:#E6DAF7; --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00; --ecg:#D00000;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg);
   font-variant-numeric:tabular-nums;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#2B2810; --hvFill:#35264F;}}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#2B2810; --rpp:#8C9EFF; --hvFill:#35264F;}}
 :root[data-theme="dark"]{--bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#2B2810; --hvFill:#35264F;}
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#2B2810; --rpp:#8C9EFF; --hvFill:#35264F;}
 /* tema chiaro: sfondo bianco, tracciato nero (come la carta EEG) */
 :root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
   --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
@@ -1079,7 +1079,7 @@ function rppDesc(q) { const f = q.freq != null ? q.freq.toFixed(1).replace('.', 
     dur = Math.max(1, Math.round(q.t1 - q.t0)), ch = q.channels && q.channels.length ? (q.kind === 'PD' ? 'elettrodi prevalenti ' : 'derivazioni ') + q.channels.join(', ') : '';
   return q.name + ' ' + side + ' · ' + (q.kind === 'PD' ? q.n + ' scariche a ' + f + ' Hz' : f + ' Hz') + ' per ' + dur + ' s' + (ch ? ' · ' + ch : '')
     + (q.kind === 'PD' ? ' · trovato come ≥ 6 deflessioni ripetute a intervallo regolare (ciclo che varia < 50%), stessa morfologia e polarità, non legate al QRS'
-      : ' · trovato come picco spettrale 1–4 Hz stretto e regolare (autocorrelazione), ≥ 20 µV e ≥ 1,5 volte il fondo, non alla frequenza cardiaca'); }
+      : ' · trovato come picco spettrale 1–4 Hz stretto, onde regolari (il segnale spostato di uno e di due periodi si sovrappone a sé stesso: autocorrelazione ≥ 0,5 e ≥ 0,3), ≥ 20 µV e ≥ 1,5 volte il fondo, non alla frequenza cardiaca'); }
 function rppText(A) {
   const names = { LPD: 'scariche periodiche lateralizzate (LPD)', GPD: 'scariche periodiche generalizzate (GPD)', LRDA: 'attività delta ritmica lateralizzata (LRDA)', GRDA: 'attività delta ritmica generalizzata (GRDA)' };
   const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary) : [], f = r => (names[r.name] || r.name) + (r.side === 'G' ? '' : ' a ' + (r.side === 'sx' ? 'sinistra' : 'destra')) + ', ' + (/PD$/.test(r.name) ? prevQ(r.pct) : r.prevalence) + ' (' + Math.round(r.pct) + '% della registrazione), ' + (r.freq != null ? hz05(r.freq) : '?') + ' Hz';
@@ -1901,7 +1901,11 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
         if (l && l.sd === sd && Math.abs(l.t1 - o.t) < .01) l.t1 = t1; else SR.push({ t0: o.t, t1, sd }); }
       }
     for (const r of SR) { band(r.t0, r.t1, css('--slow'), .16); slowTag(r, lab, sec, plotW); }
-    if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) for (const q of A.rpp.patterns) band(q.t0, q.t1, css(q.side === 'sx' ? '--flag' : q.side === 'dx' ? '--stato' : '--ink'), .12); }
+    if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) for (const q of A.rpp.patterns) { const col = css('--rpp'); band(q.t0, q.t1, col, .2);
+      const x0 = lab + Math.max(0, q.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, q.t1 - S.t) / sec * plotW; if (x1 > x0) { tctx.strokeStyle = col; tctx.lineWidth = 2; tctx.globalAlpha = .9;
+        if (q.t0 >= S.t) { tctx.beginPath(); tctx.moveTo(x0, 0); tctx.lineTo(x0, H - 18); tctx.stroke(); } if (q.t1 <= S.t + sec) { tctx.beginPath(); tctx.moveTo(x1, 0); tctx.lineTo(x1, H - 18); tctx.stroke(); } tctx.globalAlpha = 1;
+        const tx = q.name + (q.side === 'G' ? '' : ' ' + q.side); tctx.font = '600 11px IBM Plex Sans, system-ui'; const tw = tctx.measureText(tx).width + 10;
+        if (x1 - x0 >= tw) { tctx.fillStyle = col; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x0 + 3, 21, tw, 16, 4); else tctx.rect(x0 + 3, 21, tw, 16); tctx.fill(); tctx.fillStyle = '#fff'; tctx.fillText(tx, x0 + 8, 33); } } } }
   // annotazioni
   for (const a of A.anns) {
     const e = a.onset + (a.duration || 0);
@@ -2030,7 +2034,8 @@ tl.addEventListener('mousemove', e => { const h = tlHit(e), tip = $('tltip'); if
   const r = tl.getBoundingClientRect(), pr = tl.parentElement.getBoundingClientRect(); tip.textContent = h.txt; tip.style.display = 'block';
   const x = Math.min(e.clientX - pr.left + 12, pr.width - tip.offsetWidth - 4); tip.style.left = Math.max(4, x) + 'px'; tip.style.top = (e.clientY - pr.top - tip.offsetHeight - 8) + 'px'; });
 tl.addEventListener('mouseleave', () => { $('tltip').style.display = 'none'; });
-tl.addEventListener('click', e => { if (!S.A) return; const h = tlHit(e); if (h && h.go != null) { goTo(h.go); return; }
+function eyeOn(name) { const b = document.querySelector('.eye[data-eye="' + name + '"]'); if (b && b.getAttribute('aria-pressed') !== 'true') b.click(); }
+tl.addEventListener('click', e => { if (!S.A) return; const h = tlHit(e); if (h && h.go != null) { if (h.row === 'Pattern ACNS') eyeOn('Pattern ACNS'); goTo(h.go); return; }
   const r = tl.getBoundingClientRect(), lab = 92, pw = r.width - lab - 8; const t = (e.clientX - r.left - lab) / pw * S.A.duration; goTo(t - pageLen() / 2); });
 
 /* legenda del tracciato: cosa c'è sotto il mouse, solo per le sezioni con l'occhio attivo; i candidati IED sono sempre disegnati e quindi sempre descritti */
@@ -2893,7 +2898,7 @@ function renderScore() {
     + (R.possible.length ? '<p>Possibili (1–10%), da verificare:</p><ul>' + R.possible.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '')
     + (pats.length ? (!R.present.length && !R.possible.length ? '<p>Solo tratti brevi (rari, < 1% della registrazione), da verificare:</p>' : '<p>Tratti (clic per andarci):</p>') + '<ul>' + pats.slice(0, 30).map(p => `<li><a href="#" data-rt="${p.t0}" title="${C.rppDesc(p)}">${fmtT(p.t0)} ${p.name}${p.side === 'G' ? '' : ' ' + p.side}</a> <span class="small">${p.kind === 'PD' ? p.n + ' scariche, ' : ''}${Math.max(1, Math.round(p.t1 - p.t0))} s${p.channels && p.channels.length ? ', ' + p.channels.slice(0, 3).join(' ') : ''}</span></li>`).join('') + '</ul>' + (pats.length > 30 ? '<p>…</p>' : '') : '')
     + (!R.present.length && !R.possible.length && !pats.length ? '<p>Nessun pattern rilevato.</p>' : '');
-  $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); goTo(+a.dataset.rt - 2); });
+  $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); eyeOn('Pattern ACNS'); goTo(+a.dataset.rt - 2); });
   setTimeout(() => { const h3 = $('scorebox').querySelector('h3'); $('scorecnt').textContent = h3 ? '· ' + h3.textContent : ''; }, 0);
   $('scorebox').innerHTML = `<div class="score ${d.abnormal ? 'abn' : ''}">
     <h3>${d.abnormal ? (d.severity === 'anormale lieve' ? 'Anormale lieve' : 'Anormale') : d.possible.length ? 'Normale, con reperti da verificare' : 'Normale'}${d.labels.length ? ': ' + d.labels.join(' + ') : ''}${d.side && d.categories.includes('nonepi_focale') ? ' (' + d.side + ')' : ''}</h3>
