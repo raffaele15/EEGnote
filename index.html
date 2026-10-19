@@ -99,8 +99,8 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .spacer{flex:1}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
-main.cmp2{grid-template-columns:1fr 700px 40px} main.cmp2 #railtog{right:740px}
-#side.dual .cmprow{display:grid;grid-template-columns:1fr 1fr;gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
+main.cmp2{grid-template-columns:1fr 700px 40px} main.cmp2 #railtog{right:720px}
+#side.dual{overflow-x:hidden} #side.dual .cmpR canvas{width:100%!important;max-width:100%;height:auto;display:block} #side.dual .cmprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
 #side.dual .cmpR{border-left:2px solid var(--accent);padding-left:.8rem;min-width:0} #side.dual .cmpL{min-width:0} #side.dual .cmpR button,#side.dual .cmpR select,#side.dual .cmpR textarea,#side.dual .cmpR input{pointer-events:none} #side.dual .cmpR h2 .helpq,#side.dual .cmpR .pdfl{display:none}
 .cmphead{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;font-size:.82rem} .cmphead select{font:inherit;font-weight:600} #side2{border-left:2px solid var(--accent)} #side2[hidden]{display:none} main.closed{grid-template-columns:1fr 40px}
 .c2head{position:sticky;top:-.8rem;z-index:2;background:var(--panel);margin:-.8rem -1rem .6rem;padding:.45rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.4rem;font-size:.82rem} .c2head b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2867,6 +2867,7 @@ $('cmpclose').onclick = () => { $('cmpmodal').hidden = true; };
 $('cmpmodal').onclick = e => { if (e.target === $('cmpmodal')) $('cmpmodal').hidden = true; };
 $('cmpwin').onclick = () => window.open(location.href.split('#')[0], '_blank', 'width=' + Math.round(screen.availWidth / 2) + ',height=' + screen.availHeight + ',left=' + Math.round(screen.availWidth / 2) + ',top=0');
 $('cmpfile').onchange = async () => { const f = $('cmpfile').files[0]; $('cmpfile').value = ''; if (!f) return;
+  if (S.A && !$('iedbusy').hidden) { toast('Attendo la fine dell’analisi IED dell’EEG aperto, poi apro ' + f.name + '…'); while (!$('iedbusy').hidden) await new Promise(r => setTimeout(r, 300)); }
   if (S.A) { await handleFiles([f]); if (SESS.length > 1) { toast('Confronto aperto: le sezioni dei due EEG sono affiancate e scorrono insieme. Cambia l\'EEG sul tracciato dal menu sul titolo.'); setCmpCol(true); } return; }
   $('busy').style.display = 'flex'; $('busytxt').textContent = 'Analisi di ' + f.name + ' per il confronto…';
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); await new Promise(r => setTimeout(r, 30));
