@@ -40,7 +40,10 @@ button,select,input{font:inherit;color:inherit}
 .mhead{display:flex;align-items:center;gap:.5rem} #repslot{flex:1;display:flex;min-height:0} #repslot textarea.rep{flex:1;height:100%;min-height:0;font-size:.95rem;line-height:1.55;resize:none}
 #cmpbody{flex:1;overflow:auto} #cmpbody table{border-collapse:collapse;width:100%;font-size:.84rem} #cmpbody th,#cmpbody td{border-bottom:1px solid var(--line);padding:.3rem .5rem;text-align:left;vertical-align:top} #cmpbody th{color:var(--muted);font-weight:600;width:24%} #cmpbody tr.diff td{background:color-mix(in srgb,var(--flag) 10%,transparent)}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:70;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.25);padding:.55rem .7rem;display:flex;align-items:center;gap:.6rem;font-size:.85rem} #toast[hidden]{display:none}
-#montage{max-width:8.5rem}
+#montage{max-width:8.5rem} header::-webkit-scrollbar{display:none}
+@media (max-width:1560px){header{gap:.25rem .4rem;padding:.3rem .5rem} header h1{font-size:.95rem;margin-right:.2rem} header .btn{padding-left:.4rem;padding-right:.4rem} header .ctl{font-size:.78rem} header input[type=number]{width:3.1rem} #montage{max-width:7rem} header .fname{max-width:7rem;overflow:hidden;text-overflow:ellipsis} #filesel{max-width:8rem}}
+#filesel{max-width:12rem;font-size:.8rem}
+@media (max-width:1300px){header .fname{display:none} #montage{max-width:5.5rem}}
 #anabar{grid-row:3;display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line);font-size:.8rem} #anabar[hidden]{display:none}
 .anamods{display:inline-flex;gap:.5rem;flex-wrap:wrap} .anamods label{display:inline-flex;align-items:center;gap:.25rem;cursor:pointer} .anamods i{display:inline-block;width:.6rem;height:.6rem;border-radius:2px}
 @media (max-width:1500px){#anabtn span,#annot span{display:none}}
@@ -75,7 +78,7 @@ button,select,input{font:inherit;color:inherit}
 .ua.narrow .urow span{left:auto;right:100%;margin-right:3px}
 .uadraft{position:absolute;border:1.5px dashed var(--accent);background:var(--sel);pointer-events:none}
 .annlist+h3,h3.small{margin:.5rem 0 .2rem;font-weight:500;color:var(--muted)}
-header{display:flex;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;align-items:center;gap:.3rem .6rem;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line)}
+header{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;white-space:nowrap;align-items:center;gap:.3rem .6rem;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line)}
 header h1{font-size:1.05rem;font-weight:600;margin:0 .5rem 0 0;letter-spacing:.01em}
 header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ctl{display:flex;align-items:center;gap:.35rem;font-size:.85rem;color:var(--muted)}
@@ -123,8 +126,8 @@ body.notl #tltab{top:-20px} #tltip{position:absolute;pointer-events:none;backgro
 .iedbar select{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:.1rem .25rem;color:var(--ink)}
 .prog{height:4px;background:var(--grid);border-radius:2px;overflow:hidden;margin:.2rem 0 .4rem} .prog>i{display:block;height:100%;width:0;background:var(--ied)}
 .iedlist{list-style:none;margin:0;padding:0;font-size:.82rem;max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:4px}
-.iedlist li{display:grid;grid-template-columns:3.1rem 2.4rem 4.4rem 1fr auto;gap:.35rem;align-items:center;padding:.22rem .45rem;border-bottom:1px solid var(--grid);cursor:pointer}
-.iedlist li:hover,.iedlist li.cur{background:var(--sel)} .iedlist li.head{position:sticky;top:0;z-index:1;background:var(--panel);color:var(--muted);font-size:.7rem;font-weight:600;cursor:default;padding-top:.15rem;padding-bottom:.15rem} .iedlist li.head:hover{background:var(--panel)} .iedlist li.head span:last-child{text-align:right} .iedlist li>span:nth-child(3){overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .iedlist .t{color:var(--muted)} .iedlist .ctx{color:var(--muted);font-size:.74rem;white-space:normal;overflow-wrap:anywhere;line-height:1.3}
+.iedlist li{display:grid;grid-template-columns:3.1rem 2.4rem 2.7rem 1fr auto;gap:.35rem;align-items:center;padding:.22rem .45rem;border-bottom:1px solid var(--grid);cursor:pointer}
+.iedlist li:hover,.iedlist li.cur{background:var(--sel)} .iedlist li.head{position:sticky;top:0;z-index:1;background:var(--panel);color:var(--muted);font-size:.7rem;font-weight:600;cursor:default;padding-top:.15rem;padding-bottom:.15rem} .iedlist li.head:hover{background:var(--panel)} .iedlist li.head span:last-child{text-align:right} .iedlist li>span:nth-child(3){overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .iedlist .t{color:var(--muted)} .iedlist .ctx{color:var(--muted);font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;cursor:zoom-in} .iedlist li.cur .ctx{white-space:normal;overflow-wrap:anywhere;cursor:auto}
 .jbtn{display:flex;gap:2px} .jbtn button{font-size:.72rem;padding:.05rem .32rem;border:1px solid var(--line);background:var(--paper);border-radius:3px;cursor:pointer}
 .jbtn button[aria-pressed=true][data-v=si]{background:var(--yes);border-color:var(--yes);color:#fff} .jbtn button[aria-pressed=true][data-v=no]{background:var(--no);border-color:var(--no);color:#fff}
 .jbtn button[aria-pressed=true][data-v=dubbio]{background:var(--maybe);border-color:var(--maybe);color:#fff}
@@ -180,7 +183,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <button class="btn" id="rulerbtn" aria-pressed="false" title="Righello: trascina sul tracciato lungo una derivazione per misurare durata e ampiezza massima (tasto R)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 10.5l9-9 4 4-9 9z"/><path d="M4.5 7.5l1.5 1.5M6.5 5.5l1 1M8.5 3.5l1.5 1.5M2.5 9.5l1 1"/></svg></button>
   <button class="btn" id="cmpbtn" title="Confronta questo EEG con un altro EEG (apri un secondo file EDF)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="5.5" height="11" rx="1"/><rect x="9" y="2.5" width="5.5" height="11" rx="1"/><path d="M2.8 8l1-1.5 1 3 1-1.5M10.3 8l1-1.5 1 3 1-1.5"/></svg></button>
   <input type="file" id="cmpfile" accept=".edf,.EDF" hidden>
-  <span class="fname" id="fname">nessun file</span>
+  <span class="fname" id="fname">nessun file</span><select id="filesel" hidden title="EEG aperti in questa finestra: scegli quale vedere (per aprirne un altro usa Apri EDF)" aria-label="EEG aperti"></select>
   <span class="spacer"></span>
   <label class="ctl">Montaggio <select id="montage"></select></label>
   <label class="ctl">HP <input id="hp" type="number" step="0.1" min="0" value="0.5"> Hz</label>
@@ -839,7 +842,9 @@ function slowLayer(ep, anns, pdr) {
   const prev = {
     diffuse: pctOf(o => o.gS >= SLOW.diffuse),
     intermittent: pctOf(o => Math.max(...SGRP.temporale.filter(k => o.S[k] !== undefined).map(k => o.S[k])) >= SLOW.intermittent),
-    side: sd ? pctOf(o => latRegions.some(r => o.lat[r] != null && (sd === 'sx' ? o.lat[r] : -o.lat[r]) >= T0)) : 0 };
+    // epoche in cui quel lato è davvero più lento (stessa categoria della riga "Rallentamenti"): un'asimmetria di fondo stabile
+    // (es. emisfero ipovoltato) non basta a rendere il rallentamento "continuo"
+    side: sd ? pctOf(o => o.slowCat && o.slowCat.endsWith(sd === 'sx' ? 'sinistra' : 'destra')) : 0 };
   return { g50, p90: grp, latMed, side, sideWeak: side ? null : sideWeak, latRegions, hvEvoked, diffuse, weakDiffuse, pdrSlow, intermittent, weakIntermittent, intRegion, prev, nBase: base.length };
 }
 
@@ -923,10 +928,12 @@ function iedText(ied, A) {
   const ev = ied.confirmed, n = ev.length, min = A.duration / 60, by = {};
   ev.forEach(e => { const { l, side } = chLobe(e.ch); (by[side] = by[side] || new Set()).add(l); });
   const gen = ev.filter(e => e.loc && e.loc.where === 'generalizzata').length > n / 2;
-  const where = gen ? 'generalizzate' : Object.entries(by).map(([side, ls]) => 'sulle regioni ' + LOBE_ORDER.filter(l => ls.has(l)).map(l => LOBE_ADJ[l]).join(', ') + (side === 'linea mediana' ? ' della linea mediana' : ' di ' + side)).join(' e ');
+  const nsx = ev.filter(e => /[13579]$/.test(e.ch || '')).length, ndx = ev.filter(e => /[2468]$/.test(e.ch || '')).length;
+  const where = gen ? 'generalizzate' + (nsx >= 2 * ndx && nsx > 0 ? ' a prevalenza sinistra' : ndx >= 2 * nsx && ndx > 0 ? ' a prevalenza destra' : '') : Object.entries(by).map(([side, ls]) => 'sulle regioni ' + LOBE_ORDER.filter(l => ls.has(l)).map(l => LOBE_ADJ[l]).join(', ') + (side === 'linea mediana' ? ' della linea mediana' : ' di ' + side)).join(' e ');
   const mc = {}; ev.forEach(e => { const m = e.loc && e.loc.found ? (e.loc.morph || e.loc.type) : 'punta/onda aguzza'; mc[m] = (mc[m] || 0) + 1; });
   const morph = Object.entries(mc).sort((a, b) => b[1] - a[1]).map(x => x[0]).join(', ');
-  const rev = [...new Set(ev.filter(e => e.loc && e.loc.reversal).map(e => e.loc.reversal))];
+  const rc = {}; ev.forEach(e => { if (e.loc && e.loc.reversal) rc[e.loc.reversal] = (rc[e.loc.reversal] || 0) + 1; });
+  const rev = Object.entries(rc).sort((a, b) => b[1] - a[1]).map(([c, k]) => c + (n > 1 ? ' (' + k + '/' + n + ')' : ''));
   const inc = incidenceTerm(n, min), incPl = { rara: 'rare', occasionale: 'occasionali', frequente: 'frequenti', abbondante: 'abbondanti' }[inc] || inc;
   return { n, where, morph, rev, inc, incPl, rate: n / min, gen };
 }
@@ -978,10 +985,10 @@ function generateReport(A, rec, d, ied, format) {
     const two = lobesText(s.latRegions.slice(0, 2)), lob = two.split('-').length > 3 ? lobesText(s.latRegions.slice(0, 1)) : two, lato = s.side === 'sx' ? 'sinistra' : 'destra', b = bandOf(A, latDer);
     if (diff) { const rk = x => ['theta', 'theta-delta', 'delta'].indexOf(x); // banda del lato citata solo se più lenta di quella diffusa (es. delta focale su fondo theta)
       parts.push(rk(b) > rk(bandOf(A, SALL)) ? 'con anomalie lente in banda ' + b + ' più evidenti sulle regioni ' + lob + ' di ' + lato : 'più marcato sulle regioni ' + lob + ' di ' + lato); }
-    else parts.push('con evidenza di ' + q + ' anomalie lente in banda ' + b + ' sulle regioni ' + lob + ' di ' + lato);
+    else parts.push('con evidenza di ' + q + ' anomalie lente ' + (/occasional|rar/.test(q) ? '' : 'polimorfe ') + 'in banda ' + b + ' sulle regioni ' + lob + ' di ' + lato);
     concl.push('anomalie lente sulle regioni ' + lob + ' di ' + lato); }
   else if (s.intermittent && !diff) { const q = s.prev ? prevQ(s.prev.intermittent) : 'occasionali', b = bandOf(A, SGRP.temporale);
-    parts.push('con evidenza di ' + q + ' rallentamenti in banda ' + b + ' bitemporali' + (s.sideWeak ? ', con una certa prevalenza a ' + (s.sideWeak === 'sx' ? 'sinistra' : 'destra') : ''));
+    parts.push('con evidenza di ' + q + ' rallentamenti ' + (/occasional|rar/.test(q) ? '' : 'polimorfi ') + 'in banda ' + b + ' bitemporali' + (s.sideWeak ? ', con una certa prevalenza a ' + (s.sideWeak === 'sx' ? 'sinistra' : 'destra') : ''));
     concl.push(q + ' anomalie lente bitemporali'); }
   else if (!diff && (s.weakIntermittent || s.sideWeak)) { // reperto lieve: formula descrittiva dei referti, senza modificare la conclusione
     const temp = s.intRegion === 'temporale';
@@ -1452,7 +1459,7 @@ function pdrPeak(acc, fs, nfft) {
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
-G.EEGCore = { STAB_THR2, STAB_THR, alphaStability, userFindings, slowPhrase,  generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+G.EEGCore = { rppDesc, STAB_THR2, STAB_THR, alphaStability, userFindings, slowPhrase,  generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script id="iedsrc">/* Annotatore EEG — rilevatore di scariche epilettiformi intercritiche (IED).
@@ -1789,12 +1796,12 @@ async function handleFiles(files) {
   await new Promise(r => setTimeout(r, 30));
   try {
     const buf = await edf.arrayBuffer();
-    S.rec = C.parseEDF(buf);
+    sessSave(); S.rec = C.parseEDF(buf);
     const t0 = performance.now(); S.A = C.analyze(S.rec); S.ms = performance.now() - t0;
     const m = edf.name.match(/(\d+)/); S.fileId = m ? String(parseInt(m[1])) : null; S.fname = edf.name;
     S.t = 0; S.cache = null; S.ied = null; S.iedCur = -1; S.anaSel = null; S.multi = null; if (typeof renderAnaRes === 'function') { anaRun++; renderAnaRes(); anaSelText(); } S.review = loadReview(); repDirty = false; loadUA();
     $('drop').style.display = 'none'; if (window.__restorePanels) window.__restorePanels();
-    renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll();
+    renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll(); sessAdd();
     if (needOf(iedKind()).every(j => ONNXBUF[j])) setTimeout(runIED, 50);
   } catch (err) {
     $('summary').innerHTML = '<p class="warnline">Il file non è un EDF valido o è danneggiato (' + err.message + '). Controllalo con EDFbrowser.</p>';
@@ -2009,7 +2016,7 @@ function tlHit(e) { // cosa c'è sotto il mouse nella linea del tempo
   const o = A.epochs.find(q => t >= q.t && t < q.t + A.epoch), hit = { t, row };
   if (row === 'Annotazioni') { const a = A.anns.filter(q => t >= q.onset - tol && t <= q.onset + (q.duration || 0) + tol).sort((x, y) => Math.abs(x.onset - t) - Math.abs(y.onset - t))[0];
     if (a) { hit.go = a.onset + Math.min(a.duration || 0, pageLen()) / 2 - pageLen() / 2; hit.txt = fmtT(a.onset) + ' · ' + a.label + (a.duration ? ' (' + Math.round(a.duration) + ' s)' : ''); } }
-  else if (row === 'Pattern ACNS') { const p = (A.rpp.patterns || []).find(q => t >= q.t0 - tol && t <= q.t1 + tol); if (p) { hit.go = (p.t0 + Math.min(p.t1, p.t0 + pageLen())) / 2 - pageLen() / 2; hit.txt = fmtT(p.t0) + ' · ' + rppDesc(p); } }
+  else if (row === 'Pattern ACNS') { const p = (A.rpp.patterns || []).find(q => t >= q.t0 - tol && t <= q.t1 + tol); if (p) { hit.go = (p.t0 + Math.min(p.t1, p.t0 + pageLen())) / 2 - pageLen() / 2; hit.txt = fmtT(p.t0) + ' · ' + C.rppDesc(p); } }
   else if (row === 'IED (modello)') { const ev = S.ied.events.find(q => Math.abs(q.tp - t) <= Math.max(tol, 2)); if (ev) { hit.go = (ev.loc && ev.loc.found ? ev.loc.t : ev.tp) - pageLen() / 2; hit.txt = fmtT(ev.tp) + ' · candidato IED p ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : ''); } }
   else if (row === 'Modelli') { const sg = S.multi ? anaAgree().find(q => t >= q.a - tol && t <= q.b + tol) : null;
     if (sg) { hit.go = (sg.a + sg.b) / 2 - pageLen() / 2; hit.txt = fmtT(sg.a) + ' · accordo ' + sg.n + '/' + sg.of + ' (' + sg.ks.map(MLAB).join(', ') + ')'; }
@@ -2040,7 +2047,7 @@ function traceTip(e) {
   if (px < G.lab || py > G.H - 18) return hide();
   const t = S.t + (px - G.lab) / G.plotW * G.sec, A = S.A, o = A.epochs.find(q => t >= q.t && t < q.t + A.epoch), L = [];
   if (o && !o.zero) for (const row of ['Artefatti', 'Rallentamenti']) if (EYEON.has(row)) { if (row === 'Artefatti' && !(S.artZ || []).some(z => z.o === o && t >= z.t0 && t <= z.t1)) continue; const x = epText(row, o); if (x) L.push([row, x]); }
-  if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) A.rpp.patterns.filter(q => t >= q.t0 && t <= q.t1).forEach(q => L.push(['Pattern ACNS', rppDesc(q)]));
+  if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) A.rpp.patterns.filter(q => t >= q.t0 && t <= q.t1).forEach(q => L.push(['Pattern ACNS', C.rppDesc(q)]));
   if (S.ied) S.ied.events.forEach(ev => { if (t < ev.t0 || t > ev.t1) return; const Q = ev.loc && ev.loc.found ? ev.loc : null, j = S.review[evKey(ev)];
     const eps = A.epochs.filter(q => q.t + A.epoch > ev.t0 && q.t < ev.t1 && !q.zero), na = eps.filter(q => q.artifact || q.annArt).length;
     L.push(['IED', 'candidato p ' + ev.pmax.toFixed(2).replace('.', ',') + (Q ? ' · ' + (Q.morph || Q.type) + ' ' + Q.ch + ', ' + Q.durMs + ' ms' + (Q.quality !== 'buona' ? ' (' + Q.quality + ')' : '') : ev.ch ? ' · ' + ev.ch : '')
@@ -2135,6 +2142,7 @@ function renderSummary() {
   // < 10% = nessuna attenuazione (stessa regola dello stato dell'RPD); < 35% = scarsamente reagente (soglia del referto, calibrata AOPD)
   if (p.reactivity != null && p.reactivity < 0.1) abn.push('non reattivo all\'apertura degli occhi (attenuazione ' + Math.round(p.reactivity * 100) + '%)');
   else if (p.reactivity != null && p.reactivity < 0.35) abn.push('scarsamente reagente all\'apertura degli occhi (attenuazione ' + Math.round(p.reactivity * 100) + '%)');
+  if (A.stab && A.stab.cls && A.stab.cls !== 'stabile') lines.push('ritmo posteriore ' + A.stab.cls + ' (sequenze di alfa ≈ ' + A.stab.runSec.toFixed(1).replace('.', ',') + ' s)');
   if (A.apGrad < 1) lines.push('gradiente antero-posteriore non mantenuto');
   const asy = Object.entries(A.asym).filter(([k, v]) => v != null && Math.abs(v) >= 0.5);
   if (asy.length) lines.push('possibile asimmetria delle onde lente: ' + asy.map(([k, v]) => k + (v > 0 ? ' (sx>dx)' : ' (dx>sx)')).join(', ') + ' — indice sperimentale');
@@ -2689,7 +2697,8 @@ function setFull(on) { const main = document.querySelector('main');
   $('fullbtn').setAttribute('aria-pressed', String(!!FULL)); $('fullbtn').title = FULL ? 'Esci dallo schermo intero (F o Esc)' : 'Tracciato a schermo intero (chiude pannello laterale e panoramica; F o Esc per uscire)';
   setTimeout(drawAll, 60); }
 $('fullbtn').onclick = () => setFull(!FULL);
-document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && FULL) setFull(false); });
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && FULL) setFull(false); setTimeout(drawAll, 120); setTimeout(drawAll, 400); });
+window.addEventListener('resize', () => { clearTimeout(window.__rsz); window.__rsz = setTimeout(drawAll, 80); });
 
 /* ---- righello: durata e ampiezza su una derivazione ---- */
 var RULER = false, RUL = null;
@@ -2734,7 +2743,25 @@ let CMP = null;
 function renderCmp() { if (!S.A || !CMP) return; const a = cmpMeasures(S.A, S.rec, S.fname, iedSummary()), b = cmpMeasures(CMP.A, CMP.rec, CMP.name, null);
   $('cmpbody').innerHTML = '<table><thead><tr><th></th><th>EEG aperto</th><th>EEG di confronto</th></tr></thead><tbody>' + a.map((r, i) => `<tr class="${i > 2 && r[1] !== b[i][1] ? 'diff' : ''}"><th>${r[0]}</th><td>${r[1]}</td><td>${b[i][1]}</td></tr>`).join('') + '</tbody></table>'
     + '<p>Righe evidenziate = valori diversi. Il secondo EEG non viene analizzato dal modello IED; per vedere i due tracciati usa “Tracciato in nuova finestra” e affianca le finestre.</p>'; $('cmpmodal').hidden = false; }
-$('cmpbtn').onclick = () => { if (!S.A) { toast('Apri prima un EEG.'); return; } if (CMP) renderCmp(); else $('cmpfile').click(); };
+/* ---- più EEG nella stessa finestra ---- */
+const SESS = [], SKEYS = ['rec', 'A', 'ms', 'fileId', 'fname', 't', 'ied', 'iedCur', 'anaSel', 'multi']; let SCUR = -1;
+function sessSnap() { const o = {}; SKEYS.forEach(k => { o[k] = S[k]; }); return o; }
+function sessSave() { if (SCUR >= 0 && S.rec && SESS[SCUR]) SESS[SCUR] = sessSnap(); }
+function renderSess() { const sel = $('filesel'); sel.hidden = SESS.length < 2;
+  sel.innerHTML = SESS.map((x, i) => `<option value="${i}"${i === SCUR ? ' selected' : ''}>${x.fname}</option>`).join(''); }
+function sessAdd() { const i = SESS.findIndex(x => x.fname === S.fname);
+  if (i >= 0) { SESS[i] = sessSnap(); SCUR = i; } else { SESS.push(sessSnap()); SCUR = SESS.length - 1; if (SESS.length > 4) { SESS.shift(); SCUR--; } }
+  renderSess(); }
+function sessSwitch(i) { if (i === SCUR || !SESS[i]) return;
+  if (!$('iedbusy').hidden) { toast('Attendi la fine dell’analisi IED prima di cambiare EEG.'); renderSess(); return; }
+  sessSave(); SCUR = i; Object.assign(S, SESS[i]); S.cache = null; S.decision = null; anaRun++;
+  S.review = loadReview(); repDirty = false; loadUA(); $('fname').textContent = S.fname; CMP = null;
+  renderAnaRes(); anaSelText(); renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll(); renderSess();
+  if (!S.ied && needOf(iedKind()).every(j => ONNXBUF[j])) setTimeout(runIED, 50); }
+$('filesel').onchange = () => sessSwitch(+$('filesel').value);
+$('cmpbtn').onclick = () => { if (!S.A) { toast('Apri prima un EEG.'); return; }
+  if (!CMP && SESS.length > 1) { const o = SESS.find((x, i) => i !== SCUR); CMP = { rec: o.rec, A: o.A, name: o.fname }; }
+  if (CMP) renderCmp(); else $('cmpfile').click(); };
 $('cmpother').onclick = () => $('cmpfile').click();
 $('cmpclose').onclick = () => { $('cmpmodal').hidden = true; };
 $('cmpmodal').onclick = e => { if (e.target === $('cmpmodal')) $('cmpmodal').hidden = true; };
@@ -2864,7 +2891,7 @@ function renderScore() {
   $('rppcnt').textContent = R.present.length ? '· ' + R.present.map(nm).join('; ') : R.possible.length || pats.length ? '· solo possibili, da verificare' : '· nessuno rilevato';
   $('rppbox').innerHTML = (R.present.length ? '<p>Presenti (≥ 10% della registrazione):</p><ul>' + R.present.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '')
     + (R.possible.length ? '<p>Possibili (1–10%), da verificare:</p><ul>' + R.possible.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '')
-    + (pats.length ? (!R.present.length && !R.possible.length ? '<p>Solo tratti brevi (rari, < 1% della registrazione), da verificare:</p>' : '<p>Tratti (clic per andarci):</p>') + '<ul>' + pats.slice(0, 30).map(p => `<li><a href="#" data-rt="${p.t0}" title="${rppDesc(p)}">${fmtT(p.t0)} ${p.name}${p.side === 'G' ? '' : ' ' + p.side}</a> <span class="small">${p.kind === 'PD' ? p.n + ' scariche, ' : ''}${Math.max(1, Math.round(p.t1 - p.t0))} s${p.channels && p.channels.length ? ', ' + p.channels.slice(0, 3).join(' ') : ''}</span></li>`).join('') + '</ul>' + (pats.length > 30 ? '<p>…</p>' : '') : '')
+    + (pats.length ? (!R.present.length && !R.possible.length ? '<p>Solo tratti brevi (rari, < 1% della registrazione), da verificare:</p>' : '<p>Tratti (clic per andarci):</p>') + '<ul>' + pats.slice(0, 30).map(p => `<li><a href="#" data-rt="${p.t0}" title="${C.rppDesc(p)}">${fmtT(p.t0)} ${p.name}${p.side === 'G' ? '' : ' ' + p.side}</a> <span class="small">${p.kind === 'PD' ? p.n + ' scariche, ' : ''}${Math.max(1, Math.round(p.t1 - p.t0))} s${p.channels && p.channels.length ? ', ' + p.channels.slice(0, 3).join(' ') : ''}</span></li>`).join('') + '</ul>' + (pats.length > 30 ? '<p>…</p>' : '') : '')
     + (!R.present.length && !R.possible.length && !pats.length ? '<p>Nessun pattern rilevato.</p>' : '');
   $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); goTo(+a.dataset.rt - 2); });
   setTimeout(() => { const h3 = $('scorebox').querySelector('h3'); $('scorecnt').textContent = h3 ? '· ' + h3.textContent : ''; }, 0);
