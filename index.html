@@ -2901,13 +2901,13 @@ function evoText(A, iedA, B, iedB) { const ch = [], f05 = v => (Math.round(v * 2
   const ra = rp(A), rb = rp(B); ra.filter(x => !rb.includes(x)).forEach(x => ch.push('comparsa di pattern ' + x)); rb.filter(x => !ra.includes(x)).forEach(x => ch.push('pattern ' + x + ' non più evidente'));
   return ch; }
 function evoFor(i) { const j = prevIdx(i), si = sIdx(); if (j < 0 || j === i) return null; const o = i === si ? S : SESS[i], q = j === si ? S : SESS[j]; if (!o || !q || !o.A || !q.A) return null;
-  const ied = (x, k) => k === si ? iedSummary() : x.ied ? { total: x.ied.events.filter(e => !e.art).length, confirmed: [] } : null;
+  const ied = (x, k) => k === si ? iedSummary() : iedSummaryOf(x);
   return { j, date: recDate(q.rec), ch: evoText(o.A, ied(o, i), q.A, ied(q, j)) }; }
 function evoAppend(text, i) { const e = evoFor(i); if (!e) return text;
   const line = 'Rispetto al tracciato precedente' + (e.date ? ' del ' + e.date : '') + ': ' + (e.ch.length ? e.ch.join('; ') : 'quadro sostanzialmente sovrapponibile') + '.';
   return /^In conclusione:.*$/m.test(text) ? text.replace(/^(In conclusione:.*)$/m, '$1 ' + line) : text + '\n' + line; }
 function renderCmpSum() { const box = $('cmpsumbox'), o = SESS[CMPI]; if (!CMPCOL || !o || !S.A) { $('cmpsum').style.display = 'none'; return; }
-  const oi = o.ied ? { total: o.ied.events.filter(e => !e.art).length, confirmed: [], pending: 0, inArt: 0 } : null;
+  const oi = iedSummaryOf(o);
   const a = cmpMeasures(S.A, S.rec, S.fname, S.ied ? iedSummary() : (!$('iedbusy').hidden || needOf(iedKind()).every(j => ONNXBUF[j]) ? undefined : null)), b = cmpMeasures(o.A, o.rec, o.fname, oi);
   const dif = a.map((r, i) => i > 2 && r[1] !== b[i][1] ? r[0] : null).filter(Boolean);
   const others = SESS.map((x, i) => i).filter(i => i !== SCUR);
@@ -2962,7 +2962,7 @@ function chatLab(i) { return 'EEG-' + (i + 1); }
 function chatNames(t) { let x = String(t); SESS.forEach((o, i) => { if (o && o.fname) x = x.split(o.fname).join(chatLab(i)); }); return x; }
 function chatUnames(t) { let x = String(t); SESS.forEach((o, i) => { if (o && o.fname) x = x.replace(new RegExp('\\b' + chatLab(i) + '\\b', 'g'), o.fname); }); return x; }
 function chatMulti() { if (SESS.length < 2 || !S.A) return '';
-  const iedOf = (o, i) => i === SCUR ? iedSummary() : o.ied ? { total: o.ied.events.filter(e => !e.art).length, confirmed: [] } : null;
+  const iedOf = (o, i) => i === SCUR ? iedSummary() : iedSummaryOf(o);
   const M = SESS.map((o, i) => { const A = i === SCUR ? S.A : o.A, rec = i === SCUR ? S.rec : o.rec; if (!A) return null; try { return cmpMeasures(A, rec, '', iedOf(o, i)).slice(2); } catch (e) { return null; } });
   const role = i => (i === SCUR ? 'sul tracciato' : CMPCOL && i === CMPI ? 'nella colonna di confronto' : 'caricato, non visibile') + ((i === SCUR ? S.prev : SESS[i].prev) ? ', TRACCIATO PRECEDENTE' : '');
   let t = 'EEG CARICATI NELL\'APP: ' + SESS.length + '. ' + SESS.map((o, i) => chatLab(i) + ' = ' + role(i)).join('; ') + '. L\'app permette di passare da uno all\'altro (menu sul nome del file) e di affiancarli (Confronto).\n';
@@ -3094,6 +3094,9 @@ function importReview(j) {
   $('iedstatus').textContent = 'Revisione importata (' + Object.keys(S.review).length + ' giudizi' + (j.file && j.file !== S.fname ? ', file originale ' + j.file : '') + ').';
   renderIED(); renderScore(); drawAll();
 }
+/* riepilogo IED di un EEG non sul tracciato: eventi della sua sessione + revisione salvata per nome del file */
+function iedSummaryOf(o) { if (!o || !o.ied) return null; let rv = {}; try { rv = JSON.parse(localStorage.getItem('ied-review:' + (o.fname || '')) || '{}') || {}; } catch (e) { }
+  const ev = o.ied.events || []; return { confirmed: ev.filter(e => rv[evKey(e)] === 'si').map(e => Object.assign({}, e, { ch: e.loc && e.loc.found ? e.loc.ch : e.ch })), pending: ev.filter(e => !rv[evKey(e)] && !e.art).length, total: ev.filter(e => !e.art).length, inArt: ev.filter(e => e.art).length }; }
 function iedSummary() {
   if (!S.ied) return null; const ev = S.ied.events;
   return { confirmed: ev.filter(e => S.review[evKey(e)] === 'si').map(e => Object.assign({}, e, { ch: e.loc && e.loc.found ? e.loc.ch : e.ch })), pending: ev.filter(e => !S.review[evKey(e)] && !e.art).length, total: ev.filter(e => !e.art).length, inArt: ev.filter(e => e.art).length };
