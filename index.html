@@ -44,7 +44,7 @@ button,select,input{font:inherit;color:inherit}
 #montage{max-width:8.5rem} header::-webkit-scrollbar{display:none}
 @media (max-width:1560px){header{gap:.25rem .4rem;padding:.3rem .5rem} header h1{font-size:.95rem;margin-right:.2rem} header .btn{padding-left:.4rem;padding-right:.4rem} header .ctl{font-size:.78rem} header input[type=number]{width:3.1rem} #montage{max-width:7rem} header .fname{max-width:7rem;overflow:hidden;text-overflow:ellipsis} #filesel{max-width:8rem}}
 #filesel{max-width:14rem;font-size:.82rem;font-weight:600;border:1px solid transparent;background:transparent;color:var(--ink);cursor:pointer;padding:.1rem .2rem;border-radius:4px} #filesel:hover{border-color:var(--line)} body.multi #fname{display:none}
-@media (max-width:1500px){header .lt{display:none}}
+header.compact .lt{display:none}
 @media (max-width:1300px){header .fname{display:none} #montage{max-width:5.5rem}}
 .fab{position:fixed;right:18px;bottom:18px;z-index:66;width:50px;height:50px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.28)} .fab:hover{filter:brightness(1.1)} .fab[aria-expanded=true]{background:var(--ink)}
 #chatbox{position:fixed;right:18px;bottom:78px;z-index:65;width:min(420px,92vw);height:min(68vh,620px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 36px rgba(0,0,0,.28);display:flex;flex-direction:column;padding:.5rem .6rem;gap:.4rem} #chatbox[hidden]{display:none}
@@ -55,7 +55,7 @@ button,select,input{font:inherit;color:inherit}
 .helpbox{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;padding:.35rem .6rem;margin:.3rem 0 .5rem;background:color-mix(in srgb,var(--accent) 6%,transparent)} .helpbox[hidden]{display:none} .helpbox p{margin:.25rem 0}
 #anabar{grid-row:3;display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line);font-size:.8rem} #anabar[hidden]{display:none}
 .anamods{display:inline-flex;gap:.5rem;flex-wrap:wrap} .anamods label{display:inline-flex;align-items:center;gap:.25rem;cursor:pointer} .anamods i{display:inline-block;width:.6rem;height:.6rem;border-radius:2px}
-@media (max-width:1500px){#anabtn span,#annot span{display:none}}
+header.compact #anabtn span,header.compact #annot span{display:none}
 #anabtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 #anares{margin-top:.5rem;border-top:1px solid var(--line);padding-top:.4rem} #anares ul{list-style:none;margin:.25rem 0;padding:0} #anares li{padding:.15rem .3rem;border-radius:3px;cursor:pointer} #anares li:hover{background:var(--sel)}
 #anares i{display:inline-block;width:.55rem;height:.55rem;border-radius:2px;margin-right:.3rem}
@@ -100,8 +100,8 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
 main.cmp2{grid-template-columns:1fr 700px 40px} main.cmp2 #railtog{right:720px}
-#side.dual{overflow-x:hidden} #side.dual .cmpR canvas{width:100%!important;max-width:100%;height:auto;display:block} #side.dual .cmprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
-#side.dual .cmpR{border-left:2px solid var(--accent);padding-left:.8rem;min-width:0} #side.dual .cmpL{min-width:0} #side.dual .cmpR button,#side.dual .cmpR select,#side.dual .cmpR textarea,#side.dual .cmpR input{pointer-events:none} #side.dual .cmpR h2 .helpq,#side.dual .cmpR .pdfl{display:none}
+#side.dual{overflow-x:hidden} .cmpstick{position:sticky;top:-.8rem;z-index:4;background:var(--panel);margin:-.8rem -1rem .5rem;padding:.4rem 1rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;font-size:.8rem;box-shadow:0 2px 4px -3px rgba(0,0,0,.25)} .cmpstick>div{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .cmpstick b{display:block;overflow:hidden;text-overflow:ellipsis} .prevck{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;color:var(--muted);cursor:pointer} .prevck input{margin:0} .cmpstick small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em} .cmpstick>div+div{border-left:2px solid var(--accent);padding-left:.8rem} .cmpstick>div:first-child{padding-right:.8rem;border-right:2px solid transparent} #side.dual .sec[data-sec=ann] .annlist{flex:none!important;max-height:360px!important;overflow:auto} #side.dual .sumseg{display:block} #side.dual .cmpR canvas{width:100%!important;max-width:100%;height:auto;display:block} #side.dual .cmprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
+#side.dual .cmpR{border-left:2px solid var(--accent);padding-left:.8rem;min-width:0} #side.dual .cmpL{min-width:0;padding-right:.8rem;border-right:2px solid transparent} #side.dual .cmpR h2 .helpq,#side.dual .cmpR .pdfl{display:none}
 .cmphead{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;font-size:.82rem} .cmphead select{font:inherit;font-weight:600} #side2{border-left:2px solid var(--accent)} #side2[hidden]{display:none} main.closed{grid-template-columns:1fr 40px}
 .c2head{position:sticky;top:-.8rem;z-index:2;background:var(--panel);margin:-.8rem -1rem .6rem;padding:.45rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.4rem;font-size:.82rem} .c2head b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #cmpsum{border:1px solid var(--accent);border-radius:6px;padding:.4rem .6rem;margin-bottom:.6rem;background:color-mix(in srgb,var(--accent) 5%,transparent)} #cmpsumbox table{border-collapse:collapse;width:100%;font-size:.78rem} #cmpsumbox th,#cmpsumbox td{padding:.18rem .3rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top} #cmpsumbox th{color:var(--muted);font-weight:600} #cmpsumbox tr.diff td{background:color-mix(in srgb,var(--flag) 12%,transparent)} #cmpsumbox p{margin:.2rem 0 .4rem}
@@ -250,13 +250,13 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <aside id="side">
    <section class="sec" data-sec="cmpsum" id="cmpsum" style="display:none"><h2>Sintesi del confronto</h2><div id="cmpsumbox" class="small"></div></section>
    <section class="sec" data-sec="score">
-    <h2>Livello decisionale (regole SCORE) <a class="pdfl" href="https://discovery.ucl.ac.uk/id/eprint/1571681/7/Diehl_1-s2.0-S1388245717309069-main.pdf" target="_blank" rel="noopener" title="SCORE, seconda versione (Beniczky et al., Clin Neurophysiol 2017)">PDF</a> <span class="cnt" id="scorecnt"></span></h2><div id="scorebox" class="small">Apri un file per vedere la classificazione.</div>
+    <h2>Livello decisionale (regole SCORE) <span class="cnt" id="scorecnt"></span></h2><div id="scorebox" class="small">Apri un file per vedere la classificazione.</div>
    </section>
    <section class="sec" data-sec="ilae">
     <details class="fold"><summary>Requisiti minimi di registrazione (ILAE-IFCN 2023) <a class="pdfl" href="https://www.ilae.org/files/dmfile/eeg-minimum-standards.pdf" target="_blank" rel="noopener" title="Standard minimi ILAE-IFCN per EEG di routine e di sonno (Peltola et al. 2023)">PDF</a> <span class="cnt" id="stdcnt"></span></summary><div id="stdbox" class="small">Apri un file.</div></details>
    </section>
    <section class="sec" data-sec="acns">
-    <h2 title="Rilevamento automatico: LPD/GPD con ≥ 6 scariche a intervallo regolare, LRDA/GRDA 1–4 Hz; esclusi ECG e ammiccamenti">Pattern ritmici e periodici (ACNS 2021) <a class="pdfl" href="https://www.acns.org/UserFiles/file/ACNSStandardizedCriticalCareEEGTerminology_rev2021.pdf" target="_blank" rel="noopener" title="ACNS Standardized Critical Care EEG Terminology 2021 (Hirsch et al.)">PDF</a> <span class="cnt" id="rppcnt"></span></h2><div id="rppbox" class="small">Apri un file.</div>
+    <h2 title="Rilevamento automatico: LPD/GPD con ≥ 6 scariche a intervallo regolare, LRDA/GRDA 1–4 Hz; esclusi ECG e ammiccamenti">Pattern ritmici e periodici (ACNS 2021) <span class="cnt" id="rppcnt"></span></h2><div id="rppbox" class="small">Apri un file.</div>
    </section>
    <section class="sec" data-sec="rep">
     <h2>Referto automatico (bozza)</h2>
@@ -2158,13 +2158,12 @@ function stabGauge(st) {
   const lo = 1, hi = 8, X = v => 14 + (1 - Math.log(Math.max(lo, Math.min(hi, v))) / Math.log(hi)) * 212, x = X(st.runMean), xt = X(C.STAB_THR), x2 = X(C.STAB_THR2);
   let ticks = ''; for (let v = lo; v <= hi; v++) ticks += `<line x1="${X(v)}" y1="22" x2="${X(v)}" y2="${v === hi || v === lo ? 28 : 26}" stroke="var(--muted)" stroke-width="1"/>`;
   return `<svg class="gauge" viewBox="0 0 240 44" role="img" aria-label="Stabilità: ${st.cls}"><g>
-    <title>Durata media delle sequenze di alfa in veglia a occhi chiusi: ${st.runMean.toFixed(1)} finestre (≈ ${st.runSec.toFixed(1)} s). Soglia: ${C.STAB_THR} finestre (≈ ${(C.STAB_THR + 1).toFixed(1)} s).</title>
+    <title>Durata media delle sequenze di alfa in veglia a occhi chiusi: ${st.runMean.toFixed(1)} finestre (≈ ${st.runSec.toFixed(1)} s). Zone: verde stabile (≥ ${C.STAB_THR2} finestre), giallo un po’ instabile (${C.STAB_THR}–${C.STAB_THR2}), rosso instabile (< ${C.STAB_THR} finestre ≈ ${(C.STAB_THR + 1).toFixed(1)} s).</title>
     <line x1="14" y1="22" x2="226" y2="22" stroke="var(--muted)" stroke-width="1.2"/>${ticks}
-    <rect x="${x2}" y="14" width="${xt - x2}" height="16" fill="var(--flag)" opacity=".14"/>
-    <line x1="${xt}" y1="10" x2="${xt}" y2="32" stroke="var(--flag)" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <rect x="14" y="13" width="${x2 - 14}" height="18" fill="#2e9e5b" opacity=".13"/><rect x="${x2}" y="13" width="${xt - x2}" height="18" fill="#e0b000" opacity=".18"/><rect x="${xt}" y="13" width="${226 - xt}" height="18" fill="#d64545" opacity=".13"/>
     <line x1="${x}" y1="10" x2="${x}" y2="30" stroke="var(--accent)" stroke-width="2"/><circle cx="${x}" cy="22" r="4.5" fill="var(--accent)" stroke="var(--panel)" stroke-width="1.5"/>
     <text x="14" y="41" font-size="9" fill="var(--muted)">stabile</text><text x="226" y="41" font-size="9" fill="var(--muted)" text-anchor="end">instabile</text>
-    <text x="${xt}" y="41" font-size="8" fill="var(--flag)" text-anchor="middle">soglia</text></g></svg>`;
+    <text x="${(x2 + xt) / 2}" y="41" font-size="8" fill="var(--muted)" text-anchor="middle">un po’</text></g></svg>`;
 }
 function renderSummary() {
   const { A, rec } = S, p = A.pdr, f1 = v => v == null || isNaN(v) ? '–' : v.toFixed(1);
@@ -2799,9 +2798,9 @@ function renderCmp() { if (!S.A || !CMP) return; const a = cmpMeasures(S.A, S.re
   $('cmpbody').innerHTML = '<table><thead><tr><th></th><th>EEG aperto</th><th>EEG di confronto</th></tr></thead><tbody>' + a.map((r, i) => `<tr class="${i > 2 && r[1] !== b[i][1] ? 'diff' : ''}"><th>${r[0]}</th><td>${r[1]}</td><td>${b[i][1]}</td></tr>`).join('') + '</tbody></table>'
     + '<p>Righe evidenziate = valori diversi. Il secondo EEG non viene analizzato dal modello IED; per vedere i due tracciati usa “Tracciato in nuova finestra” e affianca le finestre.</p>'; $('cmpmodal').hidden = false; }
 /* ---- più EEG nella stessa finestra ---- */
-const SESS = [], SKEYS = ['rec', 'A', 'ms', 'fileId', 'fname', 't', 'ied', 'iedCur', 'anaSel', 'multi']; let SCUR = -1;
+const SESS = [], SKEYS = ['rec', 'A', 'ms', 'fileId', 'fname', 't', 'ied', 'iedCur', 'anaSel', 'multi', 'repText', 'repEdited', 'prev']; let SCUR = -1;
 function sessSnap() { const o = {}; SKEYS.forEach(k => { o[k] = S[k]; }); return o; }
-function sessSave() { if (SCUR >= 0 && S.rec && SESS[SCUR]) SESS[SCUR] = sessSnap(); }
+function sessSave() { if (SCUR >= 0 && S.rec && SESS[SCUR]) { S.repText = $('reptext').value; S.repEdited = repDirty; SESS[SCUR] = sessSnap(); } }
 function renderSess() { const sel = $('filesel'); sel.hidden = SESS.length < 2; document.body.classList.toggle('multi', SESS.length > 1); $('cmpcol').hidden = SESS.length < 2; if (SESS.length < 2 && CMPCOL) setCmpCol(false);
   sel.innerHTML = SESS.map((x, i) => `<option value="${i}"${i === SCUR ? ' selected' : ''}>${x.fname}</option>`).join(''); }
 function sessAdd() { const i = SESS.findIndex(x => x.fname === S.fname);
@@ -2811,6 +2810,7 @@ function sessSwitch(i) { if (i === SCUR || !SESS[i]) return;
   sessSave(); SCUR = i; Object.assign(S, SESS[i]); S.cache = null; S.decision = null; anaRun++;
   S.review = loadReview(); repDirty = false; loadUA(); $('fname').textContent = S.fname; CMP = null;
   renderAnaRes(); anaSelText(); renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll(); renderSess();
+  if (S.repEdited && S.repText != null) { $('reptext').value = S.repText; repDirty = true; $('repstate').textContent = 'modificato'; } else renderReport(true);
   if (CMPCOL) { CMPI = -1; renderSide2(); }
   if (!S.ied && needOf(iedKind()).every(j => ONNXBUF[j])) setTimeout(runIED, 50); }
 $('filesel').onchange = () => sessSwitch(+$('filesel').value);
@@ -2820,25 +2820,92 @@ let CMPCOL = false, CMPI = -1, C2SYNC = false;
 function snapSide(i) { // genera il pannello dell'EEG i e ne restituisce una copia statica
   const cur = SCUR, keepRep = $('reptext').value, keepDirty = repDirty; sessSave();
   Object.assign(S, SESS[i]); S.cache = null; S.decision = null; S.review = loadReview(); loadUA();
-  renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); renderAnaRes(); drawTopo(); drawSpec(); repDirty = false; renderReport(true);
+  renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); renderAnaRes(); drawTopo(); drawSpec(); repDirty = false; renderReport(true); if (SESS[i].repEdited && SESS[i].repText != null) $('reptext').value = SESS[i].repText;
   const side = $('side'), html = side.innerHTML.replace(/ id="/g, ' id="c2-').replace(/ for="/g, ' data-for="'), rep = $('reptext').value;
   const cv = [...side.querySelectorAll('canvas')].map(c => { try { return c.toDataURL(); } catch (e) { return null; } });
   Object.assign(S, SESS[cur]); S.cache = null; S.decision = null; S.review = loadReview(); loadUA();
   renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); renderAnaRes(); drawTopo(); drawSpec();
   setTimeout(() => { $('reptext').value = keepRep; repDirty = keepDirty; }, 0);
   return { html, rep, cv }; }
-function dualOff() { const side = $('side'); side.querySelectorAll(':scope > .cmprow').forEach(r => { const live = r.querySelector(':scope > .cmpL > .sec'); if (live) side.insertBefore(live, r); r.remove(); }); side.classList.remove('dual'); }
+function dualOff() { const side = $('side'); side.querySelectorAll(':scope > .cmpstick').forEach(x => x.remove()); side.querySelectorAll(':scope > .cmprow').forEach(r => { const live = r.querySelector(':scope > .cmpL > .sec'); if (live) side.insertBefore(live, r); r.remove(); }); side.classList.remove('dual'); }
 function renderSide2() { if (!CMPCOL) return; const others = SESS.map((x, i) => i).filter(i => i !== SCUR); if (!others.length) return setCmpCol(false);
   if (!others.includes(CMPI)) CMPI = others[0];
-  dualOff(); const sn = snapSide(CMPI), tmp = document.createElement('div'); tmp.innerHTML = sn.html;
-  tmp.querySelectorAll('canvas').forEach((c, k) => { if (!sn.cv[k]) return; const im = new Image(); im.onload = () => { c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); }; im.src = sn.cv[k]; });
-  const ta = tmp.querySelector('textarea'); if (ta) { ta.value = sn.rep; ta.readOnly = true; }
-  // una riga per sezione: a sinistra la sezione dell'EEG sul tracciato, a destra quella dell'altro; la riga è alta quanto la più lunga
-  const side = $('side'); side.classList.add('dual');
+  dualOff();
+  // prima la griglia a due colonne (destra vuota), poi l'istantanea: così grafici e mappe dell'altro EEG sono disegnati già alla larghezza della colonna
+  const side = $('side'); side.classList.add('dual'); const RR = {};
   [...side.children].filter(x => x.classList.contains('sec') && x.id !== 'cmpsum').forEach(x => { const row = document.createElement('div'); row.className = 'cmprow';
-    const L = document.createElement('div'), Rr = document.createElement('div'); L.className = 'cmpL'; Rr.className = 'cmpR'; side.insertBefore(row, x); L.appendChild(x);
-    const c = tmp.querySelector('.sec[data-sec="' + x.dataset.sec + '"]'); if (c) Rr.appendChild(c); row.append(L, Rr); });
-  renderCmpSum(); }
+    const L = document.createElement('div'), Rr = document.createElement('div'); L.className = 'cmpL'; Rr.className = 'cmpR'; side.insertBefore(row, x); L.appendChild(x); row.append(L, Rr); RR[x.dataset.sec] = Rr; });
+  const sn = snapSide(CMPI), tmp = document.createElement('div'); tmp.innerHTML = sn.html;
+  tmp.querySelectorAll('.cmpR').forEach(x => x.remove());
+  tmp.querySelectorAll('canvas').forEach((c, k) => { if (!sn.cv[k]) return; const im = new Image(); im.onload = () => { c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); }; im.src = sn.cv[k]; });
+  const ta = tmp.querySelector('#c2-reptext'); if (ta) { ta.value = sn.rep; ta.readOnly = false; const oi = CMPI; ta.addEventListener('input', () => { if (!SESS[oi]) return; SESS[oi].repText = ta.value; SESS[oi].repEdited = true; const st = $('c2-repstate'); if (st) st.textContent = 'modificato'; }); }
+  // una riga per sezione: a sinistra la sezione dell'EEG sul tracciato, a destra quella dell'altro; la riga è alta quanto la più lunga
+  const st = document.createElement('div'); st.className = 'cmpstick'; const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const pv = (i, on) => '<label class="prevck" title="Segna questo EEG come tracciato precedente: il referto e la chat dell\'altro ne descrivono l\'evoluzione"><input type="checkbox" data-prev="' + i + '"' + (on ? ' checked' : '') + '> tracciato precedente</label>', dd = r => recDate(r) ? ' · ' + recDate(r) : '';
+  st.innerHTML = '<div title="' + esc(S.fname) + '"><small>EEG sul tracciato' + dd(S.rec) + '</small><b>' + esc(S.fname) + '</b>' + pv(SCUR, !!S.prev) + '</div><div title="' + esc(SESS[CMPI].fname) + '"><small>EEG di confronto' + dd(SESS[CMPI].rec) + '</small><b>' + esc(SESS[CMPI].fname) + '</b>' + pv(CMPI, !!SESS[CMPI].prev) + '</div>'; side.insertBefore(st, side.firstChild);
+  st.querySelectorAll('input[data-prev]').forEach(cb => cb.onchange = () => setPrev(+cb.dataset.prev, cb.checked));
+  Object.entries(RR).forEach(([k, Rr]) => { const c = tmp.querySelector('.sec[data-sec="' + k + '"]'); if (c) Rr.appendChild(c); });
+  drawTopo(); drawSpec(); renderCmpSum(); alignSum(); }
+/* sintesi automatica nel confronto: ogni sottosezione (da un titolo al successivo) alta uguale nelle due colonne */
+function sumSegs(box) { if (!box) return []; if (!box.querySelector(':scope > .sumseg')) { const kids = [...box.childNodes]; let seg = null;
+    kids.forEach(n => { if (!seg || (n.nodeType === 1 && n.tagName === 'H2')) { seg = document.createElement('div'); seg.className = 'sumseg'; box.insertBefore(seg, n); } seg.appendChild(n); }); }
+  return [...box.querySelectorAll(':scope > .sumseg')]; }
+function alignSum() { if (!CMPCOL) return; const L = sumSegs($('summary')), R = sumSegs($('c2-summary'));
+  [...L, ...R].forEach(x => x.style.minHeight = ''); if (!L.length || !R.length) return;
+  const n = Math.min(L.length, R.length); for (let i = 0; i < n; i++) { const h = Math.max(L[i].offsetHeight, R[i].offsetHeight) + 'px'; L[i].style.minHeight = h; R[i].style.minHeight = h; } }
+new MutationObserver(() => { if (CMPCOL && !$('summary').querySelector(':scope > .sumseg')) requestAnimationFrame(alignSum); }).observe($('summary'), { childList: true });
+new ResizeObserver(() => { if (CMPCOL) requestAnimationFrame(alignSum); }).observe($('side'));
+/* colonna destra del confronto: il referto si modifica e si copia sul posto; gli altri comandi portano quell'EEG sul tracciato e li eseguono lì */
+function c2Proxy(ev) { const side = $('side'); if (!CMPCOL || !side.classList.contains('dual')) return; const R = ev.target.closest('.cmpR'); if (!R) return;
+  const el = ev.target.closest('button,select,input,a[href],li,summary,.rb'); if (!el || el.tagName === 'SUMMARY' || (el.tagName === 'A' && el.target === '_blank')) return;
+  if (el.id === 'c2-reptext') return;
+  if (el.id === 'c2-repcopy') { ev.preventDefault(); const ta = $('c2-reptext'), st = $('c2-repstate'); navigator.clipboard.writeText(ta.value).then(() => { if (st) st.textContent = 'copiato'; }, () => { ta.select(); document.execCommand('copy'); if (st) st.textContent = 'copiato'; }); return; }
+  ev.preventDefault(); ev.stopPropagation(); const oi = CMPI; if (!SESS[oi]) return;
+  let target = null, li = -1, lst = null;
+  if (el.id && el.id.startsWith('c2-')) target = el.id.slice(3);
+  else if (el.tagName === 'LI') { lst = el.closest('ul,ol'); if (lst && lst.id && lst.id.startsWith('c2-')) { li = [...lst.children].indexOf(el); lst = lst.id.slice(3); } else lst = null; }
+  sessSwitch(oi); toast('Ora sul tracciato: ' + S.fname + '.');
+  setTimeout(() => { if (target) { const t = $(target); if (t) { if (t.tagName === 'SELECT' || t.tagName === 'INPUT' && t.type !== 'checkbox') t.focus(); else t.click(); } }
+    else if (lst && li >= 0) { const t = $(lst) && $(lst).children[li]; if (t) t.click(); } }, 80); }
+$('side').addEventListener('click', c2Proxy, true);
+$('side').addEventListener('mousedown', e => { const R = e.target.closest('#side.dual .cmpR'); if (R && e.target.closest('select,input:not([type=checkbox])') && e.target.id !== 'c2-reptext') { e.preventDefault(); c2Proxy(e); } }, true);
+/* regole CSS scritte per id (#spec, #summary, #reptext…) applicate anche alle copie con prefisso c2- */
+(function mirrorIdCss() { const ids = new Set([...$('side').querySelectorAll('[id]')].map(x => x.id)); const re = /#([A-Za-z][\w-]*)/g;
+  const walk = (list, host) => { [...list].forEach(r => { if (r.cssRules && !r.selectorText) { try { walk(r.cssRules, r); } catch (e) { } return; }
+      if (!r.selectorText) return; const parts = r.selectorText.split(',').filter(p => { const m = p.match(re); return m && m.some(x => ids.has(x.slice(1))); }); if (!parts.length) return;
+      const sel = parts.map(p => p.replace(re, (m, id) => ids.has(id) ? '#c2-' + id : m)).join(',');
+      try { host.insertRule(sel + '{' + r.style.cssText + '}', host.cssRules.length); } catch (e) { } }); };
+  [...document.styleSheets].forEach(sh => { try { const rules = [...sh.cssRules]; walk(rules, sh); } catch (e) { } }); })();
+/* tracciato precedente: un EEG caricato può essere segnato come precedente; il referto degli altri ne riporta l'evoluzione */
+function sIdx() { const i = SESS.findIndex(x => x && x.fname === S.fname); return i < 0 ? SCUR : i; } // indice della sessione caricata ora in S (anche durante l'istantanea della colonna di confronto)
+function prevIdx(cur) { const si = sIdx(); return SESS.findIndex((o, k) => k !== cur && (k === si ? S.prev : o && o.prev)); }
+function recDate(rec) { const dt = (rec && rec.startDate || '').split('.'); return dt.length === 3 ? dt[0] + '/' + dt[1] + '/' + (dt[2].length === 2 ? (+dt[2] > 84 ? '19' : '20') + dt[2] : dt[2]) : ''; }
+function setPrev(i, on) { SESS.forEach((o, k) => { if (o) o.prev = on && k === i; }); S.prev = on && i === SCUR; if (SESS[SCUR]) SESS[SCUR].prev = S.prev;
+  renderReport(); if (repDirty) $('repstate').textContent = 'modificato a mano: premi Rigenera per aggiungere il confronto col precedente';
+  if (CMPCOL) renderSide2(); toast(on ? SESS[i].fname + ' segnato come tracciato precedente: il referto dell\'altro EEG ne riporta l\'evoluzione nelle conclusioni.' : 'Nessun tracciato precedente segnato.'); }
+function evoText(A, iedA, B, iedB) { const ch = [], f05 = v => (Math.round(v * 2) / 2).toLocaleString('it-IT');
+  let dA = null, dB = null; try { dA = C.scoreDecision(A, iedA); dB = C.scoreDecision(B, iedB); } catch (e) { }
+  const NM = { nonepi_diffuso: 'rallentamento diffuso', nonepi_focale: 'rallentamento focale/lateralizzato', epi_focale: 'anomalie epilettiformi focali', epi_generalizzato: 'anomalie epilettiformi generalizzate' };
+  if (dA && dB) { dA.categories.filter(c => !dB.categories.includes(c)).forEach(c => ch.push('comparsa di ' + NM[c]));
+    dB.categories.filter(c => !dA.categories.includes(c)).forEach(c => ch.push(NM[c] + ' non più evidente')); }
+  const pa = A.pdr || {}, pb = B.pdr || {}, sa = A.slow || {}, sb = B.slow || {};
+  if (pa.freq != null && pb.freq != null && Math.abs(Math.round(pa.freq * 2) - Math.round(pb.freq * 2)) >= 2) ch.push('ritmo dominante posteriore più ' + (pa.freq < pb.freq ? 'lento' : 'rapido') + ' (' + f05(pa.freq) + ' Hz, prima ' + f05(pb.freq) + ' Hz)');
+  if (dA && dB && dA.categories.includes('nonepi_diffuso') && dB.categories.includes('nonepi_diffuso') && sa.g50 != null && sb.g50 != null && Math.abs(sa.g50 - sb.g50) >= 0.10) ch.push('rallentamento diffuso ' + (sa.g50 > sb.g50 ? 'più' : 'meno') + ' marcato');
+  if (sa.side && sb.side && sa.side !== sb.side) ch.push('rallentamento ora prevalente a ' + sa.side + ' (prima a ' + sb.side + ')');
+  try { const oa = orgOf(A).cls, ob = orgOf(B).cls; if (oa && ob && oa !== ob) ch.push('tracciato ' + oa + ' (prima ' + ob + ')'); } catch (e) { }
+  if (A.stab && B.stab && A.stab.cls && B.stab.cls && A.stab.cls !== B.stab.cls) ch.push('ritmo di fondo ' + A.stab.cls + ' (prima ' + B.stab.cls + ')');
+  const rc = p => p.reactivity == null ? null : p.reactivity < 0.10 ? 'non reattivo' : p.reactivity < 0.35 ? 'scarsamente reagente' : 'reattivo';
+  if (rc(pa) && rc(pb) && rc(pa) !== rc(pb)) ch.push('ritmo posteriore ' + rc(pa) + ' all\'apertura degli occhi (prima ' + rc(pb) + ')');
+  if (A.voltACNS && B.voltACNS && A.voltACNS.cat !== B.voltACNS.cat) ch.push('voltaggio ' + A.voltACNS.cat + ' (prima ' + B.voltACNS.cat + ')');
+  const rp = X => X.rpp && X.rpp.summary ? Object.values(X.rpp.summary).filter(r => r.pct >= 10).map(r => r.name + (r.side === 'G' ? '' : ' ' + r.side)) : [];
+  const ra = rp(A), rb = rp(B); ra.filter(x => !rb.includes(x)).forEach(x => ch.push('comparsa di pattern ' + x)); rb.filter(x => !ra.includes(x)).forEach(x => ch.push('pattern ' + x + ' non più evidente'));
+  return ch; }
+function evoFor(i) { const j = prevIdx(i), si = sIdx(); if (j < 0 || j === i) return null; const o = i === si ? S : SESS[i], q = j === si ? S : SESS[j]; if (!o || !q || !o.A || !q.A) return null;
+  const ied = (x, k) => k === si ? iedSummary() : x.ied ? { total: x.ied.events.filter(e => !e.art).length, confirmed: [] } : null;
+  return { j, date: recDate(q.rec), ch: evoText(o.A, ied(o, i), q.A, ied(q, j)) }; }
+function evoAppend(text, i) { const e = evoFor(i); if (!e) return text;
+  const line = 'Rispetto al tracciato precedente' + (e.date ? ' del ' + e.date : '') + ': ' + (e.ch.length ? e.ch.join('; ') : 'quadro sostanzialmente sovrapponibile') + '.';
+  return /^In conclusione:.*$/m.test(text) ? text.replace(/^(In conclusione:.*)$/m, '$1 ' + line) : text + '\n' + line; }
 function renderCmpSum() { const box = $('cmpsumbox'), o = SESS[CMPI]; if (!CMPCOL || !o || !S.A) { $('cmpsum').style.display = 'none'; return; }
   const oi = o.ied ? { total: o.ied.events.filter(e => !e.art).length, confirmed: [], pending: 0, inArt: 0 } : null;
   const a = cmpMeasures(S.A, S.rec, S.fname, S.ied ? iedSummary() : (!$('iedbusy').hidden || needOf(iedKind()).every(j => ONNXBUF[j]) ? undefined : null)), b = cmpMeasures(o.A, o.rec, o.fname, oi);
@@ -2867,7 +2934,6 @@ $('cmpclose').onclick = () => { $('cmpmodal').hidden = true; };
 $('cmpmodal').onclick = e => { if (e.target === $('cmpmodal')) $('cmpmodal').hidden = true; };
 $('cmpwin').onclick = () => window.open(location.href.split('#')[0], '_blank', 'width=' + Math.round(screen.availWidth / 2) + ',height=' + screen.availHeight + ',left=' + Math.round(screen.availWidth / 2) + ',top=0');
 $('cmpfile').onchange = async () => { const f = $('cmpfile').files[0]; $('cmpfile').value = ''; if (!f) return;
-  if (S.A && !$('iedbusy').hidden) { toast('Attendo la fine dell’analisi IED dell’EEG aperto, poi apro ' + f.name + '…'); while (!$('iedbusy').hidden) await new Promise(r => setTimeout(r, 300)); }
   if (S.A) { await handleFiles([f]); if (SESS.length > 1) { toast('Confronto aperto: le sezioni dei due EEG sono affiancate e scorrono insieme. Cambia l\'EEG sul tracciato dal menu sul titolo.'); setCmpCol(true); } return; }
   $('busy').style.display = 'flex'; $('busytxt').textContent = 'Analisi di ' + f.name + ' per il confronto…';
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); await new Promise(r => setTimeout(r, 30));
@@ -2879,8 +2945,8 @@ $('cmpfile').onchange = async () => { const f = $('cmpfile').files[0]; $('cmpfil
 const CHAT = { hist: [], busy: false };
 const CHAT_URL = 'https://rohrlatfkufknrkkywal.supabase.co/functions/v1/eeg-chat'; // funzione Supabase (l'indirizzo non è segreto; la chiave Gemini sta nei segreti di Supabase)
 function chatCfg() { return { url: CHAT_URL, key: '' }; }
-function anonText(t) { let x = String(t || '').replace(/\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b/g, '[data]').replace(/\b\d{1,2}[:.]\d{2}[:.]\d{2}\b/g, '[ora]');
-  if (S.fname) x = x.split(S.fname).join('[file]'); return x; }
+function anonText(t) { let x = chatNames(String(t || '')).replace(/\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b/g, '[data]').replace(/\b\d{1,2}[:.]\d{2}[:.]\d{2}\b/g, '[ora]');
+  if (S.fname) x = x.split(S.fname).join(SESS.length > 1 ? chatLab(SCUR) : '[file]'); return x; }
 function chatContext() { const kb = new Map(), seen = new Set();
   Object.entries(SUMTIPS).forEach(([k, v]) => { kb.set(k, v); seen.add(v); });
   document.querySelectorAll('[title]').forEach(e => { const t = (e.getAttribute('title') || '').trim(); if (t.length < 40 || seen.has(t)) return; seen.add(t);
@@ -2890,7 +2956,22 @@ function chatContext() { const kb = new Map(), seen = new Set();
   const rep = ($('reptext').value || '').split('\n').filter(l => !/^ESAME ELETTRO|^Data registrazione/.test(l)).join('\n');
   const val = ['SINTESI\n' + $('summary').innerText, 'LIVELLO DECISIONALE\n' + $('scorebox').innerText, 'PATTERN ACNS\n' + $('rppbox').innerText,
     'ANOMALIE SOSPETTE (MODELLO)\n' + $('iedstatus').innerText + '\n' + $('iedcount').innerText, 'PAGINA VISIBILE: da ' + fmtT(S.t) + ', ' + pageLen() + ' s', 'BOZZA DI REFERTO\n' + rep].join('\n\n');
-  return anonText('REGOLE E DEFINIZIONI DELL\'APP\n' + kbt + '\n\nVALORI MISURATI SU QUESTO EEG\n' + val); }
+  return anonText(chatMulti() + 'VALORI MISURATI SULL\'EEG SUL TRACCIATO' + (SESS.length > 1 ? ' (' + chatLab(SCUR) + ')' : '') + '\n' + val + '\n\nREGOLE E DEFINIZIONI DELL\'APP\n' + kbt); }
+/* più EEG caricati: etichette anonime EEG-1, EEG-2… (i nomi dei file restano nel browser e tornano nella risposta mostrata) */
+function chatLab(i) { return 'EEG-' + (i + 1); }
+function chatNames(t) { let x = String(t); SESS.forEach((o, i) => { if (o && o.fname) x = x.split(o.fname).join(chatLab(i)); }); return x; }
+function chatUnames(t) { let x = String(t); SESS.forEach((o, i) => { if (o && o.fname) x = x.replace(new RegExp('\\b' + chatLab(i) + '\\b', 'g'), o.fname); }); return x; }
+function chatMulti() { if (SESS.length < 2 || !S.A) return '';
+  const iedOf = (o, i) => i === SCUR ? iedSummary() : o.ied ? { total: o.ied.events.filter(e => !e.art).length, confirmed: [] } : null;
+  const M = SESS.map((o, i) => { const A = i === SCUR ? S.A : o.A, rec = i === SCUR ? S.rec : o.rec; if (!A) return null; try { return cmpMeasures(A, rec, '', iedOf(o, i)).slice(2); } catch (e) { return null; } });
+  const role = i => (i === SCUR ? 'sul tracciato' : CMPCOL && i === CMPI ? 'nella colonna di confronto' : 'caricato, non visibile') + ((i === SCUR ? S.prev : SESS[i].prev) ? ', TRACCIATO PRECEDENTE' : '');
+  let t = 'EEG CARICATI NELL\'APP: ' + SESS.length + '. ' + SESS.map((o, i) => chatLab(i) + ' = ' + role(i)).join('; ') + '. L\'app permette di passare da uno all\'altro (menu sul nome del file) e di affiancarli (Confronto).\n';
+  t += 'MISURE PRINCIPALI A CONFRONTO\n' + (M.find(Boolean) || []).map((r, k) => '- ' + r[0] + ': ' + SESS.map((o, i) => chatLab(i) + ' ' + (M[i] ? M[i][k][1] : '–')).join(' | ') + (new Set(M.filter(Boolean).map(m => m[k][1])).size > 1 ? '  [DIVERSO]' : '')).join('\n') + '\n';
+  SESS.forEach((o, i) => { const e = evoFor(i); if (e) t += 'EVOLUZIONE DI ' + chatLab(i) + ' RISPETTO AL TRACCIATO PRECEDENTE ' + chatLab(e.j) + ': ' + (e.ch.length ? e.ch.join('; ') : 'quadro sostanzialmente sovrapponibile') + '.\n'; });
+  SESS.forEach((o, i) => { if (i === SCUR) return; let rep = o.repEdited && o.repText ? o.repText : '';
+    if (!rep && o.A) { try { rep = evoAppend(C.generateReport(o.A, o.rec, C.scoreDecision(o.A, iedOf(o, i)), iedOf(o, i), $('repfmt').value).text, i); } catch (e) { rep = ''; } }
+    if (rep) t += '\nBOZZA DI REFERTO DI ' + chatLab(i) + '\n' + rep.split('\n').filter(l => !/^ESAME ELETTRO|^Data registrazione/.test(l)).join('\n').slice(0, 2500) + '\n'; });
+  return t + '\n'; }
 function chatHtml(t) { const esc = String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const lines = esc.split('\n'); let out = '', inl = false;
   for (const l of lines) { const m = l.match(/^\s*[-*•]\s+(.*)/); if (m) { if (!inl) { out += '<ul>'; inl = true; } out += '<li>' + m[1] + '</li>'; continue; } if (inl) { out += '</ul>'; inl = false; } out += l ? l + '<br>' : '<br>'; }
@@ -2899,12 +2980,12 @@ function chatAdd(cls, t) { const d = document.createElement('div'); d.className 
 async function chatSend() { const q = $('chatq').value.trim(), cfg = chatCfg(); if (!q || CHAT.busy) return;
   $('chatq').value = ''; $('chatq').style.height = ''; chatAdd('u', q); const wait = chatAdd('a', '…'); CHAT.busy = true; $('chatgo').disabled = true;
   try { const h = { 'Content-Type': 'application/json' }; if (cfg.key) { h.Authorization = 'Bearer ' + cfg.key; h.apikey = cfg.key; }
-    const body = JSON.stringify({ question: q, context: chatContext().slice(0, 28000), history: CHAT.hist.slice(-6) }); let r, j;
+    const body = JSON.stringify({ question: chatNames(q), context: chatContext().slice(0, 28000), history: CHAT.hist.slice(-6) }); let r, j;
     for (let k = 0; k < 3; k++) { r = await fetch(cfg.url, { method: 'POST', headers: h, body }); j = await r.json().catch(() => ({}));
       if (r.ok && j.answer) break; const busy = r.status >= 500 || r.status === 429 || /demand|overload|compute resources|unavailable|try again/i.test(j.error || j.msg || j.message || '');
       if (!busy || k === 2) break; wait.textContent = 'Servizio occupato, riprovo…'; await new Promise(z => setTimeout(z, 2500 * (k + 1))); }
     if (!r.ok || !j.answer) throw new Error(j.error || j.msg || j.message || ('errore ' + r.status));
-    wait.innerHTML = chatHtml(j.answer); CHAT.hist.push({ role: 'user', text: q }, { role: 'model', text: j.answer }); }
+    wait.innerHTML = chatHtml(chatUnames(j.answer)); CHAT.hist.push({ role: 'user', text: chatNames(q) }, { role: 'model', text: j.answer }); }
   catch (err) { wait.className = 'cm a e'; wait.textContent = 'Non riesco a rispondere: ' + err.message; }
   finally { CHAT.busy = false; $('chatgo').disabled = false; $('chatlog').scrollTop = 1e9; } }
 $('chatbtn').onclick = () => { const b = $('chatbox'); b.hidden = !b.hidden; $('chatbtn').setAttribute('aria-expanded', String(!b.hidden)); if (!b.hidden) $('chatq').focus(); };
@@ -3051,7 +3132,7 @@ function renderReport(force) {
   if (repDirty && !force) { $('repstate').textContent = 'modificato a mano: premi Rigenera per aggiornare'; return; }
   S.A.uann = uaForCore();
   const r = C.generateReport(S.A, S.rec, S.decision || C.scoreDecision(S.A, iedSummary()), iedSummary(), $('repfmt').value);
-  $('reptext').value = r.text; repDirty = false; $('repstate').textContent = '';
+  $('reptext').value = evoAppend(r.text, sIdx()); repDirty = false; $('repstate').textContent = '';
 }
 $('reptext').addEventListener('input', () => { repDirty = true; $('repstate').textContent = 'modificato'; });
 $('repregen').onclick = () => renderReport(true);
@@ -3082,5 +3163,12 @@ $('theme').onclick = () => setTheme(document.documentElement.dataset.theme === '
 { let t = null; try { t = localStorage.getItem('eeg-theme'); } catch (e) { /* ignora */ } setTheme(t === 'dark' ? 'dark' : 'light'); }
 })();
 </script>
+<script>/* etichette della barra superiore: nascoste solo se non entrano in una riga */
+(function(){const h=document.querySelector('header');if(!h)return;
+const fit=()=>{h.classList.remove('compact');const k=[...h.children].filter(x=>x.offsetParent!==null);if(!k.length)return;
+const t=Math.min(...k.map(x=>x.offsetTop)),wrap=k.some(x=>x.offsetTop>t+8);h.classList.toggle('compact',wrap);};
+let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(fit);};
+window.addEventListener('resize',go);new MutationObserver(go).observe(h,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','style']});
+document.fonts&&document.fonts.ready.then(go);go();})();</script>
 </body>
 </html>

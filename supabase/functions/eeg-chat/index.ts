@@ -22,7 +22,8 @@ Regole:
 - Per ogni soglia di' se viene da una linea guida (ACNS 2021, IFCN 2017, SCORE-2, ILAE-IFCN) o da una taratura dell'app sui modelli di referto AOPD, come scritto nel contesto.
 - Non fare diagnosi né indicazioni cliniche sul paziente.
 - Non aggiungere avvertenze, promemoria o frasi di chiusura (es. "ricorda di verificare sul tracciato"); non usare etichette tra parentesi quadre se non per citare la base di una soglia.
-- Non inventare numeri: cita i valori del contesto.`;
+- Non inventare numeri: cita i valori del contesto.
+- Se sono caricati più EEG (EEG-1, EEG-2…), il contesto riporta le misure di ciascuno e le righe [DIVERSO]: per i confronti usa quelle etichette.`;
 
 function cors(o: string) {
   return {
@@ -61,7 +62,7 @@ Deno.serve(async (req) => {
   // ragionamento ridotto = risposte più rapide (segreto GEMINI_THINKING: minimal/low/medium/high, "off" per non inviarlo)
   const THINK = Deno.env.get("GEMINI_THINKING") ?? "low";
   const mk = (think: boolean) => JSON.stringify({
-    systemInstruction: { parts: [{ text: SYS + "\n\nBASE DI CONOSCENZA\n" + KB + "\n\nCONTESTO (EEG aperto)\n" + context }] },
+    systemInstruction: { parts: [{ text: SYS + "\n\nBASE DI CONOSCENZA\n" + KB + "\n\nCONTESTO (EEG caricati)\n" + context }] },
     contents,
     generationConfig: { temperature: 0.2, maxOutputTokens: 1500, ...(think ? { thinkingConfig: { thinkingLevel: THINK } } : {}) },
   });
