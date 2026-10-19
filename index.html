@@ -48,7 +48,7 @@ button,select,input{font:inherit;color:inherit}
 #chatbox{position:fixed;right:18px;bottom:78px;z-index:65;width:min(420px,92vw);height:min(68vh,620px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 36px rgba(0,0,0,.28);display:flex;flex-direction:column;padding:.5rem .6rem;gap:.4rem} #chatbox[hidden]{display:none}
 #chatbox .chead{display:flex;align-items:center;gap:.3rem} #chatset{display:flex;flex-direction:column;gap:.35rem;border:1px solid var(--line);border-radius:6px;padding:.4rem} #chatset[hidden]{display:none} #chatset input{width:100%;box-sizing:border-box;font:inherit;padding:.2rem .3rem}
 #chatlog{flex:1;overflow:auto;display:flex;flex-direction:column;gap:.45rem;font-size:.85rem;line-height:1.45} .cm{padding:.35rem .5rem;border-radius:8px;max-width:92%;white-space:normal;overflow-wrap:anywhere} .cm.u{align-self:flex-end;background:var(--accentSoft)} .cm.a{align-self:flex-start;background:color-mix(in srgb,var(--line) 35%,transparent)} .cm.e{color:var(--flag)} .cm ul{margin:.2rem 0;padding-left:1.1rem}
-.chatnote{color:var(--muted);font-size:.7rem} #chatbox .cin{display:flex;gap:.35rem;align-items:flex-end} #chatq{flex:1;resize:none;font:inherit;font-size:.85rem;padding:.3rem .4rem;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)}
+.chatnote{color:var(--muted);font-size:.7rem} #chatbox .cin{display:flex;gap:.35rem;align-items:flex-end} #chatq{flex:1;resize:none;max-height:8rem;overflow-y:auto;font:inherit;font-size:.85rem;padding:.3rem .4rem;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)}
 #anabar{grid-row:3;display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line);font-size:.8rem} #anabar[hidden]{display:none}
 .anamods{display:inline-flex;gap:.5rem;flex-wrap:wrap} .anamods label{display:inline-flex;align-items:center;gap:.25rem;cursor:pointer} .anamods i{display:inline-block;width:.6rem;height:.6rem;border-radius:2px}
 @media (max-width:1500px){#anabtn span,#annot span{display:none}}
@@ -322,7 +322,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <div id="cmpmodal" class="modal" hidden><div class="mbox"><div class="mhead"><b>Confronto tra EEG</b><span class="spacer"></span><button class="btn" id="cmpwin" title="Apre l'app in una nuova finestra: trascina lì il secondo EDF e affianca le finestre per confrontare i tracciati">Tracciato in nuova finestra</button><button class="btn" id="cmpother">Altro EEG…</button><button class="btn" id="cmpclose">Chiudi (Esc)</button></div><div id="cmpbody" class="small"></div></div></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <button id="chatbtn" class="fab" title="Chiedi all'assistente: domande sul tracciato e su come l'app definisce i parametri" aria-label="Apri l'assistente"><svg viewBox="0 0 16 16" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h12v7.5H8l-3.5 2.5V11H2z"/><path d="M5 6.5h6M5 8.5h4"/></svg></button>
-<div id="chatbox" hidden role="dialog" aria-label="Assistente"><div class="chead"><b>Chiedi all'assistente</b><span class="spacer"></span><button class="btn ib" id="chatnew" title="Nuova conversazione">↺</button><button class="btn ib" id="chatcfg" title="Impostazioni (indirizzo della funzione)">⚙</button><button class="btn ib" id="chatx" title="Chiudi" aria-label="Chiudi">×</button></div><div id="chatset" class="small" hidden><label>Indirizzo della funzione Supabase<input id="chaturl" placeholder="https://xxxx.supabase.co/functions/v1/eeg-chat"></label><label>Chiave anon di Supabase (solo se la funzione verifica il JWT)<input id="chatkey" placeholder="facoltativa"></label><button class="btn primary" id="chatsave">Salva</button></div><div id="chatlog"></div><div class="cin"><textarea id="chatq" rows="2"></textarea><button class="btn primary" id="chatgo">Invia</button></div></div>
+<div id="chatbox" hidden role="dialog" aria-label="Assistente"><div class="chead"><b>Chiedi all'assistente</b><span class="spacer"></span><button class="btn ib" id="chatnew" title="Nuova conversazione">↺</button><button class="btn ib" id="chatx" title="Chiudi" aria-label="Chiudi">×</button></div><div id="chatlog"></div><div class="cin"><textarea id="chatq" rows="1"></textarea><button class="btn primary" id="chatgo">Invia</button></div></div>
 <script>/* Annotatore EEG — core (lettore EDF+, filtri, montaggi, analisi spettrale). Nessun dato esce dal browser. */
 (function (G) {
 'use strict';
@@ -2787,7 +2787,8 @@ $('cmpfile').onchange = async () => { const f = $('cmpfile').files[0]; $('cmpfil
 
 /* ---- assistente: domande sul tracciato e sulle regole (Gemini tramite funzione Supabase, chiave non nel browser) ---- */
 const CHAT = { hist: [], busy: false };
-function chatCfg() { try { return { url: localStorage.getItem('eeg.chat.url') || '', key: localStorage.getItem('eeg.chat.key') || '' }; } catch (e) { return { url: '', key: '' }; } }
+const CHAT_URL = 'https://rohrlatfkufknrkkywal.supabase.co/functions/v1/eeg-chat'; // funzione Supabase (l'indirizzo non è segreto; la chiave Gemini sta nei segreti di Supabase)
+function chatCfg() { return { url: CHAT_URL, key: '' }; }
 function anonText(t) { let x = String(t || '').replace(/\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b/g, '[data]').replace(/\b\d{1,2}[:.]\d{2}[:.]\d{2}\b/g, '[ora]');
   if (S.fname) x = x.split(S.fname).join('[file]'); return x; }
 function chatContext() { const kb = new Map(), seen = new Set();
@@ -2806,8 +2807,7 @@ function chatHtml(t) { const esc = String(t).replace(/&/g, '&amp;').replace(/</g
   if (inl) out += '</ul>'; return out.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(<br>){3,}/g, '<br><br>'); }
 function chatAdd(cls, t) { const d = document.createElement('div'); d.className = 'cm ' + cls; d.innerHTML = cls === 'u' ? chatHtml(t) : chatHtml(t); $('chatlog').appendChild(d); $('chatlog').scrollTop = 1e9; return d; }
 async function chatSend() { const q = $('chatq').value.trim(), cfg = chatCfg(); if (!q || CHAT.busy) return;
-  if (!cfg.url) { $('chatset').hidden = false; chatAdd('a e', 'Inserisci prima l\'indirizzo della funzione Supabase (⚙).'); return; }
-  $('chatq').value = ''; chatAdd('u', q); const wait = chatAdd('a', '…'); CHAT.busy = true; $('chatgo').disabled = true;
+  $('chatq').value = ''; $('chatq').style.height = ''; chatAdd('u', q); const wait = chatAdd('a', '…'); CHAT.busy = true; $('chatgo').disabled = true;
   try { const h = { 'Content-Type': 'application/json' }; if (cfg.key) { h.Authorization = 'Bearer ' + cfg.key; h.apikey = cfg.key; }
     const body = JSON.stringify({ question: q, context: chatContext().slice(0, 45000), history: CHAT.hist.slice(-6) }); let r, j;
     for (let k = 0; k < 3; k++) { r = await fetch(cfg.url, { method: 'POST', headers: h, body }); j = await r.json().catch(() => ({}));
@@ -2817,12 +2817,11 @@ async function chatSend() { const q = $('chatq').value.trim(), cfg = chatCfg(); 
     wait.innerHTML = chatHtml(j.answer); CHAT.hist.push({ role: 'user', text: q }, { role: 'model', text: j.answer }); }
   catch (err) { wait.className = 'cm a e'; wait.textContent = 'Non riesco a rispondere: ' + err.message; }
   finally { CHAT.busy = false; $('chatgo').disabled = false; $('chatlog').scrollTop = 1e9; } }
-$('chatbtn').onclick = () => { const b = $('chatbox'); b.hidden = !b.hidden; $('chatbtn').setAttribute('aria-expanded', String(!b.hidden)); if (!b.hidden) { const c = chatCfg(); $('chaturl').value = c.url; $('chatkey').value = c.key; if (!c.url) $('chatset').hidden = false; $('chatq').focus(); } };
+$('chatbtn').onclick = () => { const b = $('chatbox'); b.hidden = !b.hidden; $('chatbtn').setAttribute('aria-expanded', String(!b.hidden)); if (!b.hidden) $('chatq').focus(); };
 $('chatx').onclick = () => { $('chatbox').hidden = true; $('chatbtn').setAttribute('aria-expanded', 'false'); };
-$('chatcfg').onclick = () => { $('chatset').hidden = !$('chatset').hidden; };
 $('chatnew').onclick = () => { CHAT.hist = []; $('chatlog').innerHTML = ''; };
-$('chatsave').onclick = () => { try { localStorage.setItem('eeg.chat.url', $('chaturl').value.trim()); localStorage.setItem('eeg.chat.key', $('chatkey').value.trim()); } catch (e) { } $('chatset').hidden = true; };
 $('chatgo').onclick = chatSend;
+$('chatq').oninput = () => { const t = $('chatq'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight + 2, 128) + 'px'; };
 $('chatq').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chatSend(); } if (e.key === 'Escape') $('chatbox').hidden = true; };
 
 // intervalli sopra soglia per modello e accordo (≥ 2 modelli)
