@@ -100,6 +100,7 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
 main.cmp{grid-template-columns:1fr 340px 340px 40px} main.cmp #railtog{right:700px} #side2{border-left:2px solid var(--accent)} #side2[hidden]{display:none} main.closed{grid-template-columns:1fr 40px}
 .c2head{position:sticky;top:-.8rem;z-index:2;background:var(--panel);margin:-.8rem -1rem .6rem;padding:.45rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.4rem;font-size:.82rem} .c2head b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#cmpsum{border:1px solid var(--accent);border-radius:6px;padding:.4rem .6rem;margin-bottom:.6rem;background:color-mix(in srgb,var(--accent) 5%,transparent)} #cmpsumbox table{border-collapse:collapse;width:100%;font-size:.78rem} #cmpsumbox th,#cmpsumbox td{padding:.18rem .3rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top} #cmpsumbox th{color:var(--muted);font-weight:600} #cmpsumbox tr.diff td{background:color-mix(in srgb,var(--flag) 12%,transparent)} #cmpsumbox p{margin:.2rem 0 .4rem}
 #side2 [data-c2-off]{pointer-events:none} #side2 button,#side2 select,#side2 textarea{pointer-events:none} main.closed>aside{display:none} .viewer{min-width:0}
 main{position:relative} #railtog{position:absolute;right:360px;top:50%;transform:translateY(-50%);width:20px;height:44px;border:0;border-radius:0 22px 22px 0;background:var(--tab);color:#fff;cursor:pointer;padding:0 3px 0 0;display:grid;place-items:center;z-index:3}
 #railtog svg,#tltab svg{width:16px;height:16px;display:block}
@@ -243,6 +244,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     </div>
   </section>
   <aside id="side">
+   <section class="sec" data-sec="cmpsum" id="cmpsum" style="display:none"><h2>Sintesi del confronto</h2><div id="cmpsumbox" class="small"></div></section>
    <section class="sec" data-sec="score">
     <h2>Livello decisionale (regole SCORE) <a class="pdfl" href="https://discovery.ucl.ac.uk/id/eprint/1571681/7/Diehl_1-s2.0-S1388245717309069-main.pdf" target="_blank" rel="noopener" title="SCORE, seconda versione (Beniczky et al., Clin Neurophysiol 2017)">PDF</a> <span class="cnt" id="scorecnt"></span></h2><div id="scorebox" class="small">Apri un file per vedere la classificazione.</div>
    </section>
@@ -262,12 +264,11 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     </div>
    </section>
    <section class="sec" data-sec="ied">
-    <h2>Anomalie sospette <button class="helpq" id="iedhelpbtn" aria-expanded="false" title="Come funziona e come si usa">?</button></h2><div id="iedhelp" class="helpbox small" hidden><p><b>Cosa cerca.</b> Anomalie rilevabili dal modello (CBraMod v3 + SpikeNet2): anomalie epilettiformi intercritiche (IED) — punte, onde aguzze, complessi punta-onda e polipunta-onda, focali o generalizzati. Possono comparire anche scariche periodiche (LPD/GPD) e onde aguzze non epilettiformi (trifasiche, varianti benigne) da valutare in revisione. Non rileva crisi, rallentamenti o attività ritmica delta (cercati a regole in altre sezioni).</p><p><b>Come si usa.</b> Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p><p><b>Tasti.</b> N/P anomalia successiva/precedente, 1/2/3 giudizio sì/no/dubbio.</p></div>
+    <h2>Anomalie sospette <button class="helpq" id="iedhelpbtn" aria-expanded="false" title="Come funziona e come si usa">?</button></h2><div id="iedhelp" class="helpbox small" hidden><p><b>Modelli.</b> CBraMod v3 (nostro, pubblicato con il permesso di NEDC e BDSP) analizza tutto il tracciato; SpikeNet2 (Li et al., NEJM AI 2025; permesso BDSP) rivaluta le finestre con probabilità v3 ≥ 0,10; punteggio = media dei due. Validato su modelli di referto AOPD: AUROC 0,90 (IED franche contro il resto), 0,94 (franche contro assenti), 0,83 (franche e non franche contro assenti). Solo uso didattico e di ricerca non commerciale.</p><p><b>Cosa cerca.</b> Anomalie rilevabili dal modello (CBraMod v3 + SpikeNet2): anomalie epilettiformi intercritiche (IED) — punte, onde aguzze, complessi punta-onda e polipunta-onda, focali o generalizzati. Possono comparire anche scariche periodiche (LPD/GPD) e onde aguzze non epilettiformi (trifasiche, varianti benigne) da valutare in revisione. Non rileva crisi, rallentamenti o attività ritmica delta (cercati a regole in altre sezioni).</p><p><b>Come si usa.</b> Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p><p><b>Tasti.</b> N/P anomalia successiva/precedente, 1/2/3 giudizio sì/no/dubbio.</p></div>
     <div id="iedbox">
       <div class="small" id="iedstatus">Modello non caricato.</div>
       <div class="prog" id="iedprog" hidden><i></i></div>
-      <div class="iedbar">
-        <span class="small" title="CBraMod v3 (nostro, pubblicato con il permesso di NEDC e BDSP) analizza tutto il tracciato; SpikeNet2 (Li et al., NEJM AI 2025; permesso BDSP) rivaluta le finestre con probabilità v3 ≥ 0,10; punteggio = media dei due. Validato su modelli di referto AOPD: AUROC 0,90 (IED franche contro il resto), 0,94 (franche contro assenti), 0,83 (franche e non franche contro assenti). Solo uso didattico e di ricerca non commerciale.">Modello: CBraMod v3 + SpikeNet2 (cascata)</span><select id="iedmodel" hidden><option value="casc">cascata</option></select>
+      <div class="iedbar"><select id="iedmodel" hidden><option value="casc">cascata</option></select>
       </div>
       <div class="iedbar">
         <label title="Sensibilità del rilevatore (non la sensibilità del tracciato in µV/mm): è la soglia di probabilità oltre cui una finestra diventa anomalia sospetta; soglia più bassa = sensibilità più alta e più falsi positivi. Punteggio minimo (media delle probabilità di v3 e SpikeNet2) perché una finestra di 4 s diventi candidato IED. Verificata su modelli di referto AOPD (candidati/min): 0,30 → AUROC 0,87 e 32% degli EEG senza anomalie con almeno un candidato; 0,40 → 0,88 e 16%; 0,50 → 0,89 e 9% (predefinita); 0,60 → 0,83 e 2%; 0,70 → 0,75 e 0%. Più bassa: più candidati e più falsi positivi; più alta: meno candidati, rischio di perderne.">Sensibilità <select id="iedthr"><option value="0.3">molto alta (0,30)</option><option value="0.4">alta (0,40)</option><option value="0.5" selected>consigliata (0,50)</option><option value="0.6">bassa (0,60)</option><option value="0.7">molto bassa (0,70)</option></select></label>
@@ -588,7 +589,10 @@ function analyze(rec, opts = {}) {
     const s = chStats[c];
     const hiFrac = s.epochRms.filter(v => v > 4 * s.rmsMed).length / Math.max(1, nE);
     if (s.rmsMed > 3 * gmed) { bad.add(c); badWhy[c] = 'ampiezza ×' + (s.rmsMed / gmed).toFixed(1); }
-    else if (s.rmsMed < 0.2 * gmed) { bad.add(c); badWhy[c] = 'segnale piatto'; }
+    // piatto = segnale assente (< 0,5 µV efficaci 1-30 Hz), per tutti gli elettrodi: l'ampiezza riferenziale dipende dalla distanza
+    // dal riferimento (Fpz in AOPD), quindi un confronto con la mediana escludeva per errore Fp1/Fp2 (EEG41, EEG49). Sugli 89 EEG AOPD
+    // il minimo è 1,2 µV (Fp2, EEG2): nessun elettrodo sotto soglia
+    else if (s.rmsMed < 0.5) { bad.add(c); badWhy[c] = 'segnale piatto'; }
     else if (s.rawRms > 4 * rawMed) { bad.add(c); badWhy[c] = 'deriva lenta ×' + (s.rawRms / rawMed).toFixed(0) + ' (elettrodo instabile)'; }
     else if (hiFrac > 0.2) { bad.add(c); badWhy[c] = 'ampiezza anomala nel ' + Math.round(hiFrac * 100) + '% delle epoche'; }
     if (s.lineRatio > 20) warn[c] = 'rete 50 Hz';
@@ -2509,13 +2513,13 @@ async function selectModel(k) {
   setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
   const busy = $('iedbusy'), tip = busy.title;
   if (needOf(k).some(j => !ONNXBUF[j])) { busy.hidden = false; busy.title = 'Caricamento dei modelli IED nel browser (prima volta: circa 160 MB)…'; }
-  try { for (const j of needOf(k)) { if (ONNXBUF[j]) continue; $('iedstatus').textContent = 'Caricamento di ' + OX.MODELS[j].file + '…'; const r = await fetchOnnx(j); if (r) ONNXBUF[j] = r; } }
+  try { for (const j of needOf(k)) { if (ONNXBUF[j]) continue; $('iedstatus').textContent = 'Caricamento dei modelli…'; $('iedstatus').title = OX.MODELS[j].file; const r = await fetchOnnx(j); if (r) ONNXBUF[j] = r; } }
   finally { busy.hidden = true; busy.title = tip; }
   const miss = needOf(k).filter(j => !ONNXBUF[j]);
   if (miss.length) { $('iedrun').disabled = true;
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
   const mb = needOf(k).reduce((x, j) => x + ONNXBUF[j].buf.byteLength, 0) / 1048576;
-  $('iedrun').disabled = false; $('iedstatus').textContent = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' pronto (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
+  $('iedrun').disabled = false; $('iedstatus').textContent = 'Modelli pronti.'; $('iedstatus').title = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
   if (S.A) runIED();
 }
 $('iedmodel').onchange = () => selectModel(iedKind());
@@ -2538,7 +2542,7 @@ function makeOnnxPool(k) {
 async function scanONNX(k, starts, run, msg) {
   const A = S.A, rec = S.rec, fs = A.fs, win = Math.round(4 * fs), m = OX.MODELS[k], CH = m.kind === 'cbramod' ? OX.CB_CH : OX.SN_CH;
   const N = rec.signals[A.cmap[CH[0]]].data.length, pad = Math.round(5 * fs);
-  if (!OPOOL.length || OPOOL.k !== k) { $('iedstatus').textContent = 'Avvio dei worker (' + m.label + ', onnxruntime-web al primo uso)…'; OPOOL.forEach(w => w.terminate()); OPOOL = [];
+  if (!OPOOL.length || OPOOL.k !== k) { $('iedstatus').textContent = 'Avvio della ricerca delle anomalie sospette…'; $('iedstatus').title = 'Avvio dei worker (' + m.label + ', onnxruntime-web al primo uso)'; OPOOL.forEach(w => w.terminate()); OPOOL = [];
     OPOOL = await makeOnnxPool(k); OPOOL.k = k; }
   const chunks = []; let cur = [];   // blocchi di finestre vicine (al massimo 24, entro 30 s)
   starts.forEach((s0, i) => { if (cur.length && (cur.length >= 24 || s0 - starts[cur[0]] > 30 * fs)) { chunks.push(cur); cur = []; } cur.push(i); }); if (cur.length) chunks.push(cur);
@@ -2550,7 +2554,7 @@ async function scanONNX(k, starts, run, msg) {
       const seg = CH.map(c => rec.signals[A.cmap[c]].data.slice(a, b));
       w.onmessage = e => { if (e.data.err) errs++; e.data.out.forEach((r, j) => { if (r) { p[idx[j]] = r[0]; chn[idx[j]] = r[1]; if (r[2]) fine[idx[j]] = r[2]; } }); done += e.data.out.length;
         $('iedprog').firstChild.style.width = (100 * done / starts.length) + '%';
-        $('iedstatus').textContent = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
+        $('iedstatus').textContent = (/2\/2/.test(msg) ? 'Verifica delle anomalie sospette… ' : 'Ricerca delle anomalie sospette… ') + Math.round(100 * done / starts.length) + '%'; $('iedstatus').title = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
         if (done >= starts.length) resolve(); else feed(w); };
       w.postMessage({ type: 'job', id: ci, seg, fs, offs: idx.map(i => starts[i] - a) }, seg.map(x => x.buffer)); };
     OPOOL.forEach(feed);
@@ -2803,12 +2807,22 @@ function renderSide2() { const b = $('side2'); if (!CMPCOL) return; const others
   b.querySelectorAll('canvas').forEach((c, k) => { if (!sn.cv[k]) return; const im = new Image(); im.onload = () => { c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); }; im.src = sn.cv[k]; });
   const ta = b.querySelector('textarea'); if (ta) { ta.value = sn.rep; ta.readOnly = true; }
   b.querySelectorAll('[hidden]').forEach(x => { if (x.id === 'c2-anares' && !x.innerHTML.trim()) return; });
+  { const x = b.querySelector('#c2-cmpsum'); if (x) x.remove(); }
+  renderCmpSum();
   if ($('c2sel')) $('c2sel').onchange = () => { CMPI = +$('c2sel').value; renderSide2(); };
   $('c2x').onclick = () => setCmpCol(false);
   $('c2tab').onclick = () => { const o = SESS[CMPI]; CMP = { rec: o.rec, A: o.A, name: o.fname }; renderCmp(); };
   syncSide2(); }
+function renderCmpSum() { const box = $('cmpsumbox'), o = SESS[CMPI]; if (!CMPCOL || !o || !S.A) { $('cmpsum').style.display = 'none'; return; }
+  const oi = o.ied ? { total: o.ied.events.filter(e => !e.art).length, confirmed: [], pending: 0, inArt: 0 } : null;
+  const a = cmpMeasures(S.A, S.rec, S.fname, iedSummary()), b = cmpMeasures(o.A, o.rec, o.fname, oi);
+  const dif = a.map((r, i) => i > 2 && r[1] !== b[i][1] ? r[0] : null).filter(Boolean);
+  box.innerHTML = '<p>' + (dif.length ? '<b>Differenze:</b> ' + dif.join(', ') + '.' : 'Nessuna differenza nelle misure principali.') + '</p>'
+    + '<table><thead><tr><th></th><th>' + S.fname + '<br><span style="font-weight:400">(tracciato)</span></th><th>' + o.fname + '<br><span style="font-weight:400">(colonna di confronto)</span></th></tr></thead><tbody>'
+    + a.slice(3).map((r, i) => `<tr class="${r[1] !== b[i + 3][1] ? 'diff' : ''}"><th>${r[0]}</th><td>${r[1]}</td><td>${b[i + 3][1]}</td></tr>`).join('') + '</tbody></table>';
+  $('cmpsum').style.display = ''; }
 function setCmpCol(on) { if (on && SESS.length < 2) return; if (on && !$('iedbusy').hidden) { toast('Attendi la fine dell’analisi IED.'); return; }
-  CMPCOL = on; const main = document.querySelector('main'); main.classList.toggle('cmp', on); $('side2').hidden = !on; $('cmpcol').setAttribute('aria-pressed', String(on));
+  CMPCOL = on; if (!on) $('cmpsum').style.display = 'none'; const main = document.querySelector('main'); main.classList.toggle('cmp', on); $('side2').hidden = !on; $('cmpcol').setAttribute('aria-pressed', String(on));
   if (on) { if (main.classList.contains('closed')) $('railtog').click(); renderSide2(); } else $('side2').innerHTML = ''; setTimeout(drawAll, 50); }
 function syncSide2(from) { if (!CMPCOL || C2SYNC) return; const a = from === 'b' ? $('side2') : $('side'), b = from === 'b' ? $('side') : $('side2'), pa = from === 'b' ? 'c2-' : '';
   const secs = [...a.querySelectorAll('.sec')].filter(x => x.offsetParent !== null); let cur = secs[0];
@@ -2841,7 +2855,7 @@ function chatContext() { const kb = new Map(), seen = new Set();
   Object.entries(SUMTIPS).forEach(([k, v]) => { kb.set(k, v); seen.add(v); });
   document.querySelectorAll('[title]').forEach(e => { const t = (e.getAttribute('title') || '').trim(); if (t.length < 40 || seen.has(t)) return; seen.add(t);
     let k = (e.textContent || e.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim().slice(0, 60) || 'voce'; while (kb.has(k)) k += ' ·'; kb.set(k, t); });
-  const kbt = [...kb.entries()].map(([k, v]) => '- ' + k + ': ' + v.slice(0, 700)).join('\n').slice(0, 30000);
+  const kbt = [...kb.entries()].map(([k, v]) => '- ' + k + ': ' + v.slice(0, 500)).join('\n').slice(0, 12000);
   if (!S.A) return anonText('REGOLE E DEFINIZIONI DELL\'APP\n' + kbt + '\n\nNessun EEG aperto.');
   const rep = ($('reptext').value || '').split('\n').filter(l => !/^ESAME ELETTRO|^Data registrazione/.test(l)).join('\n');
   const val = ['SINTESI\n' + $('summary').innerText, 'LIVELLO DECISIONALE\n' + $('scorebox').innerText, 'PATTERN ACNS\n' + $('rppbox').innerText,
@@ -2855,7 +2869,7 @@ function chatAdd(cls, t) { const d = document.createElement('div'); d.className 
 async function chatSend() { const q = $('chatq').value.trim(), cfg = chatCfg(); if (!q || CHAT.busy) return;
   $('chatq').value = ''; $('chatq').style.height = ''; chatAdd('u', q); const wait = chatAdd('a', '…'); CHAT.busy = true; $('chatgo').disabled = true;
   try { const h = { 'Content-Type': 'application/json' }; if (cfg.key) { h.Authorization = 'Bearer ' + cfg.key; h.apikey = cfg.key; }
-    const body = JSON.stringify({ question: q, context: chatContext().slice(0, 45000), history: CHAT.hist.slice(-6) }); let r, j;
+    const body = JSON.stringify({ question: q, context: chatContext().slice(0, 28000), history: CHAT.hist.slice(-6) }); let r, j;
     for (let k = 0; k < 3; k++) { r = await fetch(cfg.url, { method: 'POST', headers: h, body }); j = await r.json().catch(() => ({}));
       if (r.ok && j.answer) break; const busy = r.status >= 500 || r.status === 429 || /demand|overload|compute resources|unavailable|try again/i.test(j.error || j.msg || j.message || '');
       if (!busy || k === 2) break; wait.textContent = 'Servizio occupato, riprovo…'; await new Promise(z => setTimeout(z, 2500 * (k + 1))); }
@@ -2931,7 +2945,8 @@ function renderIED() {
   if (S.ied && S.ied.events.length) { const h = document.createElement('li'); h.className = 'head'; h.innerHTML = '<span title="Istante della punta (o del picco della finestra)">Tempo</span><span title="Probabilità combinata: media di CBraMod v3 e SpikeNet2 (i valori singoli nel tooltip della riga)">p</span><span title="Derivazione in cui la punta è più ampia">Deriv.</span><span title="Qualità della localizzazione, morfologia, inversione di fase, sede, durata, contesto">Reperto</span><span title="Giudizio di revisione: sì / no / dubbio (tasti 1/2/3)">Giudizio</span>'; ul.appendChild(h); }
   if (!S.ied) { $('iedcount').textContent = ''; return; }
   const I = S.ied, ev = I.events, nJ = ev.filter(e => S.review[evKey(e)]).length;
-  $('iedstatus').textContent = `${I.model}${I.nSel != null ? ' (SpikeNet2 su ' + I.nSel + ' finestre)' : ''}: ${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker${I.errs ? ', ' + I.errs + ' blocchi non riusciti' : ''}.`;
+  $('iedstatus').textContent = (ev.length ? ev.length + (ev.length === 1 ? ' anomalia sospetta trovata' : ' anomalie sospette trovate') : 'Nessuna anomalia sospetta trovata') + ' (sensibilità ' + I.thr.toFixed(2).replace('.', ',') + ').' + (I.errs ? ' Parte del tracciato non analizzata.' : '');
+  $('iedstatus').title = `${I.model}${I.nSel != null ? ' (SpikeNet2 su ' + I.nSel + ' finestre)' : ''}: ${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker${I.errs ? ', ' + I.errs + ' blocchi non riusciti' : ''}.`;
   $('iedcount').textContent = `Rivisti ${nJ}/${ev.length} · sì ${ev.filter(e => S.review[evKey(e)] === 'si').length} · no ${ev.filter(e => S.review[evKey(e)] === 'no').length} · dubbi ${ev.filter(e => S.review[evKey(e)] === 'dubbio').length}`;
   ev.forEach((e, i) => {
     const li = document.createElement('li'), j = S.review[evKey(e)]; li.tabIndex = 0; if (i === S.iedCur) li.className = 'cur';
