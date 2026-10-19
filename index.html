@@ -10,21 +10,21 @@
 <style>
 :root{
   --tab:#2F67C9;
-  --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#CFD8DF;
+  --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#AFBBC5;
   --trace:#1C2A38; --accent:#0E6E78; --accentSoft:#D7ECEE;
   --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#7A8791; --zero:#9AA6AF; --flag:#C2410C;
-  --sel:rgba(14,110,120,.14); --slow:#B5651D; --sli:#D9A400; --sliFill:#FFFBE3; --rpp:#3F51B5; --hvFill:#E6DAF7; --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00; --ecg:#D00000;
+  --sel:rgba(14,110,120,.14); --slow:#B5651D; --sli:#D9A400; --sliFill:#FFFDF0; --rpp:#3F51B5; --hvFill:#E6DAF7; --ied:#B4235A; --yes:#1F7A3A; --no:#7A8791; --maybe:#B97B00; --ecg:#D00000;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
   font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg);
   font-variant-numeric:tabular-nums;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#2B2810; --rpp:#8C9EFF; --hvFill:#35264F;}}
-:root[data-theme="dark"]{--bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#262626;
-  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#2B2810; --rpp:#8C9EFF; --hvFill:#35264F;}
+  --bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#3B3B3B;
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#211E0D; --rpp:#8C9EFF; --hvFill:#35264F;}}
+:root[data-theme="dark"]{--bg:#000000; --panel:#0E0E0E; --paper:#050505; --ink:#E8E8E8; --muted:#9E9E9E; --line:#2B2B2B; --grid:#161616; --grid2:#3B3B3B;
+  --trace:#DCDCDC; --accent:#4FB6BF; --accentSoft:#12302F; --stato:#6F9BF0; --stim:#B08AEB; --art:#E0AA3E; --tec:#8C8C8C; --zero:#555555; --flag:#F07A45; --sel:rgba(79,182,191,.18); --ied:#F06292; --yes:#5CC27A; --no:#9E9E9E; --maybe:#E0AA3E; --ecg:#FF6B6B; --tab:#4F86E8; --slow:#E0954F; --sli:#E8C547; --sliFill:#211E0D; --rpp:#8C9EFF; --hvFill:#35264F;}
 /* tema chiaro: sfondo bianco, tracciato nero (come la carta EEG) */
-:root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#D5DCE2;
+:root[data-theme="light"]{--bg:#FFFFFF; --panel:#FFFFFF; --paper:#FFFFFF; --ink:#000000; --muted:#4A5560; --line:#C9D1D8; --grid:#EEF1F4; --grid2:#B5C0C9;
   --trace:#000000; --accent:#0E6E78; --accentSoft:#E6F2F3; --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#6B7781; --zero:#B3BCC4; --flag:#C2410C; --sel:rgba(14,110,120,.12);}
 *{box-sizing:border-box} html,body{height:100%;margin:0} body{background:var(--bg)}
 :root[data-theme="dark"]{color-scheme:dark} :root[data-theme="dark"] *{scrollbar-color:#3A3A3A #000}
@@ -44,6 +44,10 @@ button,select,input{font:inherit;color:inherit}
 @media (max-width:1560px){header{gap:.25rem .4rem;padding:.3rem .5rem} header h1{font-size:.95rem;margin-right:.2rem} header .btn{padding-left:.4rem;padding-right:.4rem} header .ctl{font-size:.78rem} header input[type=number]{width:3.1rem} #montage{max-width:7rem} header .fname{max-width:7rem;overflow:hidden;text-overflow:ellipsis} #filesel{max-width:8rem}}
 #filesel{max-width:12rem;font-size:.8rem}
 @media (max-width:1300px){header .fname{display:none} #montage{max-width:5.5rem}}
+#chatbox{position:fixed;right:18px;bottom:18px;z-index:65;width:min(420px,92vw);height:min(70vh,640px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 36px rgba(0,0,0,.28);display:flex;flex-direction:column;padding:.5rem .6rem;gap:.4rem} #chatbox[hidden]{display:none}
+#chatbox .chead{display:flex;align-items:center;gap:.3rem} #chatset{display:flex;flex-direction:column;gap:.35rem;border:1px solid var(--line);border-radius:6px;padding:.4rem} #chatset[hidden]{display:none} #chatset input{width:100%;box-sizing:border-box;font:inherit;padding:.2rem .3rem}
+#chatlog{flex:1;overflow:auto;display:flex;flex-direction:column;gap:.45rem;font-size:.85rem;line-height:1.45} .cm{padding:.35rem .5rem;border-radius:8px;max-width:92%;white-space:normal;overflow-wrap:anywhere} .cm.u{align-self:flex-end;background:var(--accentSoft)} .cm.a{align-self:flex-start;background:color-mix(in srgb,var(--line) 35%,transparent)} .cm.e{color:var(--flag)} .cm ul{margin:.2rem 0;padding-left:1.1rem}
+.chatnote{color:var(--muted);font-size:.7rem} #chatbox .cin{display:flex;gap:.35rem;align-items:flex-end} #chatq{flex:1;resize:none;font:inherit;font-size:.85rem;padding:.3rem .4rem;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink)}
 #anabar{grid-row:3;display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;padding:.3rem .7rem;background:var(--panel);border-bottom:1px solid var(--line);font-size:.8rem} #anabar[hidden]{display:none}
 .anamods{display:inline-flex;gap:.5rem;flex-wrap:wrap} .anamods label{display:inline-flex;align-items:center;gap:.25rem;cursor:pointer} .anamods i{display:inline-block;width:.6rem;height:.6rem;border-radius:2px}
 @media (max-width:1500px){#anabtn span,#annot span{display:none}}
@@ -183,6 +187,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <button class="btn" id="rulerbtn" aria-pressed="false" title="Righello: trascina sul tracciato lungo una derivazione per misurare durata e ampiezza massima (tasto R)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 10.5l9-9 4 4-9 9z"/><path d="M4.5 7.5l1.5 1.5M6.5 5.5l1 1M8.5 3.5l1.5 1.5M2.5 9.5l1 1"/></svg></button>
   <button class="btn" id="cmpbtn" title="Confronta questo EEG con un altro EEG (apri un secondo file EDF)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="5.5" height="11" rx="1"/><rect x="9" y="2.5" width="5.5" height="11" rx="1"/><path d="M2.8 8l1-1.5 1 3 1-1.5M10.3 8l1-1.5 1 3 1-1.5"/></svg></button>
   <input type="file" id="cmpfile" accept=".edf,.EDF" hidden>
+  <button class="btn" id="chatbtn" title="Chiedi all'assistente: domande sul tracciato e su come l'app definisce i parametri"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h12v7.5H8l-3.5 2.5V11H2z"/><path d="M5 6.5h6M5 8.5h4"/></svg></button>
   <span class="fname" id="fname">nessun file</span><select id="filesel" hidden title="EEG aperti in questa finestra: scegli quale vedere (per aprirne un altro usa Apri EDF)" aria-label="EEG aperti"></select>
   <span class="spacer"></span>
   <label class="ctl">Montaggio <select id="montage"></select></label>
@@ -316,6 +321,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <div id="repmodal" class="modal" hidden><div class="mbox"><div class="mhead"><b>Referto automatico (bozza)</b><span class="spacer"></span><button class="btn" id="repcopy2">Copia</button><button class="btn" id="repclose">Chiudi (Esc)</button></div><div id="repslot"></div></div></div>
 <div id="cmpmodal" class="modal" hidden><div class="mbox"><div class="mhead"><b>Confronto tra EEG</b><span class="spacer"></span><button class="btn" id="cmpwin" title="Apre l'app in una nuova finestra: trascina lì il secondo EDF e affianca le finestre per confrontare i tracciati">Tracciato in nuova finestra</button><button class="btn" id="cmpother">Altro EEG…</button><button class="btn" id="cmpclose">Chiudi (Esc)</button></div><div id="cmpbody" class="small"></div></div></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
+<div id="chatbox" hidden role="dialog" aria-label="Assistente"><div class="chead"><b>Chiedi all'assistente</b><span class="spacer"></span><button class="btn ib" id="chatnew" title="Nuova conversazione">↺</button><button class="btn ib" id="chatcfg" title="Impostazioni (indirizzo della funzione)">⚙</button><button class="btn ib" id="chatx" title="Chiudi" aria-label="Chiudi">×</button></div><div id="chatset" class="small" hidden><label>Indirizzo della funzione Supabase<input id="chaturl" placeholder="https://xxxx.supabase.co/functions/v1/eeg-chat"></label><label>Chiave anon di Supabase (solo se la funzione verifica il JWT)<input id="chatkey" placeholder="facoltativa"></label><button class="btn primary" id="chatsave">Salva</button></div><div id="chatlog"></div><div class="small chatnote">Si inviano solo le regole dell'app e i valori misurati: niente tracciato, nome del file, date od ore. Modello: Gemini (Google). Uso didattico, non diagnostico: verifica sempre sul tracciato.</div><div class="cin"><textarea id="chatq" rows="2" placeholder="Es.: perché la stabilità risulta instabile? Come si calcola l'organizzazione?"></textarea><button class="btn primary" id="chatgo">Invia</button></div></div>
 <script>/* Annotatore EEG — core (lettore EDF+, filtri, montaggi, analisi spettrale). Nessun dato esce dal browser. */
 (function (G) {
 'use strict';
@@ -2777,6 +2783,44 @@ $('cmpfile').onchange = async () => { const f = $('cmpfile').files[0]; $('cmpfil
   try { const rec = C.parseEDF(await f.arrayBuffer()); CMP = { rec, A: C.analyze(rec), name: f.name }; renderCmp(); }
   catch (err) { toast('Il file ' + f.name + ' non è un EDF valido (' + err.message + ').'); }
   finally { $('busy').style.display = 'none'; } };
+
+/* ---- assistente: domande sul tracciato e sulle regole (Gemini tramite funzione Supabase, chiave non nel browser) ---- */
+const CHAT = { hist: [], busy: false };
+function chatCfg() { try { return { url: localStorage.getItem('eeg.chat.url') || '', key: localStorage.getItem('eeg.chat.key') || '' }; } catch (e) { return { url: '', key: '' }; } }
+function anonText(t) { let x = String(t || '').replace(/\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b/g, '[data]').replace(/\b\d{1,2}[:.]\d{2}[:.]\d{2}\b/g, '[ora]');
+  if (S.fname) x = x.split(S.fname).join('[file]'); return x; }
+function chatContext() { const kb = new Map(), seen = new Set();
+  Object.entries(SUMTIPS).forEach(([k, v]) => { kb.set(k, v); seen.add(v); });
+  document.querySelectorAll('[title]').forEach(e => { const t = (e.getAttribute('title') || '').trim(); if (t.length < 40 || seen.has(t)) return; seen.add(t);
+    let k = (e.textContent || e.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim().slice(0, 60) || 'voce'; while (kb.has(k)) k += ' ·'; kb.set(k, t); });
+  const kbt = [...kb.entries()].map(([k, v]) => '- ' + k + ': ' + v).join('\n');
+  if (!S.A) return anonText('REGOLE E DEFINIZIONI DELL\'APP\n' + kbt + '\n\nNessun EEG aperto.');
+  const rep = ($('reptext').value || '').split('\n').filter(l => !/^ESAME ELETTRO|^Data registrazione/.test(l)).join('\n');
+  const val = ['SINTESI\n' + $('summary').innerText, 'LIVELLO DECISIONALE\n' + $('scorebox').innerText, 'PATTERN ACNS\n' + $('rppbox').innerText,
+    'ANOMALIE SOSPETTE (MODELLO)\n' + $('iedstatus').innerText + '\n' + $('iedcount').innerText, 'PAGINA VISIBILE: da ' + fmtT(S.t) + ', ' + pageLen() + ' s', 'BOZZA DI REFERTO\n' + rep].join('\n\n');
+  return anonText('REGOLE E DEFINIZIONI DELL\'APP\n' + kbt + '\n\nVALORI MISURATI SU QUESTO EEG\n' + val); }
+function chatHtml(t) { const esc = String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const lines = esc.split('\n'); let out = '', inl = false;
+  for (const l of lines) { const m = l.match(/^\s*[-*•]\s+(.*)/); if (m) { if (!inl) { out += '<ul>'; inl = true; } out += '<li>' + m[1] + '</li>'; continue; } if (inl) { out += '</ul>'; inl = false; } out += l ? l + '<br>' : '<br>'; }
+  if (inl) out += '</ul>'; return out.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(<br>){3,}/g, '<br><br>'); }
+function chatAdd(cls, t) { const d = document.createElement('div'); d.className = 'cm ' + cls; d.innerHTML = cls === 'u' ? chatHtml(t) : chatHtml(t); $('chatlog').appendChild(d); $('chatlog').scrollTop = 1e9; return d; }
+async function chatSend() { const q = $('chatq').value.trim(), cfg = chatCfg(); if (!q || CHAT.busy) return;
+  if (!cfg.url) { $('chatset').hidden = false; chatAdd('a e', 'Inserisci prima l\'indirizzo della funzione Supabase (⚙).'); return; }
+  $('chatq').value = ''; chatAdd('u', q); const wait = chatAdd('a', '…'); CHAT.busy = true; $('chatgo').disabled = true;
+  try { const h = { 'Content-Type': 'application/json' }; if (cfg.key) { h.Authorization = 'Bearer ' + cfg.key; h.apikey = cfg.key; }
+    const r = await fetch(cfg.url, { method: 'POST', headers: h, body: JSON.stringify({ question: q, context: chatContext(), history: CHAT.hist.slice(-6) }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.answer) throw new Error(j.error || j.msg || j.message || ('errore ' + r.status));
+    wait.innerHTML = chatHtml(j.answer); CHAT.hist.push({ role: 'user', text: q }, { role: 'model', text: j.answer }); }
+  catch (err) { wait.className = 'cm a e'; wait.textContent = 'Non riesco a rispondere: ' + err.message; }
+  finally { CHAT.busy = false; $('chatgo').disabled = false; $('chatlog').scrollTop = 1e9; } }
+$('chatbtn').onclick = () => { const b = $('chatbox'); b.hidden = !b.hidden; if (!b.hidden) { const c = chatCfg(); $('chaturl').value = c.url; $('chatkey').value = c.key; if (!c.url) $('chatset').hidden = false; $('chatq').focus(); } };
+$('chatx').onclick = () => { $('chatbox').hidden = true; };
+$('chatcfg').onclick = () => { $('chatset').hidden = !$('chatset').hidden; };
+$('chatnew').onclick = () => { CHAT.hist = []; $('chatlog').innerHTML = ''; };
+$('chatsave').onclick = () => { try { localStorage.setItem('eeg.chat.url', $('chaturl').value.trim()); localStorage.setItem('eeg.chat.key', $('chatkey').value.trim()); } catch (e) { } $('chatset').hidden = true; };
+$('chatgo').onclick = chatSend;
+$('chatq').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chatSend(); } if (e.key === 'Escape') $('chatbox').hidden = true; };
 
 // intervalli sopra soglia per modello e accordo (≥ 2 modelli)
 function anaHot(r) { const H = []; if (!r || !r.t) return H; const W = r.w || 4; r.t.forEach((t, i) => { if (!(r.p[i] >= r.thr)) return; const l = H[H.length - 1]; if (l && t <= l[1]) l[1] = Math.max(l[1], t + W); else H.push([t, t + W]); }); return H; }
