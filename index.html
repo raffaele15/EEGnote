@@ -186,6 +186,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <span class="annsep"></span>
   <span class="small" id="anasel">Tratto: trascina sulla panoramica o sul tracciato (ora: pagina corrente)</span>
   <button class="btn" id="anapage" title="Usa la pagina visibile come tratto">Pagina corrente</button>
+  <label class="small" title="Sensibilità del rilevatore (non la sensibilità del tracciato in µV/mm): è la soglia di probabilità oltre cui una finestra diventa anomalia sospetta; soglia più bassa = sensibilità più alta e più falsi positivi. Soglia della media v3 + SpikeNet2 (come per le anomalie sospette). Le soglie di v3 (0,57) e SpikeNet2 (0,50) si spostano della stessa quantità. Si può cambiare anche dopo l'analisi: i risultati si aggiornano senza ricalcolo.">Sensibilità <select id="anathr"><option value="0.3">molto alta (0,30)</option><option value="0.4">alta (0,40)</option><option value="0.5" selected>consigliata (0,50)</option><option value="0.6">bassa (0,60)</option><option value="0.7">molto bassa (0,70)</option></select></label>
   <button class="btn primary" id="anago">Analizza tratto</button>
   <button class="btn" id="anaclear" title="Cancella tratto e risultati">Cancella</button>
   <span class="small" id="anastat"></span>
@@ -242,7 +243,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
         <span class="small" title="CBraMod v3 (nostro, pubblicato con il permesso di NEDC e BDSP) analizza tutto il tracciato; SpikeNet2 (Li et al., NEJM AI 2025; permesso BDSP) rivaluta le finestre con probabilità v3 ≥ 0,10; punteggio = media dei due. Validato su modelli di referto AOPD: AUROC 0,90 (IED franche contro il resto), 0,94 (franche contro assenti), 0,83 (franche e non franche contro assenti). Solo uso didattico e di ricerca non commerciale.">Modello: CBraMod v3 + SpikeNet2 (cascata)</span><select id="iedmodel" hidden><option value="casc">cascata</option></select>
       </div>
       <div class="iedbar">
-        <label title="Punteggio minimo (media delle probabilità di v3 e SpikeNet2) perché una finestra di 4 s diventi candidato IED. Verificata su modelli di referto AOPD (candidati/min): 0,30 → AUROC 0,87 e 32% degli EEG senza anomalie con almeno un candidato; 0,40 → 0,88 e 16%; 0,50 → 0,89 e 9% (predefinita); 0,60 → 0,83 e 2%; 0,70 → 0,75 e 0%. Più bassa: più candidati e più falsi positivi; più alta: meno candidati, rischio di perderne.">Soglia <select id="iedthr"><option value="0.3">0,30 (molto sensibile)</option><option value="0.4">0,40 (sensibile)</option><option value="0.5" selected>0,50 (consigliata)</option><option value="0.6">0,60 (specifica)</option><option value="0.7">0,70 (molto specifica)</option></select></label>
+        <label title="Sensibilità del rilevatore (non la sensibilità del tracciato in µV/mm): è la soglia di probabilità oltre cui una finestra diventa anomalia sospetta; soglia più bassa = sensibilità più alta e più falsi positivi. Punteggio minimo (media delle probabilità di v3 e SpikeNet2) perché una finestra di 4 s diventi candidato IED. Verificata su modelli di referto AOPD (candidati/min): 0,30 → AUROC 0,87 e 32% degli EEG senza anomalie con almeno un candidato; 0,40 → 0,88 e 16%; 0,50 → 0,89 e 9% (predefinita); 0,60 → 0,83 e 2%; 0,70 → 0,75 e 0%. Più bassa: più candidati e più falsi positivi; più alta: meno candidati, rischio di perderne.">Sensibilità <select id="iedthr"><option value="0.3">molto alta (0,30)</option><option value="0.4">alta (0,40)</option><option value="0.5" selected>consigliata (0,50)</option><option value="0.6">bassa (0,60)</option><option value="0.7">molto bassa (0,70)</option></select></label>
         <label title="Spostamento tra una finestra di 4 s e la successiva durante la scansione del modello. 0,5 s: più fine ma circa il doppio del tempo; 2 s: più rapido ma può perdere scariche brevi tra due finestre. Cambiandolo la scansione riparte.">Passo <select id="iedstep"><option value="0.5">0,5 s</option><option value="1" selected>1 s</option><option value="2">2 s</option></select></label>
         <button class="btn" id="iedrun" disabled>Analizza</button>
         <button class="btn" id="iedprev" title="Candidato precedente (P)">◀ P</button>
@@ -2122,7 +2123,7 @@ function renderSummary() {
   const asy = Object.entries(A.asym).filter(([k, v]) => v != null && Math.abs(v) >= 0.5);
   if (asy.length) lines.push('possibile asimmetria delle onde lente: ' + asy.map(([k, v]) => k + (v > 0 ? ' (sx>dx)' : ' (dx>sx)')).join(', ') + ' — indice sperimentale');
   const ctr = A.counts, sl = A.slow;
-  const verdict = '<p><b title="Rallentato: RPD sotto 8 Hz (banda alfa 8–13 Hz, glossario IFCN). Asimmetrico: differenza di frequenza sx/dx oltre 1 Hz (marcata, ACNS 2021). Non reattivo: attenuazione all\'apertura degli occhi sotto 10%; scarsamente reagente: sotto 35% (soglia calibrata su modelli di referto AOPD). Da notare: RPD 8–8,5 Hz, asimmetria di voltaggio ≥ 50% o di frequenza 0,5–1 Hz (ACNS 2021), picco posteriore poco netto, gradiente antero-posteriore sotto 1.">Attività di fondo:</b> ' + (abn.length ? abn.join('; ') : 'nessuna alterazione con le regole attuali') + '.' + (lines.length ? ' Da notare: ' + lines.join('; ') + '.' : '') + '</p>';
+  const verdict = '<p><b title="Rallentato: RPD sotto 8 Hz (banda alfa 8–13 Hz, glossario IFCN). Asimmetrico: differenza di frequenza sx/dx oltre 1 Hz (marcata, ACNS 2021). Non reattivo: attenuazione all\'apertura degli occhi sotto 10%; scarsamente reagente: sotto 35% (soglia calibrata su modelli di referto AOPD). Da notare: RPD 8–8,5 Hz, asimmetria di voltaggio ≥ 50% o di frequenza 0,5–1 Hz (ACNS 2021), picco posteriore poco netto, gradiente antero-posteriore sotto 1.">Attività di fondo:</b> ' + (p.freq ? 'ritmo dominante posteriore ' + (p.freq >= 8 ? 'alfa' : p.freq >= 4 ? 'theta' : 'delta') + ' a ' + (Math.round(p.freq * 2) / 2).toLocaleString('it-IT') + ' Hz' + (p.reactivity != null ? ', attenuazione all\'apertura degli occhi ' + Math.round(p.reactivity * 100) + '%' : '') + ' — ' : 'ritmo dominante posteriore non definito — ') + (abn.length ? abn.join('; ') : 'nella norma con le regole attuali') + '.' + (lines.length ? ' Da notare: ' + lines.join('; ') + '.' : '') + '</p>';
   const chW = Object.keys(A.warn);
   const pops = {}; A.epochs.forEach(o => (o.popCh || []).forEach(c => pops[c] = (pops[c] || 0) + 1));
   $('summary').innerHTML = `
@@ -2463,7 +2464,10 @@ async function selectModel(k) {
   k = 'casc';   // dal 18/10/2026 (patch31) solo la cascata
   $('iedmodel').value = k; try { localStorage.setItem('ied-model', k); } catch (e) { /* */ }
   setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
-  for (const j of needOf(k)) { if (ONNXBUF[j]) continue; $('iedstatus').textContent = 'Caricamento di ' + OX.MODELS[j].file + '…'; const r = await fetchOnnx(j); if (r) ONNXBUF[j] = r; }
+  const busy = $('iedbusy'), tip = busy.title;
+  if (needOf(k).some(j => !ONNXBUF[j])) { busy.hidden = false; busy.title = 'Caricamento dei modelli IED nel browser (prima volta: circa 160 MB)…'; }
+  try { for (const j of needOf(k)) { if (ONNXBUF[j]) continue; $('iedstatus').textContent = 'Caricamento di ' + OX.MODELS[j].file + '…'; const r = await fetchOnnx(j); if (r) ONNXBUF[j] = r; } }
+  finally { busy.hidden = true; busy.title = tip; }
   const miss = needOf(k).filter(j => !ONNXBUF[j]);
   if (miss.length) { $('iedrun').disabled = true;
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
@@ -2571,7 +2575,8 @@ $('iedrun').onclick = runIED;
    con il massimo), quindi basta il tratto scelto con qualche secondo di margine per i filtri. "Accordo" = tempo coperto da finestre
    sopra soglia di almeno 2 modelli (scelta dell'app). */
 const MCOL = { v3: '--stim', sn2: '--yes', media: '--accent' }, MKEYS = ['v3', 'sn2', 'media'];
-const MLAB = k => k === 'media' ? 'Media v3 + SpikeNet2' : k === 'sn2' ? 'SpikeNet2 (1 s, passo 0,25 s)' : OX.MODELS[k].label, MTHR = k => k === 'media' ? +$('iedthr').value : OX.MODELS[k].thr;
+const MLAB = k => k === 'media' ? 'Media v3 + SpikeNet2' : k === 'sn2' ? 'SpikeNet2 (1 s, passo 0,25 s)' : OX.MODELS[k].label, MTHR = k => { const d = +$('anathr').value - 0.5; return k === 'media' ? 0.5 + d : Math.min(0.95, Math.max(0.05, OX.MODELS[k].thr + d)); };
+$('anathr').onchange = () => { const M = S.multi; if (!M) return; for (const k in M.res) if (M.res[k] && M.res[k].t) M.res[k].thr = MTHR(k); renderAnaRes(); drawAll(); };
 let ANAL = false, anaRun = 0, ADR = null; const MPOOL = {}; S.anaSel = null; S.multi = null;
 $('anamods').innerHTML = MKEYS.map(k => `<label title="${k === 'media' ? 'Media delle probabilità di v3 e SpikeNet2 sulle finestre di 4 s (soglia = quella dei candidati)' : k === 'sn2' ? 'SpikeNet2: finestre di 1 s a passo 0,25 s (soglia 0,50)' : 'CBraMod v3: finestre di 4 s (soglia 0,57)'}"><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}</label>`).join('');
 function setAnal(on) { ANAL = on; if (on && ANNOT) setAnnot(false); $('anabtn').setAttribute('aria-pressed', String(on)); $('anabar').hidden = !on; $('annlayer').classList.toggle('on', on || ANNOT); anaSelText(); requestAnimationFrame(drawAll); }
