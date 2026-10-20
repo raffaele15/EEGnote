@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>EEGnote</title>
+<link rel="icon" type="image/svg+xml" href="logo/app-icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="logo/app-icon-32.png">
+<link rel="apple-touch-icon" href="logo/app-icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -46,7 +49,7 @@ button,select,input{font:inherit;color:inherit}
 #filesel{max-width:14rem;font-size:.82rem;font-weight:600;border:1px solid transparent;background:transparent;color:var(--ink);cursor:pointer;padding:.1rem .2rem;border-radius:4px} #filesel:hover{border-color:var(--line)} body.multi #fname{display:none}
 header.compact .lt{display:none}
 @media (max-width:1300px){header .fname{display:none} #montage{max-width:5.5rem}}
-.fab{position:fixed;right:18px;bottom:18px;z-index:66;width:50px;height:50px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.28)} .fab:hover{filter:brightness(1.1)} .fab[aria-expanded=true]{background:var(--ink)}
+.brand{display:inline-flex;align-items:center;gap:.4rem} .brandic{width:1.45em;height:1.25em;flex:none;color:var(--ink)} .fab{position:fixed;right:18px;bottom:18px;z-index:66;width:50px;height:50px;border-radius:50%;border:0;background:#1B2A4A;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.28)} .fab:hover{filter:brightness(1.1)} .fab[aria-expanded=true]{background:#2EC4B6} .fab[aria-expanded=true] path+path{stroke:#1B2A4A}
 #chatbox{position:fixed;right:18px;bottom:78px;z-index:65;width:min(420px,92vw);height:min(68vh,620px);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 36px rgba(0,0,0,.28);display:flex;flex-direction:column;padding:.5rem .6rem;gap:.4rem} #chatbox[hidden]{display:none}
 #chatbox .chead{display:flex;align-items:center;gap:.3rem} #chatset{display:flex;flex-direction:column;gap:.35rem;border:1px solid var(--line);border-radius:6px;padding:.4rem} #chatset[hidden]{display:none} #chatset input{width:100%;box-sizing:border-box;font:inherit;padding:.2rem .3rem}
 #chatlog{flex:1;overflow:auto;display:flex;flex-direction:column;gap:.45rem;font-size:.85rem;line-height:1.45} .cm{padding:.35rem .5rem;border-radius:8px;max-width:92%;white-space:normal;overflow-wrap:anywhere} .cm.u{align-self:flex-end;background:var(--accentSoft)} .cm.a{align-self:flex-start;background:color-mix(in srgb,var(--line) 35%,transparent)} .cm.e{color:var(--flag)} .cm ul{margin:.2rem 0;padding-left:1.1rem}
@@ -100,8 +103,8 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
 main.cmp2{grid-template-columns:1fr 700px 40px} main.cmp2 #railtog{right:720px}
-#side.dual{overflow-x:hidden} .cmpstick{position:sticky;top:-.8rem;z-index:4;background:var(--panel);margin:-.8rem -1rem .5rem;padding:.4rem 1rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;font-size:.8rem;box-shadow:0 2px 4px -3px rgba(0,0,0,.25)} .cmpstick>div{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .cmpstick b{display:block;overflow:hidden;text-overflow:ellipsis} .cmpsel{display:block;max-width:100%;font:inherit;font-weight:600;margin:.05rem 0} .prevck{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;color:var(--muted);cursor:pointer} .prevck input{margin:0} .cmpstick small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em} .cmpstick>div+div{border-left:2px solid var(--accent);padding-left:.8rem} .cmpstick>div:first-child{padding-right:.8rem;border-right:2px solid transparent} #side.dual .sec[data-sec=ann] .annlist{flex:none!important;max-height:360px!important;overflow:auto} #side.dual .sumseg{display:block} #side.dual .cmpR canvas{width:100%!important;max-width:100%;height:auto;display:block} #side.dual .cmprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
-#side.dual .cmpR{border-left:2px solid var(--accent);padding-left:.8rem;min-width:0} #side.dual .cmpL{min-width:0;padding-right:.8rem;border-right:2px solid transparent} #side.dual .cmpR h2 .helpq,#side.dual .cmpR .pdfl{display:none}
+#side.dual{overflow-x:hidden} .cmpstick{position:sticky;top:-.8rem;z-index:4;background:var(--panel);margin:-.8rem -1rem .5rem;padding:.4rem 1rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;font-size:.8rem;box-shadow:0 2px 4px -3px rgba(0,0,0,.25)} .cmpstick>div{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .cmpstick b{display:block;overflow:hidden;text-overflow:ellipsis} .cmpstick .onlive small{color:var(--accent);font-weight:600} .livedot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:.3rem;vertical-align:1px} .cmpacts{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap} .cmpshow{font-size:.7rem;padding:.05rem .4rem} .cmpsel{display:block;max-width:100%;font:inherit;font-weight:600;margin:.05rem 0} .prevck{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;color:var(--muted);cursor:pointer} .prevck input{margin:0} .cmpstick small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em} .cmpstick>div+div{border-left:2px solid var(--accent);padding-left:.8rem} .cmpstick>div:first-child{padding-right:.8rem;border-right:2px solid transparent} #side.dual .sec[data-sec=ann] .annlist{flex:none!important;max-height:360px!important;overflow:auto} #side.dual .sumseg{display:block} #side.dual .cmpR canvas{width:100%!important;max-width:100%;height:auto;display:block} #side.dual .cmprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
+#side.dual .cmpR{border-left:2px solid var(--accent);padding-left:.8rem;min-width:0} #side.dual .cmpL{min-width:0;padding-right:.8rem;border-right:2px solid transparent} #side.dual .cmpSnap .pdfl{display:none}
 .cmphead{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;font-size:.82rem} .cmphead select{font:inherit;font-weight:600} #side2{border-left:2px solid var(--accent)} #side2[hidden]{display:none} main.closed{grid-template-columns:1fr 40px}
 .c2head{position:sticky;top:-.8rem;z-index:2;background:var(--panel);margin:-.8rem -1rem .6rem;padding:.45rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.4rem;font-size:.82rem} .c2head b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #cmpsum{border:1px solid var(--accent);border-radius:6px;padding:.4rem .6rem;margin-bottom:.6rem;background:color-mix(in srgb,var(--accent) 5%,transparent)} #cmpsumbox table{border-collapse:collapse;width:100%;font-size:.78rem} #cmpsumbox th,#cmpsumbox td{padding:.18rem .3rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top} #cmpsumbox th{color:var(--muted);font-weight:600} #cmpsumbox tr.diff td{background:color-mix(in srgb,var(--flag) 12%,transparent)} #cmpsumbox p{margin:.2rem 0 .4rem}
@@ -129,7 +132,7 @@ body.notl .tl>*:not(#tltab){display:none} body.notl .tl{padding:0;min-height:8px
 #timeline{width:100%;height:180px;display:block;cursor:pointer}
 .tl{position:relative}
 .cg{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
-.cg .chip{border:0;background:transparent} .cg.allbtns .chip{color:var(--ink)} .cg.allbtns .chip[aria-pressed="true"]{background:var(--accent);color:#fff} .cg.allbtns{overflow:hidden} .cg.allbtns .chip{border-radius:0} .cg.allbtns .chip+.chip{border-left:1px solid var(--line);border-radius:0} .cg:has(.chip[aria-pressed=true]){border-color:var(--accent);background:var(--accentSoft)}
+.cg .chip{border:0;background:transparent} .cg.allbtns .chip{color:var(--ink)} .cg.allbtns .chip[aria-pressed="true"]{background:var(--accent);color:#fff} .cg.allbtns{overflow:hidden;align-items:stretch} .cg.allbtns:has(.chip[aria-pressed=true]){background:var(--paper)} .cg.allbtns .chip{border-radius:0} .cg.allbtns .chip+.chip{border-left:1px solid var(--line);border-radius:0} .cg:has(.chip[aria-pressed=true]){border-color:var(--accent);background:var(--accentSoft)}
 .eye .slash{stroke-width:1.6} .eye[aria-pressed=true] .slash{display:none}
 .cg .eye{width:20px;height:16px;margin:0 2px 0 -3px;border:0} .cg .eye[aria-pressed=true]{background:none;color:var(--ink);border:0} .eye{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid transparent;border-radius:999px;background:none;color:var(--muted);cursor:pointer;padding:0}
 .eye:hover{border-color:var(--line);color:var(--ink)} .eye[aria-pressed=true]{color:var(--accent);background:var(--accentSoft);border-color:var(--accent)}
@@ -190,7 +193,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <body>
 <div class="app">
 <header>
-  <h1>EEGnote</h1>
+  <h1 class="brand"><svg class="brandic" viewBox="20 30 162 142" aria-hidden="true"><path d="M152 40 H48 A20 20 0 0 0 28 60 V120 A20 20 0 0 0 48 140 H116 L144 164 L140 140 H152 A20 20 0 0 0 172 120 V60 A20 20 0 0 0 152 40 Z" fill="none" stroke="currentColor" stroke-width="16" stroke-linejoin="round"/><path d="M52 90 L76 90 L88 62 L104 118 L116 90 L148 90" fill="none" stroke="#2EC4B6" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg>EEGnote</h1>
   <button class="btn primary" id="open">Apri EDF</button>
   <button class="btn iedbusy" id="iedbusy" hidden title="Il modello IED sta cercando le anomalie: clic per vedere la sezione dei candidati"><span class="spin small" aria-hidden="true"></span> IED</button>
   <button class="btn" id="anabtn" aria-pressed="false" title="Analizza un tratto del tracciato con più modelli IED insieme"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14.5 14.5M4.5 7h1l1-2 1.2 4 1-2h.8"/></svg><span> Analizza</span></button>
@@ -332,7 +335,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <div id="repmodal" class="modal" hidden><div class="mbox"><div class="mhead"><b>Referto automatico (bozza)</b><span class="spacer"></span><button class="btn" id="repcopy2">Copia</button><button class="btn" id="repclose">Chiudi (Esc)</button></div><div id="repslot"></div></div></div>
 <div id="cmpmodal" class="modal" hidden><div class="mbox"><div class="mhead"><b>Confronto tra EEG</b><span class="spacer"></span><button class="btn" id="cmpwin" title="Apre l'app in una nuova finestra: trascina lì il secondo EDF e affianca le finestre per confrontare i tracciati">Tracciato in nuova finestra</button><button class="btn" id="cmpother">Altro EEG…</button><button class="btn" id="cmpclose">Chiudi (Esc)</button></div><div id="cmpbody" class="small"></div></div></div>
 <div id="toast" role="status" aria-live="polite" hidden></div>
-<button id="chatbtn" class="fab" title="Chiedi all'assistente: domande sul tracciato e su come l'app definisce i parametri" aria-label="Apri l'assistente"><svg viewBox="0 0 16 16" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h12v7.5H8l-3.5 2.5V11H2z"/><path d="M5 6.5h6M5 8.5h4"/></svg></button>
+<button id="chatbtn" class="fab" title="Chiedi all'assistente: domande sul tracciato e su come l'app definisce i parametri" aria-label="Apri l'assistente"><svg viewBox="20 30 162 142" width="28" height="28" aria-hidden="true"><path d="M152 40 H48 A20 20 0 0 0 28 60 V120 A20 20 0 0 0 48 140 H116 L144 164 L140 140 H152 A20 20 0 0 0 172 120 V60 A20 20 0 0 0 152 40 Z" fill="#FFFFFF"/><path d="M52 90 L76 90 L88 62 L104 118 L116 90 L148 90" fill="none" stroke="#2EC4B6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div id="chatbox" hidden role="dialog" aria-label="Assistente"><div class="chead"><b>Chiedi all'assistente</b><span class="spacer"></span><button class="btn ib" id="chatnew" title="Nuova conversazione">↺</button><button class="btn ib" id="chatx" title="Chiudi" aria-label="Chiudi">×</button></div><div id="chatlog"></div><div class="cin"><textarea id="chatq" rows="1"></textarea><button class="btn primary" id="chatgo">Invia</button></div></div>
 <script>/* Annotatore EEG — core (lettore EDF+, filtri, montaggi, analisi spettrale). Nessun dato esce dal browser. */
 (function (G) {
@@ -2567,8 +2570,8 @@ function makeOnnxPool(k) {
     w.postMessage({ type: 'init', buf: ONNXBUF[k].buf.slice(0), kind: OX.MODELS[k].kind }); }))).then(() => ws);
 }
 /* scansione con un modello ONNX su un elenco di inizi di finestra (campioni); restituisce { p, ch, sec, errs } o null se interrotta */
-async function scanONNX(k, starts, run, msg) {
-  const A = S.A, rec = S.rec, fs = A.fs, win = Math.round(4 * fs), m = OX.MODELS[k], CH = m.kind === 'cbramod' ? OX.CB_CH : OX.SN_CH;
+async function scanONNX(k, starts, run, msg, A = S.A, rec = S.rec) {
+  const fs = A.fs, win = Math.round(4 * fs), m = OX.MODELS[k], CH = m.kind === 'cbramod' ? OX.CB_CH : OX.SN_CH;
   const N = rec.signals[A.cmap[CH[0]]].data.length, pad = Math.round(5 * fs);
   if (!OPOOL.length || OPOOL.k !== k) { $('iedstatus').textContent = 'Avvio della ricerca delle anomalie sospette…'; $('iedstatus').title = 'Avvio dei worker (' + m.label + ', onnxruntime-web al primo uso)'; OPOOL.forEach(w => w.terminate()); OPOOL = [];
     OPOOL = await makeOnnxPool(k); OPOOL.k = k; }
@@ -2581,9 +2584,9 @@ async function scanONNX(k, starts, run, msg) {
       const ci = next++, idx = chunks[ci], a = Math.max(0, starts[idx[0]] - pad), b = Math.min(N, starts[idx[idx.length - 1]] + win + pad);
       const seg = CH.map(c => rec.signals[A.cmap[c]].data.slice(a, b));
       w.onmessage = e => { if (e.data.err) errs++; e.data.out.forEach((r, j) => { if (r) { p[idx[j]] = r[0]; chn[idx[j]] = r[1]; if (r[2]) fine[idx[j]] = r[2]; } }); done += e.data.out.length;
-        $('iedprog').firstChild.style.width = (100 * done / starts.length) + '%';
+        if (IEDOWNER) IEDPN[IEDOWNER] = done / starts.length; if (!IEDOWNER || IEDOWNER === S.fname) $('iedprog').firstChild.style.width = (100 * done / starts.length) + '%';
         const pct = Math.round(100 * done / starts.length), ph = (/1\/2/.test(msg) ? ' (fase 1/2)' : /2\/2/.test(msg) ? ' (fase 2/2)' : ''); if (IEDOWNER) { const old = IEDPCT[IEDOWNER]; IEDPCT[IEDOWNER] = pct + '%' + ph; if (old !== IEDPCT[IEDOWNER]) iedProgUI(); }
-        $('iedstatus').textContent = (IEDOWNER && IEDOWNER !== S.fname ? (IEDQ.includes(S.fname) ? 'In coda; ora in analisi ' : '') + IEDOWNER + ': ' : '') + (/2\/2/.test(msg) ? 'Verifica delle anomalie sospette… ' : 'Ricerca delle anomalie sospette… ') + pct + '%'; $('iedstatus').title = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
+        if (!IEDOWNER || IEDOWNER === S.fname) $('iedstatus').textContent = (/2\/2/.test(msg) ? 'Verifica delle anomalie sospette… ' : 'Ricerca delle anomalie sospette… ') + pct + '%'; $('iedstatus').title = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
         if (done >= starts.length) resolve(); else feed(w); };
       w.postMessage({ type: 'job', id: ci, seg, fs, offs: idx.map(i => starts[i] - a) }, seg.map(x => x.buffer)); };
     OPOOL.forEach(feed);
@@ -2596,15 +2599,15 @@ async function runONNX(k, src) {
   const missing = OX.CB_CH.filter(c => A.cmap[c] === undefined);
   if (missing.length) { $('iedstatus').innerHTML = '<span class="warnline">Mancano gli elettrodi ' + missing.join(', ') + ': i modelli richiedono i 19 canali 10-20.</span>'; return; }
   const N = rec.signals[A.cmap.Fp1].data.length, starts = []; for (let s0 = 0; s0 + win <= N; s0 += hop) starts.push(s0);
-  $('iedprog').hidden = false; $('iedrun').disabled = true;
+  IEDPN[owner] = 0; $('iedprog').firstChild.style.width = '0%'; $('iedprog').hidden = owner !== S.fname; $('iedrun').disabled = true; if (owner !== S.fname) iedLiveUI();
   try {
     let I;
-    if (k !== 'casc') { const r = await scanONNX(k, starts, run, OX.MODELS[k].label); if (!r) return;
+    if (k !== 'casc') { const r = await scanONNX(k, starts, run, OX.MODELS[k].label, A, rec); if (!r) return;
       I = { t: starts.map(s0 => s0 / fs), p: r.p, ch: r.ch, step, sec: r.sec, workers: r.workers, model: OX.MODELS[k].label, errs: r.errs }; }
     else {
-      const r3 = await scanONNX('v3', starts, run, 'Cascata 1/2, CBraMod v3'); if (!r3) return;
+      const r3 = await scanONNX('v3', starts, run, 'Cascata 1/2, CBraMod v3', A, rec); if (!r3) return;
       const sel = starts.map((s0, i) => i).filter(i => r3.p[i] !== null && r3.p[i] >= CASC.screen);
-      const rs = await scanONNX('sn2', sel.map(i => starts[i]), run, 'Cascata 2/2, SpikeNet2 sulle ' + sel.length + ' finestre sospette'); if (!rs) return;
+      const rs = await scanONNX('sn2', sel.map(i => starts[i]), run, 'Cascata 2/2, SpikeNet2 sulle ' + sel.length + ' finestre sospette', A, rec); if (!rs) return;
       const psn = new Array(starts.length).fill(null); sel.forEach((i, j) => { psn[i] = rs.p[j]; });
       const p = r3.p.map((v, i) => v === null ? null : psn[i] !== null ? (v + psn[i]) / 2 : v / 2);
       const snf = new Map(); sel.forEach((i, j) => { const f = rs.fine[j]; if (f) f.forEach((v, q) => { if (v === null) return; const key = Math.round((starts[i] / fs + 0.25 * q) * 4); if (!(snf.get(key) >= v)) snf.set(key, v); }); });
@@ -2619,10 +2622,19 @@ async function runONNX(k, src) {
 }
 (async () => { await selectModel('casc'); })();
 let iedRun = 0;
-var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {};
+var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {}, IEDPN = {};
 /* stato dell'analisi IED di un EEG: in corso (con %), in coda, oppure null */
 function iedState(fn) { return fn && IEDOWNER === fn ? 'analisi in corso, ' + (IEDPCT[fn] || '0%') : fn && IEDQ.includes(fn) ? 'in coda (parte dopo ' + (IEDOWNER || 'l\'analisi in corso') + ')' : null; }
-function iedProgUI() { if (!CMPCOL) return; renderCmpSum(); const o = SESS[CMPI], st = $('c2-iedstatus'); if (o && st) { const t = iedState(o.fname); if (t) st.textContent = 'Anomalie sospette: ' + t + '.'; } }
+const escH = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function iedProgUI() { iedLiveUI(); if (!CMPCOL) return; renderCmpSum(); iedSnapUI(); }
+/* sezione Anomalie sospette di un EEG: barra se è in analisi, simbolo di attesa se è in coda */
+function iedBoxUI(fn, pg, st) { if (!pg || !st) return false;
+  if (fn && IEDOWNER === fn) { pg.hidden = false; pg.firstChild.style.width = Math.round(100 * (IEDPN[fn] || 0)) + '%'; st.textContent = 'Ricerca delle anomalie sospette… ' + (IEDPCT[fn] || '0%'); return true; }
+  pg.hidden = true;
+  if (fn && IEDQ.includes(fn)) { st.innerHTML = '<span class="spin small" aria-hidden="true"></span> In coda: parte dopo ' + escH(IEDOWNER || 'l\'analisi in corso') + (IEDOWNER && IEDPCT[IEDOWNER] ? ' (' + escH(IEDPCT[IEDOWNER]) + ')' : '') + '.'; return true; }
+  return false; }
+function iedLiveUI() { if (!S.A) return; const done = iedBoxUI(S.fname, $('iedprog'), $('iedstatus')); if (!done && !S.ied && needOf(iedKind()).every(j => ONNXBUF[j])) $('iedstatus').textContent = 'Modello non ancora eseguito su questo EEG: premi Analizza.'; }
+function iedSnapUI() { const o = SESS[CMPI], pg = $('c2-iedprog'), st = $('c2-iedstatus'); if (!o || !st) return; if (!iedBoxUI(o.fname, pg, st) && !o.ied) st.textContent = 'Modello non ancora eseguito su questo EEG: premi Analizza.'; }
 async function runIED(fn) { fn = typeof fn === 'string' ? fn : S.fname; if (!IEDQ.includes(fn)) IEDQ.push(fn); if (IEDBUSY) return; IEDBUSY = true; $('iedbusy').hidden = false;
   try { while (IEDQ.length) { const f = IEDQ.shift(), o = f === S.fname ? { A: S.A, rec: S.rec, fname: f } : (SESS.find(x => x.fname === f) || null); if (o && o.A) await runONNX(iedKind(), { A: o.A, rec: o.rec, fname: f }); } }
   finally { IEDBUSY = false; IEDOWNER = null; IEDPCT = {}; $('iedbusy').hidden = true; sessSave(); if (CMPCOL) renderSide2(); } }
@@ -2825,12 +2837,12 @@ function sessSwitch(i) { if (i === SCUR || !SESS[i]) return;
   S.review = loadReview(); repDirty = false; loadUA(); $('fname').textContent = S.fname; CMP = null;
   renderAnaRes(); anaSelText(); renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll(); renderSess();
   if (S.repEdited && S.repText != null) { $('reptext').value = S.repText; repDirty = true; $('repstate').textContent = 'modificato'; } else renderReport(true);
-  if (CMPCOL) { CMPI = -1; renderSide2(); }
+  iedLiveUI(); if (CMPCOL) { CMPI = NEXTCMPI != null ? NEXTCMPI : -1; NEXTCMPI = null; renderSide2(); }
   if (!S.ied && needOf(iedKind()).every(j => ONNXBUF[j])) setTimeout(runIED, 50); }
 $('filesel').onchange = () => sessSwitch(+$('filesel').value);
 $('iedhelpbtn').onclick = () => { const h = $('iedhelp'); h.hidden = !h.hidden; $('iedhelpbtn').setAttribute('aria-expanded', String(!h.hidden)); };
 /* ---- colonna di confronto: pannello laterale dell'altro EEG aperto, scorrimento allineato per sezione ---- */
-let CMPCOL = false, CMPI = -1, C2SYNC = false;
+let CMPCOL = false, CMPI = -1, C2SYNC = false, NEXTCMPI = null, CMPLEFT = null; // CMPLEFT: file nella colonna sinistra (le colonne restano ferme quando cambia l'EEG sul tracciato)
 function snapSide(i) { // genera il pannello dell'EEG i e ne restituisce una copia statica
   const cur = SCUR, keepRep = $('reptext').value, keepDirty = repDirty; sessSave();
   Object.assign(S, SESS[i]); S.cache = null; S.decision = null; S.review = loadReview(); loadUA();
@@ -2839,6 +2851,7 @@ function snapSide(i) { // genera il pannello dell'EEG i e ne restituisce una cop
   const cv = [...side.querySelectorAll('canvas')].map(c => { try { return c.toDataURL(); } catch (e) { return null; } });
   Object.assign(S, SESS[cur]); S.cache = null; S.decision = null; S.review = loadReview(); loadUA();
   renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); renderAnaRes(); drawTopo(); drawSpec();
+  $('iedprog').hidden = IEDOWNER !== S.fname; iedLiveUI();
   setTimeout(() => { $('reptext').value = keepRep; repDirty = keepDirty; }, 0);
   return { html, rep, cv }; }
 function dualOff() { const side = $('side'); side.querySelectorAll(':scope > .cmpstick').forEach(x => x.remove()); side.querySelectorAll(':scope > .cmprow').forEach(r => { const live = r.querySelector(':scope > .cmpL > .sec'); if (live) side.insertBefore(live, r); r.remove(); }); side.classList.remove('dual'); }
@@ -2846,25 +2859,33 @@ function renderSide2() { if (!CMPCOL) return; const others = SESS.map((x, i) => 
   if (!others.includes(CMPI)) CMPI = others[0];
   dualOff();
   // prima la griglia a due colonne (destra vuota), poi l'istantanea: così grafici e mappe dell'altro EEG sono disegnati già alla larghezza della colonna
+  // le colonne restano ferme: CMPLEFT è il file a sinistra; se a sinistra c'è l'EEG di confronto, la sezione viva (EEG sul tracciato) va a destra
+  const flip = CMPLEFT != null && SESS[CMPI] && CMPLEFT === SESS[CMPI].fname; if (!flip) CMPLEFT = S.fname;
   const side = $('side'); side.classList.add('dual'); const RR = {};
   [...side.children].filter(x => x.classList.contains('sec') && x.id !== 'cmpsum').forEach(x => { const row = document.createElement('div'); row.className = 'cmprow';
-    const L = document.createElement('div'), Rr = document.createElement('div'); L.className = 'cmpL'; Rr.className = 'cmpR'; side.insertBefore(row, x); L.appendChild(x); row.append(L, Rr); RR[x.dataset.sec] = Rr; });
+    const L = document.createElement('div'), Rr = document.createElement('div'); L.className = 'cmpL'; Rr.className = 'cmpR'; const live = flip ? Rr : L, snap = flip ? L : Rr;
+    live.classList.add('cmpLive'); snap.classList.add('cmpSnap'); side.insertBefore(row, x); live.appendChild(x); row.append(L, Rr); RR[x.dataset.sec] = snap; });
   const sn = snapSide(CMPI), tmp = document.createElement('div'); tmp.innerHTML = sn.html;
-  tmp.querySelectorAll('.cmpR').forEach(x => x.remove());
+  tmp.querySelectorAll('.cmpSnap').forEach(x => x.remove());
   tmp.querySelectorAll('canvas').forEach((c, k) => { if (!sn.cv[k]) return; const im = new Image(); im.onload = () => { c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0); }; im.src = sn.cv[k]; });
   const ta = tmp.querySelector('#c2-reptext'); if (ta) { ta.value = sn.rep; ta.readOnly = false; const oi = CMPI; ta.addEventListener('input', () => { if (!SESS[oi]) return; SESS[oi].repText = ta.value; SESS[oi].repEdited = true; const st = $('c2-repstate'); if (st) st.textContent = 'modificato'; }); }
   // una riga per sezione: a sinistra la sezione dell'EEG sul tracciato, a destra quella dell'altro; la riga è alta quanto la più lunga
   const st = document.createElement('div'); st.className = 'cmpstick'; const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pv = (i, on) => '<label class="prevck" title="Segna questo EEG come tracciato precedente: il referto e la chat dell\'altro ne descrivono l\'evoluzione"><input type="checkbox" data-prev="' + i + '"' + (on ? ' checked' : '') + '> tracciato precedente</label>', dd = r => recDate(r) ? ' · ' + recDate(r) : '';
-  const many = SESS.length > 2, opt = (list, cur) => list.map(i => '<option value="' + i + '"' + (i === cur ? ' selected' : '') + '>' + esc(SESS[i].fname) + '</option>').join('');
-  const nmL = many ? '<select class="cmpsel" id="cmpselL" title="EEG da mostrare sul tracciato">' + opt(SESS.map((x, i) => i), SCUR) + '</select>' : '<b>' + esc(S.fname) + '</b>';
-  const nmR = many ? '<select class="cmpsel" id="cmpselR" title="EEG da confrontare">' + opt(SESS.map((x, i) => i).filter(i => i !== SCUR), CMPI) + '</select>' : '<b>' + esc(SESS[CMPI].fname) + '</b>';
-  st.innerHTML = '<div title="' + esc(S.fname) + '"><small>EEG sul tracciato' + dd(S.rec) + '</small>' + nmL + pv(SCUR, !!S.prev) + '</div><div title="' + esc(SESS[CMPI].fname) + '"><small>EEG di confronto' + dd(SESS[CMPI].rec) + '</small>' + nmR + pv(CMPI, !!SESS[CMPI].prev) + '</div>'; side.insertBefore(st, side.firstChild);
-  if (many) { const keep = CMPI; $('cmpselL').onchange = e => { const i = +e.target.value, old = SCUR; sessSwitch(i); const want = i === keep ? old : keep; if (SESS[want] && want !== SCUR && want !== CMPI) { CMPI = want; renderSide2(); } };
-    $('cmpselR').onchange = e => { CMPI = +e.target.value; renderSide2(); }; }
+  const many = SESS.length > 2, all = SESS.map((x, i) => i), pos = flip ? [CMPI, SCUR] : [SCUR, CMPI];
+  const opt = cur => all.map(i => '<option value="' + i + '"' + (i === cur ? ' selected' : '') + '>' + esc(SESS[i].fname) + '</option>').join('');
+  const cell = (k) => { const i = pos[k], isLive = i === SCUR, rec = isLive ? S.rec : SESS[i].rec, pr = isLive ? !!S.prev : !!SESS[i].prev;
+    return '<div class="' + (isLive ? 'onlive' : 'onsnap') + '" title="' + esc(SESS[i].fname) + '"><small>' + (isLive ? '<span class="livedot"></span>EEG sul tracciato' : 'EEG di confronto') + dd(rec) + '</small>'
+      + (many ? '<select class="cmpsel" data-pos="' + k + '" title="Scegli l\'EEG di questa colonna">' + opt(i) + '</select>' : '<b>' + esc(SESS[i].fname) + '</b>')
+      + '<span class="cmpacts">' + (isLive ? '' : '<button class="btn cmpshow" data-show="' + i + '" title="Mostra questo EEG sul tracciato (le colonne restano ferme)">Mostra sul tracciato</button>') + pv(i, pr) + '</span></div>'; };
+  st.innerHTML = cell(0) + cell(1); side.insertBefore(st, side.firstChild);
+  st.querySelectorAll('.cmpshow').forEach(b => b.onclick = () => { const i = +b.dataset.show; NEXTCMPI = SCUR; sessSwitch(i); });
+  st.querySelectorAll('select.cmpsel').forEach(sel => sel.onchange = () => { const k = +sel.dataset.pos, v = +sel.value, np = pos.slice(); if (np[1 - k] === v) np[1 - k] = np[k]; np[k] = v;
+    const live = np.includes(SCUR) ? SCUR : np[k], other = np[0] === live ? np[1] : np[0]; CMPLEFT = SESS[np[0]].fname;
+    if (live !== SCUR) { NEXTCMPI = other; sessSwitch(live); } else { CMPI = other; renderSide2(); } });
   st.querySelectorAll('input[data-prev]').forEach(cb => cb.onchange = () => setPrev(+cb.dataset.prev, cb.checked));
   Object.entries(RR).forEach(([k, Rr]) => { const c = tmp.querySelector('.sec[data-sec="' + k + '"]'); if (c) Rr.appendChild(c); });
-  { const o = SESS[CMPI], st = $('c2-iedstatus'), t = o && iedState(o.fname); if (st) st.textContent = t ? 'Anomalie sospette: ' + t + '.' : o && o.ied ? st.textContent : 'Modello non ancora eseguito su questo EEG: premi Analizza.'; const pg = $('c2-iedprog'); if (pg) pg.hidden = true; }
+  { const pg = $('c2-iedprog'); if (pg) pg.hidden = true; const hb = $('c2-iedhelp'); if (hb) hb.hidden = true; iedSnapUI(); }
   drawTopo(); drawSpec(); renderCmpSum(); alignSum(); }
 /* sintesi automatica nel confronto: ogni sottosezione (da un titolo al successivo) alta uguale nelle due colonne */
 function sumSegs(box) { if (!box) return []; if (!box.querySelector(':scope > .sumseg')) { const kids = [...box.childNodes]; let seg = null;
@@ -2876,9 +2897,10 @@ function alignSum() { if (!CMPCOL) return; const L = sumSegs($('summary')), R = 
 new MutationObserver(() => { if (CMPCOL && !$('summary').querySelector(':scope > .sumseg')) requestAnimationFrame(alignSum); }).observe($('summary'), { childList: true });
 new ResizeObserver(() => { if (CMPCOL) requestAnimationFrame(alignSum); }).observe($('side'));
 /* colonna destra del confronto: il referto si modifica e si copia sul posto; gli altri comandi portano quell'EEG sul tracciato e li eseguono lì */
-function c2Proxy(ev) { const side = $('side'); if (!CMPCOL || !side.classList.contains('dual')) return; const R = ev.target.closest('.cmpR'); if (!R) return;
+function c2Proxy(ev) { const side = $('side'); if (!CMPCOL || !side.classList.contains('dual')) return; const R = ev.target.closest('.cmpSnap'); if (!R) return;
   const el = ev.target.closest('button,select,input,a[href],li,summary,.rb'); if (!el || el.tagName === 'SUMMARY' || (el.tagName === 'A' && el.target === '_blank')) return;
   if (el.id === 'c2-reptext') return;
+  if (el.classList.contains('helpq')) { ev.preventDefault(); ev.stopPropagation(); const h = el.closest('h2'), box = h && h.nextElementSibling; if (box && box.classList.contains('helpbox')) { box.hidden = !box.hidden; el.setAttribute('aria-expanded', String(!box.hidden)); } return; }
   if (el.id === 'c2-iedrun') { ev.preventDefault(); ev.stopPropagation(); const o = SESS[CMPI]; if (!o) return; if (IEDOWNER === o.fname) { toast('Analisi di ' + o.fname + ' già in corso.'); return; }
     if (o.ied) { o.ied = null; } runIED(o.fname); toast(IEDBUSY && IEDOWNER !== o.fname ? o.fname + ' in coda: parte dopo ' + IEDOWNER + '.' : 'Analisi di ' + o.fname + ' avviata.'); iedProgUI(); return; }
   if (el.id === 'c2-repcopy') { ev.preventDefault(); const ta = $('c2-reptext'), st = $('c2-repstate'); navigator.clipboard.writeText(ta.value).then(() => { if (st) st.textContent = 'copiato'; }, () => { ta.select(); document.execCommand('copy'); if (st) st.textContent = 'copiato'; }); return; }
@@ -2886,11 +2908,11 @@ function c2Proxy(ev) { const side = $('side'); if (!CMPCOL || !side.classList.co
   let target = null, li = -1, lst = null;
   if (el.id && el.id.startsWith('c2-')) target = el.id.slice(3);
   else if (el.tagName === 'LI') { lst = el.closest('ul,ol'); if (lst && lst.id && lst.id.startsWith('c2-')) { li = [...lst.children].indexOf(el); lst = lst.id.slice(3); } else lst = null; }
-  sessSwitch(oi); toast('Ora sul tracciato: ' + S.fname + '.');
+  NEXTCMPI = SCUR; sessSwitch(oi); toast('Ora sul tracciato: ' + S.fname + ' (le colonne restano ferme).');
   setTimeout(() => { if (target) { const t = $(target); if (t) { if (t.tagName === 'SELECT' || t.tagName === 'INPUT' && t.type !== 'checkbox') t.focus(); else t.click(); } }
     else if (lst && li >= 0) { const t = $(lst) && $(lst).children[li]; if (t) t.click(); } }, 80); }
 $('side').addEventListener('click', c2Proxy, true);
-$('side').addEventListener('mousedown', e => { const R = e.target.closest('#side.dual .cmpR'); if (R && e.target.closest('select,input:not([type=checkbox])') && e.target.id !== 'c2-reptext') { e.preventDefault(); c2Proxy(e); } }, true);
+$('side').addEventListener('mousedown', e => { const R = e.target.closest('#side.dual .cmpSnap'); if (R && e.target.closest('select,input:not([type=checkbox])') && e.target.id !== 'c2-reptext') { e.preventDefault(); c2Proxy(e); } }, true);
 /* regole CSS scritte per id (#spec, #summary, #reptext…) applicate anche alle copie con prefisso c2- */
 (function mirrorIdCss() { const ids = new Set([...$('side').querySelectorAll('[id]')].map(x => x.id)); const re = /#([A-Za-z][\w-]*)/g;
   const walk = (list, host) => { [...list].forEach(r => { if (r.cssRules && !r.selectorText) { try { walk(r.cssRules, r); } catch (e) { } return; }
@@ -2930,12 +2952,13 @@ function evoAppend(text, i) { const e = evoFor(i); if (!e) return text;
   return /^In conclusione:.*$/m.test(text) ? text.replace(/^(In conclusione:.*)$/m, '$1 ' + line) : text + '\n' + line; }
 function renderCmpSum() { const box = $('cmpsumbox'), o = SESS[CMPI]; if (!CMPCOL || !o || !S.A) { $('cmpsum').style.display = 'none'; return; }
   const oi = iedState(o.fname) || iedSummaryOf(o), si = iedState(S.fname) || (S.ied ? iedSummary() : null);
-  const a = cmpMeasures(S.A, S.rec, S.fname, si), b = cmpMeasures(o.A, o.rec, o.fname, oi);
+  let a = cmpMeasures(S.A, S.rec, S.fname, si), b = cmpMeasures(o.A, o.rec, o.fname, oi), nA = S.fname + '<br><span style="font-weight:400">(sul tracciato)</span>', nB = o.fname + '<br><span style="font-weight:400">(confronto)</span>';
+  if (CMPLEFT === o.fname) { [a, b] = [b, a]; [nA, nB] = [nB, nA]; } // stesso ordine delle colonne
   const dif = a.map((r, i) => i > 2 && r[1] !== b[i][1] ? r[0] : null).filter(Boolean);
   const others = SESS.map((x, i) => i).filter(i => i !== SCUR);
   box.innerHTML = '<div class="cmphead"><span><b>' + S.fname + '</b> (tracciato)</span><span>⇆</span><span>' + (others.length > 1 ? '<select id="c2sel">' + others.map(i => `<option value="${i}"${i === CMPI ? ' selected' : ''}>${SESS[i].fname}</option>`).join('') + '</select>' : '<b>' + o.fname + '</b>') + '</span><span class="spacer"></span><button class="btn" id="c2x" title="Chiudi il confronto">×</button></div>'
     + '<p>' + (dif.length ? '<b>Differenze:</b> ' + dif.join(', ') + '.' : 'Nessuna differenza nelle misure principali.') + '</p>'
-    + '<table><thead><tr><th></th><th>' + S.fname + '<br><span style="font-weight:400">(tracciato)</span></th><th>' + o.fname + '<br><span style="font-weight:400">(colonna di confronto)</span></th></tr></thead><tbody>'
+    + '<table><thead><tr><th></th><th>' + nA + '</th><th>' + nB + '</th></tr></thead><tbody>'
     + a.slice(3).map((r, i) => `<tr class="${r[1] !== b[i + 3][1] ? 'diff' : ''}"><th>${r[0]}</th><td>${r[1]}</td><td>${b[i + 3][1]}</td></tr>`).join('') + '</tbody></table>';
   $('cmpsum').style.display = '';
   if ($('c2sel')) $('c2sel').onchange = () => { CMPI = +$('c2sel').value; renderSide2(); }; $('c2x').onclick = () => setCmpCol(false); }
@@ -3076,7 +3099,7 @@ function saveReview() { try { localStorage.setItem(storeKey(), JSON.stringify(S.
 function renderIED() {
   const ul = $('iedlist'); ul.innerHTML = '';
   if (S.ied && S.ied.events.length) { const h = document.createElement('li'); h.className = 'head'; h.innerHTML = '<span title="Istante della punta (o del picco della finestra)">Tempo</span><span title="Probabilità combinata: media di CBraMod v3 e SpikeNet2 (i valori singoli nel tooltip della riga)">p</span><span title="Derivazione in cui la punta è più ampia">Deriv.</span><span title="Qualità della localizzazione, morfologia, inversione di fase, sede, durata, contesto">Reperto</span><span title="Giudizio di revisione: sì / no / dubbio (tasti 1/2/3)">Giudizio</span>'; ul.appendChild(h); }
-  if (!S.ied) { $('iedcount').textContent = ''; return; }
+  if (!S.ied) { $('iedcount').textContent = ''; iedLiveUI(); return; }
   const I = S.ied, ev = I.events, nJ = ev.filter(e => S.review[evKey(e)]).length;
   $('iedstatus').textContent = (ev.length ? ev.length + (ev.length === 1 ? ' anomalia sospetta trovata' : ' anomalie sospette trovate') : 'Nessuna anomalia sospetta trovata') + ' (sensibilità ' + I.thr.toFixed(2).replace('.', ',') + ').' + (I.errs ? ' Parte del tracciato non analizzata.' : '');
   $('iedstatus').title = `${I.model}${I.nSel != null ? ' (SpikeNet2 su ' + I.nSel + ' finestre)' : ''}: ${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker${I.errs ? ', ' + I.errs + ' blocchi non riusciti' : ''}.`;
