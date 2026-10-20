@@ -132,7 +132,9 @@ body.notl .tl>*:not(#tltab){display:none} body.notl .tl{padding:0;min-height:8px
 #timeline{width:100%;height:180px;display:block;cursor:pointer}
 .tl{position:relative}
 .cg{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
-.cg .chip{border:0;background:transparent} .cg.allbtns .chip{color:var(--ink)} .cg.allbtns .chip[aria-pressed="true"]{background:var(--accent);color:#fff} .cg.allbtns{overflow:hidden;align-items:stretch} .cg.allbtns:has(.chip[aria-pressed=true]){background:var(--paper)} .cg.allbtns .chip{border-radius:0} .cg.allbtns .chip+.chip{border-left:1px solid var(--line);border-radius:0} .cg:has(.chip[aria-pressed=true]){border-color:var(--accent);background:var(--accentSoft)}
+.cg .chip{border:0;background:transparent} .cg.allbtns .chip{margin:0;padding:.1rem .6rem;line-height:1.2;justify-content:center;align-self:stretch} .cg.allbtns .chip:first-child{padding-left:.75rem} .cg.allbtns .chip:last-child{padding-right:.75rem}
+#anaover{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:.55rem;padding:.45rem .9rem;border:1px solid var(--accent);border-radius:999px;background:var(--paper);color:var(--ink);font-size:.85rem;box-shadow:0 4px 14px rgba(0,0,0,.18);pointer-events:none}
+#anaover[hidden]{display:none} body.anabusy,body.anabusy *{cursor:progress!important} .cg.allbtns .chip{color:var(--ink)} .cg.allbtns .chip[aria-pressed="true"]{background:var(--accent);color:#fff} .cg.allbtns{overflow:hidden;align-items:stretch} .cg.allbtns:has(.chip[aria-pressed=true]){background:var(--paper)} .cg.allbtns .chip{border-radius:0} .cg.allbtns .chip+.chip{border-left:1px solid var(--line);border-radius:0} .cg:has(.chip[aria-pressed=true]){border-color:var(--accent);background:var(--accentSoft)}
 .eye .slash{stroke-width:1.6} .eye[aria-pressed=true] .slash{display:none}
 .cg .eye{width:20px;height:16px;margin:0 2px 0 -3px;border:0} .cg .eye[aria-pressed=true]{background:none;color:var(--ink);border:0} .eye{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid transparent;border-radius:999px;background:none;color:var(--muted);cursor:pointer;padding:0}
 .eye:hover{border-color:var(--line);color:var(--ink)} .eye[aria-pressed=true]{color:var(--accent);background:var(--accentSoft);border-color:var(--accent)}
@@ -221,7 +223,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <span class="annsep"></span>
   <span class="small" id="anasel">Tratto: trascina sulla panoramica o sul tracciato (ora: pagina corrente)</span>
   <button class="btn" id="anapage" title="Usa la pagina visibile come tratto">Pagina corrente</button>
-  <label class="small" title="Sensibilità del rilevatore (non la sensibilità del tracciato in µV/mm): è la soglia di probabilità oltre cui una finestra diventa anomalia sospetta; soglia più bassa = sensibilità più alta e più falsi positivi. Soglia della media v3 + SpikeNet2 (come per le anomalie sospette). Le soglie di v3 (0,57) e SpikeNet2 (0,50) si spostano della stessa quantità. Si può cambiare anche dopo l'analisi: i risultati si aggiornano senza ricalcolo.">Sensibilità <select id="anathr"><option value="0.3">molto alta (0,30)</option><option value="0.4">alta (0,40)</option><option value="0.5" selected>consigliata (0,50)</option><option value="0.6">bassa (0,60)</option><option value="0.7">molto bassa (0,70)</option></select></label>
+  <label class="small" title="Sensibilità del rilevatore (non la sensibilità del tracciato in µV/mm): è la soglia di probabilità oltre cui una finestra diventa anomalia sospetta; soglia più bassa = sensibilità più alta e più falsi positivi. Soglia della media dei modelli 1 e 2 (come per le anomalie sospette). Le soglie del modello 1 (0,57) e del modello 2 (0,50) si spostano della stessa quantità. Si può cambiare anche dopo l'analisi: i risultati si aggiornano senza ricalcolo.">Sensibilità <select id="anathr"><option value="0.3">molto alta (0,30)</option><option value="0.4">alta (0,40)</option><option value="0.5" selected>consigliata (0,50)</option><option value="0.6">bassa (0,60)</option><option value="0.7">molto bassa (0,70)</option></select></label>
   <button class="btn primary" id="anago">Analizza tratto</button>
   <button class="btn" id="anaclear" title="Cancella tratto e risultati">Cancella</button>
   <span class="small" id="anastat"></span>
@@ -237,7 +239,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 <main>
   <section class="viewer">
     <div id="traceWrap">
-      <canvas id="trace" aria-label="Tracciato EEG"></canvas><div id="trtip"></div><div id="annlayer"></div><div id="rulerlayer"></div><button class="btn ib" id="fullbtn" title="Tracciato a schermo intero (chiude pannello laterale e panoramica; F o Esc per uscire)" aria-label="Schermo intero"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4"/></svg></button>
+      <canvas id="trace" aria-label="Tracciato EEG"></canvas><div id="trtip"></div><div id="anaover" hidden role="status" aria-live="polite"><span class="spin" aria-hidden="true"></span><span id="anaovt">Analisi del tratto…</span></div><div id="annlayer"></div><div id="rulerlayer"></div><button class="btn ib" id="fullbtn" title="Tracciato a schermo intero (chiude pannello laterale e panoramica; F o Esc per uscire)" aria-label="Schermo intero"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4"/></svg></button>
       <div id="drop"><div class="box">
         <h2>Trascina qui un EEG in formato EDF o EDF+</h2>
         <p>Il file viene letto solo in questo browser: nessun dato esce dal computer.</p>
@@ -271,14 +273,14 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     </div>
    </section>
    <section class="sec" data-sec="ied">
-    <h2>Anomalie sospette <button class="helpq" id="iedhelpbtn" aria-expanded="false" title="Come funziona e come si usa">?</button></h2><div id="iedhelp" class="helpbox small" hidden><p><b>Modelli.</b> CBraMod v3 (nostro, pubblicato con il permesso di NEDC e BDSP) analizza tutto il tracciato; SpikeNet2 (Li et al., NEJM AI 2025; permesso BDSP) rivaluta le finestre con probabilità v3 ≥ 0,10; punteggio = media dei due. Validato su modelli di referto AOPD: AUROC 0,90 (IED franche contro il resto), 0,94 (franche contro assenti), 0,83 (franche e non franche contro assenti). Solo uso didattico e di ricerca non commerciale.</p><p><b>Cosa cerca.</b> Anomalie rilevabili dal modello (CBraMod v3 + SpikeNet2): anomalie epilettiformi intercritiche (IED) — punte, onde aguzze, complessi punta-onda e polipunta-onda, focali o generalizzati. Possono comparire anche scariche periodiche (LPD/GPD) e onde aguzze non epilettiformi (trifasiche, varianti benigne) da valutare in revisione. Non rileva crisi, rallentamenti o attività ritmica delta (cercati a regole in altre sezioni).</p><p><b>Come si usa.</b> Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p><p><b>Tasti.</b> N/P anomalia successiva/precedente, 1/2/3 giudizio sì/no/dubbio.</p></div>
+    <h2>Anomalie sospette <button class="helpq" id="iedhelpbtn" aria-expanded="false" title="Come funziona e come si usa">?</button></h2><div id="iedhelp" class="helpbox small" hidden><p><b>Modelli.</b> <b>Modello 1</b> = CBraMod v3 (nostro, pubblicato con il permesso di NEDC e BDSP): analizza tutto il tracciato. <b>Modello 2</b> = SpikeNet2 (Li et al., NEJM AI 2025; permesso BDSP): rivaluta le finestre con probabilità del modello 1 ≥ 0,10; punteggio = media dei due. Validato su modelli di referto AOPD: AUROC 0,90 (IED franche contro il resto), 0,94 (franche contro assenti), 0,83 (franche e non franche contro assenti). Solo uso didattico e di ricerca non commerciale.</p><p><b>Cosa cerca.</b> Anomalie rilevabili dai modelli 1 e 2: anomalie epilettiformi intercritiche (IED) — punte, onde aguzze, complessi punta-onda e polipunta-onda, focali o generalizzati. Possono comparire anche scariche periodiche (LPD/GPD) e onde aguzze non epilettiformi (trifasiche, varianti benigne) da valutare in revisione. Non rileva crisi, rallentamenti o attività ritmica delta (cercati a regole in altre sezioni).</p><p><b>Come si usa.</b> Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p><p><b>Tasti.</b> N/P anomalia successiva/precedente, 1/2/3 giudizio sì/no/dubbio.</p></div>
     <div id="iedbox">
       <div class="small" id="iedstatus">Modello non caricato.</div>
       <div class="prog" id="iedprog" hidden><i></i></div>
       <div class="iedbar"><select id="iedmodel" hidden><option value="casc">cascata</option></select>
       </div>
       <div class="iedbar">
-        <label title="Sensibilità del rilevatore (non la sensibilità del tracciato in µV/mm): è la soglia di probabilità oltre cui una finestra diventa anomalia sospetta; soglia più bassa = sensibilità più alta e più falsi positivi. Punteggio minimo (media delle probabilità di v3 e SpikeNet2) perché una finestra di 4 s diventi candidato IED. Verificata su modelli di referto AOPD (candidati/min): 0,30 → AUROC 0,87 e 32% degli EEG senza anomalie con almeno un candidato; 0,40 → 0,88 e 16%; 0,50 → 0,89 e 9% (predefinita); 0,60 → 0,83 e 2%; 0,70 → 0,75 e 0%. Più bassa: più candidati e più falsi positivi; più alta: meno candidati, rischio di perderne.">Sensibilità <select id="iedthr"><option value="0.3">molto alta (0,30)</option><option value="0.4">alta (0,40)</option><option value="0.5" selected>consigliata (0,50)</option><option value="0.6">bassa (0,60)</option><option value="0.7">molto bassa (0,70)</option></select></label>
+        <label title="Sensibilità del rilevatore (non la sensibilità del tracciato in µV/mm): è la soglia di probabilità oltre cui una finestra diventa anomalia sospetta; soglia più bassa = sensibilità più alta e più falsi positivi. Punteggio minimo (media delle probabilità dei modelli 1 e 2) perché una finestra di 4 s diventi candidato IED. Verificata su modelli di referto AOPD (candidati/min): 0,30 → AUROC 0,87 e 32% degli EEG senza anomalie con almeno un candidato; 0,40 → 0,88 e 16%; 0,50 → 0,89 e 9% (predefinita); 0,60 → 0,83 e 2%; 0,70 → 0,75 e 0%. Più bassa: più candidati e più falsi positivi; più alta: meno candidati, rischio di perderne.">Sensibilità <select id="iedthr"><option value="0.3">molto alta (0,30)</option><option value="0.4">alta (0,40)</option><option value="0.5" selected>consigliata (0,50)</option><option value="0.6">bassa (0,60)</option><option value="0.7">molto bassa (0,70)</option></select></label>
         <label title="Spostamento tra una finestra di 4 s e la successiva durante la scansione del modello. 0,5 s: più fine ma circa il doppio del tempo; 2 s: più rapido ma può perdere scariche brevi tra due finestre. Cambiandolo la scansione riparte.">Passo <select id="iedstep"><option value="0.5">0,5 s</option><option value="1" selected>1 s</option><option value="2">2 s</option></select></label>
         <button class="btn" id="iedrun" disabled>Analizza</button>
         <button class="btn" id="iedprev" title="Candidato precedente (P)">◀ P</button>
@@ -900,7 +902,8 @@ function scoreDecision(A, ied) {
   if (s.g50 >= SLOW.diffuse) { cat.push('nonepi_diffuso'); why.push('Onde lente diffuse/continue (indice globale ' + f2(s.g50) + ' ≥ ' + f2(SLOW.diffuse) + ')'); }
   if (s.side) { cat.push('nonepi_focale'); why.push('Onde lente lateralizzate a ' + s.side + ': ' + s.latRegions.join(', ') + ' (asimmetria ≥ ' + f2(SLOW.lat) + ' in ≥ 2 regioni)'); }
   else if (s.intermittent && !(s.g50 >= SLOW.diffuse)) { cat.push('nonepi_focale'); mild.push(1); why.push('Onde lente intermittenti temporali bilaterali (90° percentile ' + f2(s.p90.temporale) + ' ≥ ' + f2(SLOW.intermittent) + ')'); }
-  if (s.hvEvoked && s.hvEvoked.positive) { cat.push('nonepi_diffuso'); mild.push(1); why.push('Rallentamento durante l\'iperpnea (' + Math.round(s.hvEvoked.slowFrac * 100) + '% epoche lente, ' + Math.round(s.hvEvoked.artFrac * 100) + '% ad alta ampiezza): verificare se fisiologico'); }
+  // patch62: l'iperpnea non classifica piu' come diffuso (su 183 modelli di referto AOPD: positiva in 16, diffuso nel referto in 1); solo da verificare
+  if (s.hvEvoked && s.hvEvoked.positive) possible.push('rallentamento durante l\'iperpnea (' + Math.round(s.hvEvoked.slowFrac * 100) + '% epoche lente, ' + Math.round(s.hvEvoked.artFrac * 100) + '% ad alta ampiezza): verificare se fisiologico');
   // reperti "possibili" (soglie sensibili): non cambiano la classificazione, vanno verificati sul tracciato
   if (s.weakDiffuse) possible.push('lieve eccesso di onde lente globale (indice ' + f2(s.g50) + ')');
   if (s.sideWeak) possible.push('lieve prevalenza di onde lente a ' + s.sideWeak + ' (' + s.latRegions.slice(0, 2).join(', ') + ')');
@@ -1011,9 +1014,10 @@ function generateReport(A, rec, d, ied, format) {
   out.push(desc);
   // organizzazione e anomalie lente
   // ritarata su 87 modelli di referti AOPD (16/10/2026): fondo lento = RPD < 8 Hz o indice globale ≥ 0,10; scarsa se lento e prominenza < 3,
-  // discreta se lento o prominenza < 4 (concordanza 62/76, LOO 61/76; regola precedente 53/79)
+  // discreta se lento (concordanza 62/76, LOO 61/76; regola precedente 53/79)
+  // patch63 (20/10/2026): tolto "o prominenza < 4" -> 121/149 su 183 modelli di referto AOPD (prima 107/149; VALIDAZIONE_v0.5)
   const slowOrg = slowBg || (s.g50 != null && s.g50 >= 0.1);
-  let org = (slowOrg && prom < 3) ? 'scarsamente organizzato' : (slowOrg || prom < 4) ? 'discretamente organizzato' : 'ben organizzato';
+  let org = (slowOrg && prom < 3) ? 'scarsamente organizzato' : slowOrg ? 'discretamente organizzato' : 'ben organizzato';
   m.org = org;
   const diff = s.g50 >= SLOW.diffuse || slowBg;
   const latDer = s.side ? [].concat(...s.latRegions.map(r => [LATREG[r][s.side === 'sx' ? 0 : 1]])) : [];
@@ -1732,7 +1736,9 @@ const MODELS = {
   v3: { label: 'CBraMod v3', file: 'ied_cbramod_v3.onnx', kind: 'cbramod', thr: 0.57,
         info: 'Come v2 più TUAR (artefatti, TUH EEG Corpus); stesse licenze e permessi. Modelli di referto AOPD: AUROC 0,89 / 0,94; più sensibile alle anomalie "non franche" (0,82 contro 0,76).' },
   sn2: { label: 'SpikeNet2', file: 'spikenet2.onnx', kind: 'spikenet2', thr: 0.5,
-        info: 'SpikeNet2 (Li et al., NEJM AI 2025; bdsp-core/SpikeNet2). Pesi distribuiti con il permesso di BDSP (17/10/2026), solo per uso didattico e di ricerca non commerciale; codice CC BY-NC 4.0. Modelli di referto AOPD: AUROC 0,87 / 0,92.' } };
+        info: 'SpikeNet2 (Li et al., NEJM AI 2025; bdsp-core/SpikeNet2). Pesi distribuiti con il permesso di BDSP (17/10/2026), solo per uso didattico e di ricerca non commerciale; codice CC BY-NC 4.0. Modelli di referto AOPD: AUROC 0,87 / 0,92.' },
+  slow: { label: 'Rallentamento (CBraMod-TUSL)', file: 'rallentamento_tusl.onnx', kind: 'slow', thr: 0.5,
+        info: 'CBraMod (pesi pre-addestrati braindecode, BSD-3-Clause) rifinito su TUSL (tratti di rallentamento) con negativi TUSL e TUAR (TUH EEG Corpus, NEDC; pubblicato con il permesso di NEDC, solo uso didattico e di ricerca). Testa per derivazione: probabilità di attività lenta per ognuna delle 18 derivazioni. CV per paziente: AUROC 0,88 contro il fondo TUSL. Sui 183 modelli di referto AOPD il lato (quando il referto ne indica uno) è giusto in 56/74.' } };
 const CB_CH = ['Fp1','F7','T3','T5','O1','Fp2','F8','T4','T6','O2','F3','C3','P3','F4','C4','P4','Fz','Cz','Pz'];
 const CB_BIP = [[0,1],[1,2],[2,3],[3,4],[5,6],[6,7],[7,8],[8,9],[0,10],[10,11],[11,12],[12,4],[5,13],[13,14],[14,15],[15,9],[16,17],[17,18]];
 const SN_CH = ['Fp1','F3','C3','P3','F7','T3','T5','O1','Fz','Cz','Pz','Fp2','F4','C4','P4','F8','T4','T6','O2'];
@@ -1770,7 +1776,7 @@ const flat = w => { let mn = Infinity, mx = -Infinity; for (let i = 0; i < w.len
 async function runJob(sess, kind, seg, fs, offs, ort) {
   const win4 = Math.round(4 * fs), res = offs.map(off => seg.some(ch => flat(ch.subarray(off, off + win4))) ? null : undefined);
   const keep = offs.map((o, i) => i).filter(i => res[i] === undefined); if (!keep.length) return res;
-  if (kind === 'cbramod') {
+  if (kind === 'cbramod' || kind === 'slow') {
     const X = prepCB(seg, fs), n = X[0].length, inp = new Float32Array(keep.length * 18 * 800); const ok = [];
     keep.forEach(i => { const s0 = Math.round(offs[i] / fs * 200); if (s0 + 800 > n) { res[i] = null; return; }
       let mx = 0, sm = 0, sq = 0; for (let c = 0; c < 18; c++) for (let t = s0; t < s0 + 800; t++) { const v = X[c][t]; if (Math.abs(v) > mx) mx = Math.abs(v); sm += v; sq += v * v; }
@@ -1779,6 +1785,7 @@ async function runJob(sess, kind, seg, fs, offs, ort) {
       ok.push(i); for (let c = 0; c < 18; c++) inp.set(X[c].subarray(s0, s0 + 800), (ok.length - 1) * 14400 + c * 800); });
     if (!ok.length) return res;
     const o = await sess.run({ x: new ort.Tensor('float32', inp.subarray(0, ok.length * 14400), [ok.length, 18, 800]) }), L = o[sess.outputNames[0]].data;
+    if (kind === 'slow') { ok.forEach((i, j) => { const l = L.subarray(j * 19, j * 19 + 19); res[i] = [1 / (1 + Math.exp(-l[0])), null, Array.from(l.subarray(1))]; }); return res; }
     ok.forEach((i, j) => { const l = L.subarray(j * 6, j * 6 + 6), p = 1 / (1 + Math.exp(-l[0])); let bs = 1; for (let k = 2; k < 6; k++) if (l[k] > l[bs]) bs = k; res[i] = [p, SEDI[bs - 1]]; });
     return res; }
   // SpikeNet2: tutte le finestre di 1 s (passo 0,25 s = 32 campioni) che servono, poi il massimo per finestra di 4 s
@@ -1823,7 +1830,7 @@ document.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 async function handleFiles(files) {
   for (const f of files) {
     if (/\.safetensors$/i.test(f.name)) { $('iedstatus').textContent = 'Il modello SenuaLab non è più usato: scegli un modello dal menu.'; continue; }
-    if (/\.onnx$/i.test(f.name)) { const k = /spike/i.test(f.name) ? 'sn2' : /v3/i.test(f.name) ? 'v3' : 'v2'; ONNXBUF[k] = { buf: await f.arrayBuffer(), name: f.name };
+    if (/\.onnx$/i.test(f.name)) { const k = /spike/i.test(f.name) ? 'sn2' : /rallent|slow/i.test(f.name) ? 'slow' : /v3/i.test(f.name) ? 'v3' : 'v2'; ONNXBUF[k] = { buf: await f.arrayBuffer(), name: f.name };
       await selectModel('casc'); continue; }
     if (/\.json$/i.test(f.name)) { try { const j = JSON.parse(await f.text());
       if (j && j.tipo === 'revisione-ied') importReview(j); else { S.labels = j; renderRef(); renderScore(); } } catch (err) { $('refbox').textContent = 'Il file JSON non è leggibile: ' + err.message; } }
@@ -2232,6 +2239,7 @@ function renderSummary() {
       <dt>90° perc. fronto-centrale</dt><dd>${sl.p90['fronto-centrale'].toFixed(2)}</dd>
       <dt>90° perc. posteriore</dt><dd>${sl.p90.posteriore.toFixed(2)}</dd>
       <dt>Lateralizzazione</dt><dd>${sl.side ? 'più lento a ' + sl.side : 'nessuna'}</dd>
+      <dt>Lato (modello)</dt><dd>${slowLatText(A)}</dd>
       ${Object.entries(sl.latMed).map(([r, v]) => `<dt>&nbsp;&nbsp;${r}</dt><dd>${isFinite(v) ? (v > 0 ? '+' : '') + v.toFixed(2) : '–'}</dd>`).join('')}
       <dt>Iperpnea</dt><dd>${sl.hvEvoked ? (sl.hvEvoked.positive ? '⚠ ' : '') + Math.round(sl.hvEvoked.slowFrac * 100) + '% epoche lente' : 'non annotata'}</dd>
     </dl>
@@ -2240,7 +2248,7 @@ function renderSummary() {
   $('fname').title = 'File: ' + rec.signals.length + ' segnali a ' + A.fs + ' Hz, ' + (rec.type || 'EDF') + ', inizio ' + rec.startTime.replace(/\./g, ':') + '. Analisi in ' + Math.round(S.ms) + ' ms.';
   addSumTips();
 }
-const SUMTIPS = {"Organizzazione": "Stessa regola del referto (formula AOPD \"tracciato globalmente … organizzato\"). Fondo lento = RPD < 8 Hz oppure indice di rallentamento globale ≥ 0,10. Scarsamente organizzato: fondo lento e picco posteriore < 3 volte il fondo dello spettro (prominenza media O1-P3/O2-P4). Discretamente: fondo lento oppure prominenza < 4. Ben organizzato: altrimenti. Soglie tarate su modelli di referto AOPD. Le linee guida (glossario IFCN 2017 p. 179, SCORE-2 Tab. 4) definiscono l'organizzazione sul ritmo dominante posteriore, senza criteri numerici; forma, topografia e simmetria non sono ancora usate.", "Stabilità": "Tratti a occhi chiusi (primi 20 s dopo ogni O.C.; se non bastano, tutto il periodo a occhi chiusi fino alla riapertura), finestre di 2 s (passo 1 s), O1-P3 e O2-P4; con ritmo dominante sotto 8 Hz si segue l'attività dominante (RPD ± 1,5 Hz) invece dell'alfa; escluse le finestre con artefatti e quelle in sonnolenza (theta > alfa sia in sede posteriore sia in C3-P3/C4-P4). Persistenza = quota di finestre con alfa ≥ 35% della potenza 2–30 Hz. Instabile se le sequenze consecutive di alfa durano in media meno di circa 3 s (2,1 finestre); un po' instabile tra 2,1 e 2,5 finestre (≈ 3,1-3,5 s, zona colorata sulla scala); stabile oltre. Soglie tarate su modelli di referto AOPD. Nessuna linea guida definisce la stabilità.", "Frequenza": "75° percentile dei picchi alfa (5–13,5 Hz) delle singole finestre a occhi chiusi (dal 2° secondo dopo ogni O.C., fino a 20 s), derivazioni O1-P3 e O2-P4; arrotondato a 0,5 Hz (ACNS 2021). 'Media' = picco dello spettro medio di tutte le finestre. 'Non chiaro' se il picco non è netto o non si attenua all'apertura degli occhi (< 10%).", "Voltaggio (ACNS)": "Ampiezza picco-picco (massimo − minimo in finestre di 1 s, filtro 1–30 Hz) sulle derivazioni bipolari longitudinali, epoche pulite; mediana per derivazione e poi tra derivazioni. ACNS 2021: basso < 20 µV, alto ≥ 150 µV, soppresso < 10 µV (soglie per l'area critica).", "Sinistra / destra": "Picco alfa dello spettro medio a occhi chiusi per ciascun lato; 'non definito' se il picco è meno di 2 volte il livello di fondo 1/f (media 3,5–5 e 14–16 Hz). L'asimmetria di frequenza si calcola solo se entrambi i picchi sono netti.", "Derivazioni": "Coppie usate per il ritmo posteriore: O1-P3 e O2-P4, oppure O1-T5 e O2-T6 se un elettrodo è escluso.", "Calcolato su": "Numero di tratti a occhi chiusi annotati dal tecnico (O.C.) usati per il ritmo posteriore; senza annotazioni si usa l'intero tracciato.", "Reattività (O.A.)": "1 − (potenza alfa a occhi aperti / potenza alfa a occhi chiusi), finestre dopo O.A. (da 0,5 a 10 s) e dopo O.C. ACNS 2021 la definisce solo come presente o assente, senza percentuali: sotto 10% = non reattivo; sotto 35% = scarsamente reagente (soglia calibrata su modelli di referto AOPD, la stessa nel referto).", "Gradiente A-P alfa": "Potenza alfa (8–13 Hz) media posteriore (O1, O2, P3, P4) diviso anteriore (Fp1, Fp2, F3, F4), epoche pulite non a occhi aperti. Sotto 1 = gradiente antero-posteriore non mantenuto.", "Esito": "Trascinamento se in almeno 8 finestre di 4 s (passo 2 s) durante la SLI compare un picco posteriore (O1-P3, O2-P4) almeno 6 volte la potenza basale (log10 > 0,8), a frequenze diverse dal ritmo di fondo.", "Frequenze di trascinamento": "Frequenze (Hz, arrotondate) dei picchi sopra soglia nelle finestre della SLI.", "Finestre con trascinamento": "Finestre della SLI con picco sopra soglia / finestre totali della SLI.", "delta 1–2 Hz": "Quota della potenza 1–2 Hz sul totale 1–30 Hz, media sulle derivazioni bipolari longitudinali senza Fp e sulle epoche pulite, escluse quelle con delta solo frontopolare. Raccoglie soprattutto artefatti lenti (occhi, sudore, deriva).", "delta 2–4 Hz": "Quota della potenza 2–4 Hz sul totale 1–30 Hz (stesse derivazioni ed epoche della riga precedente).", "theta": "Quota della potenza 4–8 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "alfa": "Quota della potenza 8–13 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "beta": "Quota della potenza 13–30 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "Durata": "Durata del file. Epoche pulite = epoche di 4 s senza tratti a zero, senza artefatto (picco-picco > 350 µV su almeno 3 canali) e non annotate come artefatto.", "Elettrodi esclusi": "Elettrodi piatti, scollegati o con rumore persistente: esclusi da tutte le analisi (motivo indicato a fianco).", "Artefatti transitori": "Numero di epoche in cui l'elettrodo ha un picco-picco oltre 5 volte la mediana degli altri e oltre 150 µV (elettrodo che 'salta'); in quelle epoche l'elettrodo è ignorato.", "Rete 50 Hz": "Canali con interferenza di rete a 50 Hz elevata rispetto all'attività EEG.", "Tratti a zero": "Pause dell'esportazione riempite con zero (opzione Fill Pause with zero): escluse dalle analisi.", "Indice globale (mediana)": "Indice di rallentamento = log10(potenza 2–8 Hz / potenza 8–30 Hz), media delle derivazioni bipolari longitudinali senza Fp; mediana sulle epoche pulite. ≥ 0,40 = rallentamento diffuso (soglia calibrata su modelli di referto AOPD).", "90° perc. temporale": "90° percentile dell'indice di rallentamento nelle derivazioni temporali (F7-T3, T3-T5, F8-T4, T4-T6). ≥ 0,45 = rallentamento intermittente (soglia calibrata su modelli di referto AOPD).", "90° perc. fronto-centrale": "90° percentile dell'indice di rallentamento in F3-C3, F4-C4, Fz-Cz. ≥ 0,15 = 'da verificare'.", "90° perc. posteriore": "90° percentile dell'indice di rallentamento nelle derivazioni posteriori (P3-O1, P4-O2, T5-O1, T6-O2, C3-P3, C4-P4). Solo informativo.", "Lateralizzazione": "Differenza sx − dx dell'indice di rallentamento per regione (mediana sulle epoche), corretta per lo scarto medio della regione; lateralizzato se ≥ 0,35 in almeno 2 regioni nello stesso verso (calibrato su modelli di referto AOPD).", "Iperpnea": "Quota di epoche nei 180 s dopo l'inizio dell'iperpnea più lente del 90° percentile basale; attivazione se ≥ 15% (o ≥ 20% di epoche con artefatto)."};
+const SUMTIPS = {"Lato (modello)": "Secondo parere sul lato del rallentamento dal modello addestrato su TUSL (rallentamento) e TUAR (artefatti): probabilità di attività lenta per derivazione in finestre di 4 s (passo 2 s). Quota = finestre in cui una derivazione sinistra è nettamente più lenta della sua omologa destra, meno il contrario, corretta per il valore tipico degli EEG normali; prevalenza di lato se ≥ 0,20 in valore assoluto. Sui 183 modelli di referto AOPD: quando il referto indica un lato, il modello lo trova in 44/74 casi (38 con il lato giusto); segnala un lato anche in 43/109 EEG senza lato nel referto (18/56 normali). Le linee guida non danno soglie per l'asimmetria del rallentamento (IFCN 2017 p. 171: soglie solo per il ritmo dominante posteriore). Da verificare sul tracciato.", "Organizzazione": "Stessa regola del referto (formula AOPD \"tracciato globalmente … organizzato\"). Fondo lento = RPD < 8 Hz oppure indice di rallentamento globale ≥ 0,10. Scarsamente organizzato: fondo lento e picco posteriore < 3 volte il fondo dello spettro (prominenza media O1-P3/O2-P4). Discretamente: fondo lento con picco posteriore ≥ 3 volte il fondo. Ben organizzato: fondo non lento. Soglie tarate su modelli di referto AOPD. Le linee guida (glossario IFCN 2017 p. 179, SCORE-2 Tab. 4) definiscono l'organizzazione sul ritmo dominante posteriore, senza criteri numerici; forma, topografia e simmetria non sono ancora usate.", "Stabilità": "Tratti a occhi chiusi (primi 20 s dopo ogni O.C.; se non bastano, tutto il periodo a occhi chiusi fino alla riapertura), finestre di 2 s (passo 1 s), O1-P3 e O2-P4; con ritmo dominante sotto 8 Hz si segue l'attività dominante (RPD ± 1,5 Hz) invece dell'alfa; escluse le finestre con artefatti e quelle in sonnolenza (theta > alfa sia in sede posteriore sia in C3-P3/C4-P4). Persistenza = quota di finestre con alfa ≥ 35% della potenza 2–30 Hz. Instabile se le sequenze consecutive di alfa durano in media meno di circa 3 s (2,1 finestre); un po' instabile tra 2,1 e 2,5 finestre (≈ 3,1-3,5 s, zona colorata sulla scala); stabile oltre. Soglie tarate su modelli di referto AOPD. Nessuna linea guida definisce la stabilità.", "Frequenza": "75° percentile dei picchi alfa (5–13,5 Hz) delle singole finestre a occhi chiusi (dal 2° secondo dopo ogni O.C., fino a 20 s), derivazioni O1-P3 e O2-P4; arrotondato a 0,5 Hz (ACNS 2021). 'Media' = picco dello spettro medio di tutte le finestre. 'Non chiaro' se il picco non è netto o non si attenua all'apertura degli occhi (< 10%).", "Voltaggio (ACNS)": "Ampiezza picco-picco (massimo − minimo in finestre di 1 s, filtro 1–30 Hz) sulle derivazioni bipolari longitudinali, epoche pulite; mediana per derivazione e poi tra derivazioni. ACNS 2021: basso < 20 µV, alto ≥ 150 µV, soppresso < 10 µV (soglie per l'area critica).", "Sinistra / destra": "Picco alfa dello spettro medio a occhi chiusi per ciascun lato; 'non definito' se il picco è meno di 2 volte il livello di fondo 1/f (media 3,5–5 e 14–16 Hz). L'asimmetria di frequenza si calcola solo se entrambi i picchi sono netti.", "Derivazioni": "Coppie usate per il ritmo posteriore: O1-P3 e O2-P4, oppure O1-T5 e O2-T6 se un elettrodo è escluso.", "Calcolato su": "Numero di tratti a occhi chiusi annotati dal tecnico (O.C.) usati per il ritmo posteriore; senza annotazioni si usa l'intero tracciato.", "Reattività (O.A.)": "1 − (potenza alfa a occhi aperti / potenza alfa a occhi chiusi), finestre dopo O.A. (da 0,5 a 10 s) e dopo O.C. ACNS 2021 la definisce solo come presente o assente, senza percentuali: sotto 10% = non reattivo; sotto 35% = scarsamente reagente (soglia calibrata su modelli di referto AOPD, la stessa nel referto).", "Gradiente A-P alfa": "Potenza alfa (8–13 Hz) media posteriore (O1, O2, P3, P4) diviso anteriore (Fp1, Fp2, F3, F4), epoche pulite non a occhi aperti. Sotto 1 = gradiente antero-posteriore non mantenuto.", "Esito": "Trascinamento se in almeno 8 finestre di 4 s (passo 2 s) durante la SLI compare un picco posteriore (O1-P3, O2-P4) almeno 6 volte la potenza basale (log10 > 0,8), a frequenze diverse dal ritmo di fondo.", "Frequenze di trascinamento": "Frequenze (Hz, arrotondate) dei picchi sopra soglia nelle finestre della SLI.", "Finestre con trascinamento": "Finestre della SLI con picco sopra soglia / finestre totali della SLI.", "delta 1–2 Hz": "Quota della potenza 1–2 Hz sul totale 1–30 Hz, media sulle derivazioni bipolari longitudinali senza Fp e sulle epoche pulite, escluse quelle con delta solo frontopolare. Raccoglie soprattutto artefatti lenti (occhi, sudore, deriva).", "delta 2–4 Hz": "Quota della potenza 2–4 Hz sul totale 1–30 Hz (stesse derivazioni ed epoche della riga precedente).", "theta": "Quota della potenza 4–8 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "alfa": "Quota della potenza 8–13 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "beta": "Quota della potenza 13–30 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "Durata": "Durata del file. Epoche pulite = epoche di 4 s senza tratti a zero, senza artefatto (picco-picco > 350 µV su almeno 3 canali) e non annotate come artefatto.", "Elettrodi esclusi": "Elettrodi piatti, scollegati o con rumore persistente: esclusi da tutte le analisi (motivo indicato a fianco).", "Artefatti transitori": "Numero di epoche in cui l'elettrodo ha un picco-picco oltre 5 volte la mediana degli altri e oltre 150 µV (elettrodo che 'salta'); in quelle epoche l'elettrodo è ignorato.", "Rete 50 Hz": "Canali con interferenza di rete a 50 Hz elevata rispetto all'attività EEG.", "Tratti a zero": "Pause dell'esportazione riempite con zero (opzione Fill Pause with zero): escluse dalle analisi.", "Indice globale (mediana)": "Indice di rallentamento = log10(potenza 2–8 Hz / potenza 8–30 Hz), media delle derivazioni bipolari longitudinali senza Fp; mediana sulle epoche pulite. ≥ 0,40 = rallentamento diffuso (soglia calibrata su modelli di referto AOPD).", "90° perc. temporale": "90° percentile dell'indice di rallentamento nelle derivazioni temporali (F7-T3, T3-T5, F8-T4, T4-T6). ≥ 0,45 = rallentamento intermittente (soglia calibrata su modelli di referto AOPD).", "90° perc. fronto-centrale": "90° percentile dell'indice di rallentamento in F3-C3, F4-C4, Fz-Cz. ≥ 0,15 = 'da verificare'.", "90° perc. posteriore": "90° percentile dell'indice di rallentamento nelle derivazioni posteriori (P3-O1, P4-O2, T5-O1, T6-O2, C3-P3, C4-P4). Solo informativo.", "Lateralizzazione": "Differenza sx − dx dell'indice di rallentamento per regione (mediana sulle epoche), corretta per lo scarto medio della regione; lateralizzato se ≥ 0,35 in almeno 2 regioni nello stesso verso (calibrato su modelli di referto AOPD).", "Iperpnea": "Quota di epoche nei 180 s dopo l'inizio dell'iperpnea più lente del 90° percentile basale; attivazione se ≥ 15% (o ≥ 20% di epoche con artefatto)."};
 function addSumTips() { $('summary').querySelectorAll('dt').forEach(dt => { const k = dt.textContent.trim(); const t = SUMTIPS[k] || (/^\u00a0/.test(dt.textContent) ? "Differenza sx − dx dell'indice di rallentamento in questa regione (positivo = più lento a sinistra), mediana sulle epoche, corretta per lo scarto medio della regione." : null); if (t) dt.title = t; }); }
 function renderRef() {
   if (!S.labels) return; document.body.classList.add('haslabels');
@@ -2512,7 +2520,7 @@ function makePool(fs) {
   return Promise.all(ws.map(w => new Promise(res => { w.onmessage = e => e.data.type === 'ready' && res(); w.postMessage({ type: 'init', buf: S.model.buf.slice(0), fs }); }))).then(() => ws);
 }
 /* ---- rilevatori ONNX (CBraMod v2/v3, SpikeNet2) ---- */
-const OX = window.EEGONNX, ONNXBUF = {}; let OPOOL = [];
+const OX = window.EEGONNX, ONNXBUF = {}; let OPOOL = [], SLOWTRIED = false;
 function iedKind() { return $('iedmodel').value; }
 /* lettura di una risposta con avanzamento (byte letti, byte totali se noti) */
 async function readProg(r, onp) { const tot = +(r.headers.get('content-length') || 0); if (!r.body || !r.body.getReader) { const b = await r.arrayBuffer(); onp(b.byteLength, tot); return new Uint8Array(b); }
@@ -2525,8 +2533,8 @@ async function fetchOnnx(k, onp = () => { }) { const m = OX.MODELS[k];
       if (parts.length) { const n = parts.reduce((a, x) => a + x.length, 0), u = new Uint8Array(n); let o = 0; for (const x of parts) { u.set(x, o); o += x.length; }
         return { buf: u.buffer, name: dir + m.file + ' (' + parts.length + ' parti)' }; } } catch (e) { /* pagina da disco */ } }
   return null; }
-const CASC = { label: 'v3 + SpikeNet2', thr: 0.5, screen: 0.1,
-  info: 'Cascata: CBraMod v3 su tutto il tracciato, SpikeNet2 sulle finestre con probabilità v3 ≥ 0,10; punteggio = media dei due. Soglia consigliata 0,50, verificata su modelli di referto AOPD (candidati/min: AUROC 0,89; 9% degli EEG senza anomalie con almeno un candidato); 0,40 è più sensibile (16%). Modelli di referto AOPD: AUROC 0,90 / 0,94 / 0,83.' };
+const CASC = { label: 'modelli 1 + 2', thr: 0.5, screen: 0.1,
+  info: 'Cascata: modello 1 su tutto il tracciato, modello 2 sulle finestre con probabilità del modello 1 ≥ 0,10 (nomi nella guida ?); punteggio = media dei due. Soglia consigliata 0,50, verificata su modelli di referto AOPD (candidati/min: AUROC 0,89; 9% degli EEG senza anomalie con almeno un candidato); 0,40 è più sensibile (16%). Modelli di referto AOPD: AUROC 0,90 / 0,94 / 0,83.' };
 const needOf = k => k === 'casc' ? ['v3', 'sn2'] : [k];
 function setThrFor(k) { const thr = k === 'casc' ? CASC.thr : OX.MODELS[k].thr, sel = $('iedthr');
   let o = [...sel.options].find(x => Math.abs(+x.value - thr) < 1e-4);
@@ -2538,7 +2546,7 @@ async function selectModel(k) {
   setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
   const busy = $('iedbusy'), tip = busy.title;
   if (needOf(k).some(j => !ONNXBUF[j])) { busy.hidden = false; busy.title = 'Caricamento dei modelli IED nel browser (prima volta: circa 160 MB)…'; }
-  try { const need = needOf(k); for (const [q, j] of need.entries()) { if (ONNXBUF[j]) continue; const nm = OX.MODELS[j].label || j, pre = 'Caricamento dei modelli (' + (q + 1) + '/' + need.length + ', ' + nm + ')… ';
+  try { const need = needOf(k); for (const [q, j] of need.entries()) { if (ONNXBUF[j]) continue; const nm = 'modello ' + (q + 1), pre = 'Caricamento dei modelli (' + (q + 1) + '/' + need.length + ', ' + nm + ')… ';
       $('iedstatus').textContent = pre; $('iedstatus').title = OX.MODELS[j].file; let last = 0;
       const r = await fetchOnnx(j, (b, t, part) => { const now = performance.now(); if (now - last < 150) return; last = now; $('iedstatus').textContent = pre + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB' + (part ? ' (parte ' + part + ')' : '')); });
       if (r) ONNXBUF[j] = r; } }
@@ -2547,6 +2555,7 @@ async function selectModel(k) {
   if (miss.length) { $('iedrun').disabled = true;
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
   const mb = needOf(k).reduce((x, j) => x + ONNXBUF[j].buf.byteLength, 0) / 1048576;
+  if (!ONNXBUF.slow && !SLOWTRIED) { SLOWTRIED = true; try { const r = await fetchOnnx('slow'); if (r) ONNXBUF.slow = r; } catch (e) { /* facoltativo */ } }
   $('iedrun').disabled = false; $('iedstatus').textContent = 'Modelli pronti.'; $('iedstatus').title = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
   if (S.A) iedQueueAll();
 }
@@ -2571,9 +2580,9 @@ function makeOnnxPool(k) {
 }
 /* scansione con un modello ONNX su un elenco di inizi di finestra (campioni); restituisce { p, ch, sec, errs } o null se interrotta */
 async function scanONNX(k, starts, run, msg, A = S.A, rec = S.rec) {
-  const fs = A.fs, win = Math.round(4 * fs), m = OX.MODELS[k], CH = m.kind === 'cbramod' ? OX.CB_CH : OX.SN_CH;
+  const fs = A.fs, win = Math.round(4 * fs), m = OX.MODELS[k], CH = m.kind === 'spikenet2' ? OX.SN_CH : OX.CB_CH;
   const N = rec.signals[A.cmap[CH[0]]].data.length, pad = Math.round(5 * fs);
-  if (!OPOOL.length || OPOOL.k !== k) { $('iedstatus').textContent = 'Avvio della ricerca delle anomalie sospette…'; $('iedstatus').title = 'Avvio dei worker (' + m.label + ', onnxruntime-web al primo uso)'; OPOOL.forEach(w => w.terminate()); OPOOL = [];
+  if (!OPOOL.length || OPOOL.k !== k) { $('iedstatus').textContent = 'Avvio della ricerca delle anomalie sospette…'; $('iedstatus').title = 'Avvio dei worker (onnxruntime-web al primo uso)'; OPOOL.forEach(w => w.terminate()); OPOOL = [];
     OPOOL = await makeOnnxPool(k); OPOOL.k = k; }
   const chunks = []; let cur = [];   // blocchi di finestre vicine (al massimo 24, entro 30 s)
   starts.forEach((s0, i) => { if (cur.length && (cur.length >= 24 || s0 - starts[cur[0]] > 30 * fs)) { chunks.push(cur); cur = []; } cur.push(i); }); if (cur.length) chunks.push(cur);
@@ -2586,7 +2595,7 @@ async function scanONNX(k, starts, run, msg, A = S.A, rec = S.rec) {
       w.onmessage = e => { if (e.data.err) errs++; e.data.out.forEach((r, j) => { if (r) { p[idx[j]] = r[0]; chn[idx[j]] = r[1]; if (r[2]) fine[idx[j]] = r[2]; } }); done += e.data.out.length;
         if (IEDOWNER) IEDPN[IEDOWNER] = done / starts.length; if (!IEDOWNER || IEDOWNER === S.fname) $('iedprog').firstChild.style.width = (100 * done / starts.length) + '%';
         const pct = Math.round(100 * done / starts.length), ph = (/1\/2/.test(msg) ? ' (fase 1/2)' : /2\/2/.test(msg) ? ' (fase 2/2)' : ''); if (IEDOWNER) { const old = IEDPCT[IEDOWNER]; IEDPCT[IEDOWNER] = pct + '%' + ph; if (old !== IEDPCT[IEDOWNER]) iedProgUI(); }
-        if (!IEDOWNER || IEDOWNER === S.fname) $('iedstatus').textContent = (/2\/2/.test(msg) ? 'Verifica delle anomalie sospette… ' : 'Ricerca delle anomalie sospette… ') + pct + '%'; $('iedstatus').title = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
+        if (!IEDOWNER || IEDOWNER === S.fname) $('iedstatus').textContent = (/rallent/i.test(msg) ? 'Analisi del rallentamento… ' : /2\/2/.test(msg) ? 'Verifica delle anomalie sospette… ' : 'Ricerca delle anomalie sospette… ') + pct + '%'; $('iedstatus').title = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
         if (done >= starts.length) resolve(); else feed(w); };
       w.postMessage({ type: 'job', id: ci, seg, fs, offs: idx.map(i => starts[i] - a) }, seg.map(x => x.buffer)); };
     OPOOL.forEach(feed);
@@ -2605,21 +2614,42 @@ async function runONNX(k, src) {
     if (k !== 'casc') { const r = await scanONNX(k, starts, run, OX.MODELS[k].label, A, rec); if (!r) return;
       I = { t: starts.map(s0 => s0 / fs), p: r.p, ch: r.ch, step, sec: r.sec, workers: r.workers, model: OX.MODELS[k].label, errs: r.errs }; }
     else {
-      const r3 = await scanONNX('v3', starts, run, 'Cascata 1/2, CBraMod v3', A, rec); if (!r3) return;
+      const r3 = await scanONNX('v3', starts, run, 'Cascata 1/2, modello 1', A, rec); if (!r3) return;
       const sel = starts.map((s0, i) => i).filter(i => r3.p[i] !== null && r3.p[i] >= CASC.screen);
-      const rs = await scanONNX('sn2', sel.map(i => starts[i]), run, 'Cascata 2/2, SpikeNet2 sulle ' + sel.length + ' finestre sospette', A, rec); if (!rs) return;
+      const rs = await scanONNX('sn2', sel.map(i => starts[i]), run, 'Cascata 2/2, modello 2 sulle ' + sel.length + ' finestre sospette', A, rec); if (!rs) return;
       const psn = new Array(starts.length).fill(null); sel.forEach((i, j) => { psn[i] = rs.p[j]; });
       const p = r3.p.map((v, i) => v === null ? null : psn[i] !== null ? (v + psn[i]) / 2 : v / 2);
       const snf = new Map(); sel.forEach((i, j) => { const f = rs.fine[j]; if (f) f.forEach((v, q) => { if (v === null) return; const key = Math.round((starts[i] / fs + 0.25 * q) * 4); if (!(snf.get(key) >= v)) snf.set(key, v); }); });
-      I = { t: starts.map(s0 => s0 / fs), p, p3: r3.p, psn, ch: r3.ch, step, sec: r3.sec + rs.sec, workers: r3.workers, model: 'Cascata CBraMod v3 + SpikeNet2', errs: r3.errs + rs.errs,
+      I = { t: starts.map(s0 => s0 / fs), p, p3: r3.p, psn, ch: r3.ch, step, sec: r3.sec + rs.sec, workers: r3.workers, model: 'Modelli 1 + 2 in cascata', errs: r3.errs + rs.errs,
             nSel: sel.length, snf };
+      if (ONNXBUF.slow) { const hop2 = Math.round(2 * fs) - 1, st2 = []; let last = -1e9; starts.forEach(s0 => { if (s0 - last >= hop2) { st2.push(s0); last = s0; } });
+        const rr = await scanONNX('slow', st2, run, 'Rallentamento (modello)', A, rec); if (!rr) return; I.slow = slowLat(st2.map(s0 => s0 / fs), rr); }
     }
     if (owner !== S.fname) { storeIED(owner, I); return; }
     S.ied = I;
   } catch (err) { OPOOL = []; $('iedstatus').innerHTML = '<span class="warnline">Analisi non riuscita: ' + err.message + ' (serve la connessione per onnxruntime-web).</span>'; return; }
   finally { $('iedprog').hidden = true; $('iedrun').disabled = false; }
-  buildEvents(); renderIED(); renderScore(); renderRef(); drawAll();
+  buildEvents(); renderIED(); renderScore(); renderRef(); try { renderSummary(); } catch (e) { } drawAll();
 }
+/* patch64: lato del rallentamento dal modello (rallentamento/valuta.py, regola adottata il 21/10/2026).
+   Per ogni finestra di 4 s: coppie omologhe sx-dx (Fp1-F7/Fp2-F8 … P3-O1/P4-O2); quota di finestre in cui almeno una coppia
+   ha il lato sinistro più lento di > 1 logit, meno la stessa quota a destra, + 0,078 (correzione = mediana degli EEG normali AOPD).
+   |quota| ≥ 0,2 -> prevalenza di lato. Soglie tarate su 183 modelli di referto AOPD, non da linea guida. */
+const SLOW_NAMES = ['Fp1-F7', 'F7-T3', 'T3-T5', 'T5-O1', 'Fp2-F8', 'F8-T4', 'T4-T6', 'T6-O2', 'Fp1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'Fp2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'Fz-Cz', 'Cz-Pz'];
+const SLOW_SX = [0, 1, 2, 3, 8, 9, 10, 11], SLOW_DX = [4, 5, 6, 7, 12, 13, 14, 15], SLOW_OFF = 0.078, SLOW_TL = 1, SLOW_TQ = 0.2;
+function slowLat(t, r) { let nL = 0, nR = 0, n = 0, nHot = 0; const dm = new Float64Array(8), win = [];
+  r.p.forEach((p, i) => { const z = r.fine[i]; if (p === null || !z) return; n++; if (p > 0.5) nHot++;
+    let mx = -Infinity, mn = Infinity; SLOW_SX.forEach((a, j) => { const d = z[a] - z[SLOW_DX[j]]; dm[j] += d; if (d > mx) mx = d; if (d < mn) mn = d; });
+    const L = mx > SLOW_TL, R = mn < -SLOW_TL; if (L) nL++; if (R) nR++; win.push([t[i], +p.toFixed(3), L ? (R ? 'b' : 'sx') : R ? 'dx' : '']); });
+  if (!n) return null;
+  const q = (nL - nR) / n + SLOW_OFF, side = q >= SLOW_TQ ? 'sx' : q <= -SLOW_TQ ? 'dx' : null, sg = (side || (q > 0 ? 'sx' : 'dx')) === 'sx' ? 1 : -1;
+  const top = [...dm.keys()].sort((a, b) => sg * (dm[b] - dm[a])).slice(0, 3).map(j => SLOW_NAMES[sg > 0 ? SLOW_SX[j] : SLOW_DX[j]]);
+  return { q, side, top, hot: nHot / n, fL: nL / n, fR: nR / n, n, win }; }
+function slowLatText(A) { const m = S.ied && S.ied.slow; if (!m) return S.ied ? 'modello non disponibile (file rallentamento_tusl.onnx non trovato)' : 'dopo l\'analisi delle anomalie sospette';
+  const sl = A && A.slow, sp = sl ? (sl.side || sl.sideWeak) : null, f2 = v => (v >= 0 ? '+' : '') + v.toFixed(2).replace('.', ',');
+  const cmp = m.side && sp ? (sp === m.side ? ' — concorda con l\'asimmetria spettrale' : ' — discorda dall\'asimmetria spettrale (' + sp + ')') : '';
+  return (m.side ? '⚠ prevalenza ' + (m.side === 'sx' ? 'sinistra' : 'destra') + ' (' + m.top.join(', ') + '), da verificare' : 'nessuna prevalenza netta')
+    + ' <span class="muted">(quota ' + f2(m.q) + '; attività lenta nel ' + Math.round(m.hot * 100) + '% delle finestre)</span>' + cmp; }
 (async () => { await selectModel('casc'); })();
 let iedRun = 0;
 var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {}, IEDPN = {};
@@ -2676,15 +2706,15 @@ $('iedrun').onclick = runIED;
    con il massimo), quindi basta il tratto scelto con qualche secondo di margine per i filtri. "Accordo" = tempo coperto da finestre
    sopra soglia di almeno 2 modelli (scelta dell'app). */
 const MCOL = { v3: '--stim', sn2: '--yes', media: '--accent' }, MKEYS = ['v3', 'sn2', 'media'];
-const MLAB = k => k === 'media' ? 'Media v3 + SpikeNet2' : k === 'sn2' ? 'SpikeNet2 (1 s, passo 0,25 s)' : OX.MODELS[k].label, MTHR = k => { const d = +$('anathr').value - 0.5; return k === 'media' ? 0.5 + d : Math.min(0.95, Math.max(0.05, OX.MODELS[k].thr + d)); };
+const MLAB = k => k === 'media' ? 'Media dei modelli 1 e 2' : k === 'sn2' ? 'Modello 2' : k === 'v3' ? 'Modello 1' : OX.MODELS[k].label, MTHR = k => { const d = +$('anathr').value - 0.5; return k === 'media' ? 0.5 + d : Math.min(0.95, Math.max(0.05, OX.MODELS[k].thr + d)); };
 $('anathr').onchange = () => { const M = S.multi; if (!M) return; for (const k in M.res) if (M.res[k] && M.res[k].t) M.res[k].thr = MTHR(k); renderAnaRes(); drawAll(); };
 let ANAL = false, anaRun = 0, ADR = null; const MPOOL = {}; S.anaSel = null; S.multi = null;
-$('anamods').innerHTML = MKEYS.map(k => `<label title="${k === 'media' ? 'Media delle probabilità di v3 e SpikeNet2 sulle finestre di 4 s (soglia = quella dei candidati)' : k === 'sn2' ? 'SpikeNet2: finestre di 1 s a passo 0,25 s (soglia 0,50)' : 'CBraMod v3: finestre di 4 s (soglia 0,57)'}"><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}</label>`).join('');
+$('anamods').innerHTML = MKEYS.map(k => `<label title="${k === 'media' ? 'Media delle probabilità dei modelli 1 e 2 sulle finestre di 4 s (soglia = quella delle anomalie sospette)' : k === 'sn2' ? 'Modello 2: finestre di 1 s a passo 0,25 s (soglia 0,50). Nomi dei modelli nella guida ? della sezione Anomalie sospette.' : 'Modello 1: finestre di 4 s (soglia 0,57). Nomi dei modelli nella guida ? della sezione Anomalie sospette.'}"><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}</label>`).join('');
 function setAnal(on) { if (on && RULER) setRuler(false); ANAL = on; if (on && ANNOT) setAnnot(false); $('anabtn').setAttribute('aria-pressed', String(on)); $('anabar').hidden = !on; $('annlayer').classList.toggle('on', on || ANNOT); anaSelText(); requestAnimationFrame(drawAll); }
 $('anabtn').onclick = () => setAnal(!ANAL);
 function anaSelText() { const r = S.anaSel; $('anasel').textContent = r ? 'Tratto: ' + fmtT(r.t0) + '–' + fmtT(r.t1) + ' (' + Math.round(r.t1 - r.t0) + ' s)' : 'Tratto: trascina sulla panoramica o sul tracciato (ora: pagina corrente)'; }
 $('anapage').onclick = () => { if (!S.A) return; S.anaSel = { t0: S.t, t1: Math.min(S.A.duration, S.t + pageLen()) }; anaSelText(); drawAll(); };
-$('anaclear').onclick = () => { anaRun++; S.anaSel = null; S.multi = null; $('anastat').textContent = ''; anaSelText(); renderAnaRes(); drawAll(); };
+$('anaclear').onclick = () => { anaRun++; $('anaover').hidden = true; document.body.classList.remove('anabusy'); S.anaSel = null; S.multi = null; $('anastat').textContent = ''; anaSelText(); renderAnaRes(); drawAll(); };
 // selezione sul tracciato
 (function () { const lay = $('annlayer');
   lay.addEventListener('pointerdown', e => { if (!ANAL || ANNOT || !S.A || !S.geo || e.button !== 0 || e.target.closest('.ua,.uqmenu')) return;
@@ -2731,19 +2761,20 @@ async function scanRange(k, t0, t1, run, onProg) {
 $('anago').onclick = async () => { if (!S.A) return; const ks = ['v3', 'sn2'];
   const sel = S.anaSel || { t0: S.t, t1: Math.min(S.A.duration, S.t + pageLen()) }, run = ++anaRun; S.anaSel = sel; anaSelText();
   S.multi = { t0: sel.t0, t1: sel.t1, order: ks, res: {} }; $('anago').disabled = true; $('iedbusy').hidden = false;
-  try { for (const k of ks) { if (run !== anaRun) return; $('anastat').innerHTML = '<span class="spin small" aria-hidden="true"></span> ' + MLAB(k) + '…';
-      try { S.multi.res[k] = await scanRange(k, sel.t0, sel.t1, run, (d, n) => { $('anastat').innerHTML = '<span class="spin small" aria-hidden="true"></span> ' + MLAB(k) + ': ' + d + '/' + n + ' finestre'; }); }
+  const ovt = (k, d, n) => { $('anaover').hidden = false; document.body.classList.add('anabusy'); $('anaovt').textContent = 'Analisi del tratto ' + fmtT(sel.t0) + '–' + fmtT(sel.t1) + ': ' + MLAB(k).toLowerCase() + (n ? ' ' + Math.round(100 * d / n) + '%' : '…') + ' (' + (ks.indexOf(k) + 1) + '/' + ks.length + ')'; };
+  try { for (const k of ks) { if (run !== anaRun) return; $('anastat').innerHTML = '<span class="spin small" aria-hidden="true"></span> ' + MLAB(k) + '…'; ovt(k, 0, 0);
+      try { S.multi.res[k] = await scanRange(k, sel.t0, sel.t1, run, (d, n) => { $('anastat').innerHTML = '<span class="spin small" aria-hidden="true"></span> ' + MLAB(k) + ': ' + d + '/' + n + ' finestre'; ovt(k, d, n); }); }
       catch (err) { S.multi.res[k] = { err: err.message }; }
       renderAnaRes(); drawAll(); }
     const R3 = S.multi.res.v3, RS = S.multi.res.sn2;
     if (R3 && R3.t && RS && RS.p4) { S.multi.res.media = { t: R3.t, p: R3.p.map((v, i) => v != null && RS.p4[i] != null ? (v + RS.p4[i]) / 2 : null), ch: R3.ch, thr: MTHR('media'), w: 4 }; S.multi.order = ['v3', 'sn2', 'media']; renderAnaRes(); drawAll(); }
-    $('anastat').textContent = 'Fatto: v3, SpikeNet2 e media su ' + Math.round(sel.t1 - sel.t0) + ' s.';
-    if (run === anaRun) { const n = anaAgree().length; toast('Analisi del tratto ' + fmtT(sel.t0) + '–' + fmtT(sel.t1) + ' completata' + (n ? ': ' + n + (n === 1 ? ' tratto' : ' tratti') + ' di accordo tra v3 e SpikeNet2.' : ': nessun tratto di accordo.'), 'Vedi risultati', () => goSection('ied', $('anares'))); } }
-  finally { $('anago').disabled = false; $('iedbusy').hidden = true; } };
+    $('anastat').textContent = 'Fatto: modelli 1, 2 e media su ' + Math.round(sel.t1 - sel.t0) + ' s.';
+    if (run === anaRun) { const n = anaAgree().length; toast('Analisi del tratto ' + fmtT(sel.t0) + '–' + fmtT(sel.t1) + ' completata' + (n ? ': ' + n + (n === 1 ? ' tratto' : ' tratti') + ' di accordo tra i modelli 1 e 2.' : ': nessun tratto di accordo.'), 'Vedi risultati', () => goSection('ied', $('anares'))); } }
+  finally { $('anago').disabled = false; $('iedbusy').hidden = true; $('anaover').hidden = true; document.body.classList.remove('anabusy'); } };
 /* ---- organizzazione (stessa regola del referto) ---- */
 function orgOf(A) { const p = A.pdr || {}, s = A.slow || {}, n = (p.sx ? 1 : 0) + (p.dx ? 1 : 0) || 1, prom = ((p.sx ? p.sx.prominence : 0) + (p.dx ? p.dx.prominence : 0)) / n,
     slow = (p.freq != null && p.freq < 8) || (s.g50 != null && s.g50 >= 0.1);
-  return { cls: slow && prom < 3 ? 'scarsamente organizzato' : slow || prom < 4 ? 'discretamente organizzato' : 'ben organizzato', prom, slow }; }
+  return { cls: slow && prom < 3 ? 'scarsamente organizzato' : slow ? 'discretamente organizzato' : 'ben organizzato', prom, slow }; }
 function orgText(A) { const o = orgOf(A); return o.cls + ' (picco posteriore ' + o.prom.toFixed(1).replace('.', ',') + ' volte il fondo' + (o.slow ? '; fondo lento' : '') + ')'; }
 
 /* ---- avviso in basso con azione ---- */
@@ -3054,10 +3085,10 @@ function anaAt(t) { const M = S.multi; if (!M || t < M.t0 - 4 || t > M.t1 + 4) r
   return parts.length ? parts.join(' · ') + ' <span class="small">(in grassetto sopra soglia)</span>' : null; }
 function renderAnaRes() { const box = $('anares'), M = S.multi; if (!M) { box.hidden = true; box.innerHTML = ''; return; } box.hidden = false;
   const ag = anaAgree();
-  box.innerHTML = `<b>Analisi del tratto ${fmtT(M.t0)}–${fmtT(M.t1)}</b> (v3 e media: finestre di 4 s, passo ${$('iedstep').value} s; SpikeNet2: finestre di 1 s, passo 0,25 s)<ul>` + M.order.map(k => { const r = M.res[k];
+  box.innerHTML = `<b>Analisi del tratto ${fmtT(M.t0)}–${fmtT(M.t1)}</b> (modello 1 e media: finestre di 4 s, passo ${$('iedstep').value} s; modello 2: finestre di 1 s, passo 0,25 s)<ul>` + M.order.map(k => { const r = M.res[k];
       if (!r) return `<li><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}: in corso…</li>`; if (r.err) return `<li><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}: <span class="warnline">${r.err}</span></li>`;
       const n = r.p.filter(x => x >= r.thr).length, mx = Math.max(...r.p.filter(x => x != null)); return `<li title="soglia ${r.thr.toFixed(2)}"><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}: ${n} finestre sopra soglia su ${r.t.length} (massimo ${isFinite(mx) ? mx.toFixed(2).replace('.', ',') : '–'})</li>`; }).join('') + '</ul>'
-    + (ag.length ? '<b>Accordo v3 e SpikeNet2</b><ul id="anaag">' + ag.map((s, i) => `<li data-i="${i}">${fmtT(s.a)}–${fmtT(s.b)} · ${s.n}/${s.of} modelli (${s.ks.map(MLAB).join(', ')})</li>`).join('') + '</ul>' : '<div>Nessun tratto in cui v3 e SpikeNet2 superano entrambi la soglia.</div>');
+    + (ag.length ? '<b>Accordo tra i modelli 1 e 2</b><ul id="anaag">' + ag.map((s, i) => `<li data-i="${i}">${fmtT(s.a)}–${fmtT(s.b)} · ${s.n}/${s.of} modelli (${s.ks.map(MLAB).join(', ')})</li>`).join('') + '</ul>' : '<div>Nessun tratto in cui i modelli 1 e 2 superano entrambi la soglia.</div>');
   box.querySelectorAll('#anaag li').forEach(li => li.onclick = () => { const s = ag[+li.dataset.i]; goTo((s.a + s.b) / 2 - pageLen() / 2); }); }
 function drawAna(lab, sec, plotW, H) { const X = t => lab + (t - S.t) / sec * plotW, M = S.multi, r = S.anaSel; if (!r && !M) return;
   const a = (M || r).t0, b = (M || r).t1; if (b >= S.t && a <= S.t + sec) { tctx.strokeStyle = css('--accent'); tctx.setLineDash([5, 4]); tctx.lineWidth = 1.5;
@@ -3098,17 +3129,17 @@ function loadReview() { try { return JSON.parse(localStorage.getItem(storeKey())
 function saveReview() { try { localStorage.setItem(storeKey(), JSON.stringify(S.review)); } catch (e) { /* archiviazione non disponibile */ } }
 function renderIED() {
   const ul = $('iedlist'); ul.innerHTML = '';
-  if (S.ied && S.ied.events.length) { const h = document.createElement('li'); h.className = 'head'; h.innerHTML = '<span title="Istante della punta (o del picco della finestra)">Tempo</span><span title="Probabilità combinata: media di CBraMod v3 e SpikeNet2 (i valori singoli nel tooltip della riga)">p</span><span title="Derivazione in cui la punta è più ampia">Deriv.</span><span title="Qualità della localizzazione, morfologia, inversione di fase, sede, durata, contesto">Reperto</span><span title="Giudizio di revisione: sì / no / dubbio (tasti 1/2/3)">Giudizio</span>'; ul.appendChild(h); }
+  if (S.ied && S.ied.events.length) { const h = document.createElement('li'); h.className = 'head'; h.innerHTML = '<span title="Istante della punta (o del picco della finestra)">Tempo</span><span title="Probabilità combinata: media dei modelli 1 e 2 (i valori singoli nel tooltip della riga)">p</span><span title="Derivazione in cui la punta è più ampia">Deriv.</span><span title="Qualità della localizzazione, morfologia, inversione di fase, sede, durata, contesto">Reperto</span><span title="Giudizio di revisione: sì / no / dubbio (tasti 1/2/3)">Giudizio</span>'; ul.appendChild(h); }
   if (!S.ied) { $('iedcount').textContent = ''; iedLiveUI(); return; }
   const I = S.ied, ev = I.events, nJ = ev.filter(e => S.review[evKey(e)]).length;
   $('iedstatus').textContent = (ev.length ? ev.length + (ev.length === 1 ? ' anomalia sospetta trovata' : ' anomalie sospette trovate') : 'Nessuna anomalia sospetta trovata') + ' (sensibilità ' + I.thr.toFixed(2).replace('.', ',') + ').' + (I.errs ? ' Parte del tracciato non analizzata.' : '');
-  $('iedstatus').title = `${I.model}${I.nSel != null ? ' (SpikeNet2 su ' + I.nSel + ' finestre)' : ''}: ${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker${I.errs ? ', ' + I.errs + ' blocchi non riusciti' : ''}.`;
+  $('iedstatus').title = `${I.model}${I.nSel != null ? ' (modello 2 su ' + I.nSel + ' finestre)' : ''}: ${ev.length} candidati (soglia ${I.thr.toFixed(2)}) su ${I.t.length} finestre di 4 s, passo ${I.step} s; ${Math.round(I.sec)} s con ${I.workers} worker${I.errs ? ', ' + I.errs + ' blocchi non riusciti' : ''}.`;
   $('iedcount').textContent = `Rivisti ${nJ}/${ev.length} · sì ${ev.filter(e => S.review[evKey(e)] === 'si').length} · no ${ev.filter(e => S.review[evKey(e)] === 'no').length} · dubbi ${ev.filter(e => S.review[evKey(e)] === 'dubbio').length}`;
   ev.forEach((e, i) => {
     const li = document.createElement('li'), j = S.review[evKey(e)]; li.tabIndex = 0; if (i === S.iedCur) li.className = 'cur';
     const L = e.loc && e.loc.found ? e.loc : null, q = L ? (L.quality === 'artefatto' ? '⚠ artefatto? ' + L.qualityWhy + ' · ' : L.quality === 'incerta' ? 'incerta · ' : '') : 'non localizzato · ';
     li.title = L ? `${L.type} ${L.polarity}, ${L.durMs} ms, ${L.ampUv} µV (${L.z} DS), campo ${L.field.join(' ')}${L.n > 1 ? ', ' + L.n + ' transienti nella zona' : ''}` : 'nessun transiente netto nella zona';
-    const wi = I.p3 ? Math.round((e.tp - 2 - I.t[0]) / I.step) : -1, two = wi >= 0 && I.p3[wi] != null ? `p combinata ${e.pmax.toFixed(2)} (media) = CBraMod v3 ${I.p3[wi].toFixed(2)} + SpikeNet2 ${I.psn[wi] != null ? I.psn[wi].toFixed(2) : 'non eseguito (v3 < 0,10)'}` : `p ${e.pmax.toFixed(2)}`;
+    const wi = I.p3 ? Math.round((e.tp - 2 - I.t[0]) / I.step) : -1, two = wi >= 0 && I.p3[wi] != null ? `p combinata ${e.pmax.toFixed(2)} (media) = modello 1 ${I.p3[wi].toFixed(2)} + modello 2 ${I.psn[wi] != null ? I.psn[wi].toFixed(2) : 'non eseguito (modello 1 < 0,10)'}` : `p ${e.pmax.toFixed(2)}`;
     li.title = two + '\n' + li.title;
     li.innerHTML = `<span class="t">${fmtT(L ? L.t : e.tp)}</span><span>${e.pmax.toFixed(2)}</span><span>${L ? L.ch : (e.ch || '')}</span><span class="ctx">${q}${L ? (L.morph || L.type) + (L.reversal ? ' inv. ' + L.reversal : '') + (L.where ? ' ' + L.where : '') + ' · ' + L.durMs + ' ms ' : ''}${e.art ? '⚠ epoca con artefatti ' : ''}${e.ctx}</span>
       <span class="jbtn">${['si', 'no', 'dubbio'].map(v => `<button data-v="${v}" aria-pressed="${j === v}" title="${v}">${v === 'si' ? 'sì' : v === 'no' ? 'no' : '?'}</button>`).join('')}</span>`;
