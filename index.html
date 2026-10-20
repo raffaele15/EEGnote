@@ -2163,7 +2163,7 @@ function stabGauge(st) {
     <rect x="14" y="13" width="${x2 - 14}" height="18" fill="#2e9e5b" opacity=".13"/><rect x="${x2}" y="13" width="${xt - x2}" height="18" fill="#e0b000" opacity=".18"/><rect x="${xt}" y="13" width="${226 - xt}" height="18" fill="#d64545" opacity=".13"/>
     <line x1="${x}" y1="10" x2="${x}" y2="30" stroke="var(--accent)" stroke-width="2"/><circle cx="${x}" cy="22" r="4.5" fill="var(--accent)" stroke="var(--panel)" stroke-width="1.5"/>
     <text x="14" y="41" font-size="9" fill="var(--muted)">stabile</text><text x="226" y="41" font-size="9" fill="var(--muted)" text-anchor="end">instabile</text>
-    <text x="${(x2 + xt) / 2}" y="41" font-size="8" fill="var(--muted)" text-anchor="middle">un po’</text></g></svg>`;
+</g></svg>`;
 }
 function renderSummary() {
   const { A, rec } = S, p = A.pdr, f1 = v => v == null || isNaN(v) ? '–' : v.toFixed(1);
@@ -2224,7 +2224,7 @@ function renderSummary() {
     </dl>
     <h2 title="Indice = log10(potenza 2–8 Hz / 8–30 Hz) sulle derivazioni bipolari longitudinali, esclusi gli elettrodi Fp (contaminati dai movimenti oculari). Asimmetria sx − dx corretta per lo scarto medio di ogni regione; positivo = più lento a sx. Soglie calibrate e verificate su modelli di referto AOPD.">Anomalie lente (indici regionali bipolari)</h2>
     <dl class="kv">
-      <dt>Indice globale (mediana)</dt><dd>${sl.g50.toFixed(2)} ${sl.g50 >= C.SLOW.diffuse ? '⚠ ≥ ' + C.SLOW.diffuse : ''}</dd>
+      <dt>Indice globale (mediana)</dt><dd>${sl.g50.toFixed(2).replace('.', ',')} ${sl.g50 >= C.SLOW.diffuse ? '⚠ ' : ''}<span class="muted">(soglia ≥ ${C.SLOW.diffuse.toFixed(2).replace('.', ',')})</span></dd>
       <dt>90° perc. temporale</dt><dd>${sl.p90.temporale.toFixed(2)}</dd>
       <dt>90° perc. fronto-centrale</dt><dd>${sl.p90['fronto-centrale'].toFixed(2)}</dd>
       <dt>90° perc. posteriore</dt><dd>${sl.p90.posteriore.toFixed(2)}</dd>
@@ -2572,7 +2572,8 @@ async function scanONNX(k, starts, run, msg) {
       const seg = CH.map(c => rec.signals[A.cmap[c]].data.slice(a, b));
       w.onmessage = e => { if (e.data.err) errs++; e.data.out.forEach((r, j) => { if (r) { p[idx[j]] = r[0]; chn[idx[j]] = r[1]; if (r[2]) fine[idx[j]] = r[2]; } }); done += e.data.out.length;
         $('iedprog').firstChild.style.width = (100 * done / starts.length) + '%';
-        $('iedstatus').textContent = (IEDOWNER && IEDOWNER !== S.fname ? IEDOWNER + ': ' : '') + (/2\/2/.test(msg) ? 'Verifica delle anomalie sospette… ' : 'Ricerca delle anomalie sospette… ') + Math.round(100 * done / starts.length) + '%'; $('iedstatus').title = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
+        const pct = Math.round(100 * done / starts.length), ph = (/1\/2/.test(msg) ? ' (fase 1/2)' : /2\/2/.test(msg) ? ' (fase 2/2)' : ''); if (IEDOWNER) { const old = IEDPCT[IEDOWNER]; IEDPCT[IEDOWNER] = pct + '%' + ph; if (old !== IEDPCT[IEDOWNER]) iedProgUI(); }
+        $('iedstatus').textContent = (IEDOWNER && IEDOWNER !== S.fname ? (IEDQ.includes(S.fname) ? 'In coda; ora in analisi ' : '') + IEDOWNER + ': ' : '') + (/2\/2/.test(msg) ? 'Verifica delle anomalie sospette… ' : 'Ricerca delle anomalie sospette… ') + pct + '%'; $('iedstatus').title = msg + ': ' + done + '/' + starts.length + ' finestre (' + OPOOL.length + ' worker, ' + Math.round((performance.now() - t0) / 1000) + ' s)';
         if (done >= starts.length) resolve(); else feed(w); };
       w.postMessage({ type: 'job', id: ci, seg, fs, offs: idx.map(i => starts[i] - a) }, seg.map(x => x.buffer)); };
     OPOOL.forEach(feed);
@@ -2580,7 +2581,7 @@ async function scanONNX(k, starts, run, msg) {
   return run !== iedRun ? null : { p, ch: chn, fine, sec: (performance.now() - t0) / 1000, errs, workers: OPOOL.length };
 }
 async function runONNX(k, src) {
-  const owner = src ? src.fname : S.fname; IEDOWNER = owner;
+  const owner = src ? src.fname : S.fname; IEDOWNER = owner; IEDPCT[owner] = '0%'; iedProgUI();
   const run = ++iedRun, A = src ? src.A : S.A, rec = src ? src.rec : S.rec, fs = A.fs, win = Math.round(4 * fs), step = +$('iedstep').value, hop = Math.round(step * fs);
   const missing = OX.CB_CH.filter(c => A.cmap[c] === undefined);
   if (missing.length) { $('iedstatus').innerHTML = '<span class="warnline">Mancano gli elettrodi ' + missing.join(', ') + ': i modelli richiedono i 19 canali 10-20.</span>'; return; }
@@ -2608,10 +2609,13 @@ async function runONNX(k, src) {
 }
 (async () => { await selectModel('casc'); })();
 let iedRun = 0;
-var IEDQ = [], IEDBUSY = false, IEDOWNER = null;
-async function runIED() { const fn = S.fname; if (!IEDQ.includes(fn)) IEDQ.push(fn); if (IEDBUSY) return; IEDBUSY = true; $('iedbusy').hidden = false;
+var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {};
+/* stato dell'analisi IED di un EEG: in corso (con %), in coda, oppure null */
+function iedState(fn) { return fn && IEDOWNER === fn ? 'analisi in corso, ' + (IEDPCT[fn] || '0%') : fn && IEDQ.includes(fn) ? 'in coda (parte dopo ' + (IEDOWNER || 'l\'analisi in corso') + ')' : null; }
+function iedProgUI() { if (!CMPCOL) return; renderCmpSum(); const o = SESS[CMPI], st = $('c2-iedstatus'); if (o && st) { const t = iedState(o.fname); if (t) st.textContent = 'Anomalie sospette: ' + t + '.'; } }
+async function runIED(fn) { fn = typeof fn === 'string' ? fn : S.fname; if (!IEDQ.includes(fn)) IEDQ.push(fn); if (IEDBUSY) return; IEDBUSY = true; $('iedbusy').hidden = false;
   try { while (IEDQ.length) { const f = IEDQ.shift(), o = f === S.fname ? { A: S.A, rec: S.rec, fname: f } : (SESS.find(x => x.fname === f) || null); if (o && o.A) await runONNX(iedKind(), { A: o.A, rec: o.rec, fname: f }); } }
-  finally { IEDBUSY = false; IEDOWNER = null; $('iedbusy').hidden = true; sessSave(); if (CMPCOL) renderSide2(); } }
+  finally { IEDBUSY = false; IEDOWNER = null; IEDPCT = {}; $('iedbusy').hidden = true; sessSave(); if (CMPCOL) renderSide2(); } }
 /* esito di un EEG non visibile: eventi calcolati sul suo snapshot e salvati nella sua sessione */
 function storeIED(fn, I) { const idx = SESS.findIndex(x => x.fname === fn); if (idx < 0) return; sessSave(); const cur = SCUR, keepDirty = repDirty;
   Object.assign(S, SESS[idx]); S.ied = I; S.review = loadReview(); try { buildEvents(); } catch (e) { } SESS[idx] = sessSnap();
@@ -2782,16 +2786,16 @@ document.addEventListener('keydown', e => { if (e.target.closest && e.target.clo
 
 /* ---- confronto con un altro EEG (misure principali affiancate) ---- */
 function cmpMeasures(A, rec, name, ied) { const p = A.pdr || {}, s = A.slow || {}, st = A.stab, rb = A.relBip || {}, f05 = v => v == null || !isFinite(v) ? '–' : (Math.round(v * 2) / 2).toLocaleString('it-IT') + ' Hz', pc = v => isFinite(v) ? Math.round(v * 100) + '%' : '–';
-  let d = null; try { d = C.scoreDecision(A, ied); } catch (e) { }
+  let d = null; try { d = C.scoreDecision(A, typeof ied === 'string' ? null : ied); } catch (e) { }
   const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary).filter(r => r.pct >= 1).map(r => r.name + (r.side === 'G' ? '' : ' ' + r.side) + ' ' + Math.round(r.pct) + '%').join(', ') : '';
   return [['File', name], ['Data e ora', (rec.startDate || '') + ' ' + (rec.startTime || '').replace(/\./g, ':')], ['Durata', Math.round(A.duration / 60) + ' min'],
     ['Ritmo dominante posteriore', f05(p.freq) + (p.sx && p.dx ? ' (sx ' + (p.sx.defined ? f05(p.sx.freq) : 'n.d.') + ', dx ' + (p.dx.defined ? f05(p.dx.freq) : 'n.d.') + ')' : '')],
     ['Reattività (attenuazione O.A.)', p.reactivity != null ? pc(p.reactivity) : 'non valutabile'], ['Stabilità', st && st.cls ? st.cls + ' (≈ ' + st.runSec.toFixed(1).replace('.', ',') + ' s)' : 'non valutabile'],
     ['Organizzazione', orgText(A)], ['Voltaggio (ACNS)', A.voltACNS ? A.voltACNS.cat + ', ' + Math.round(A.voltACNS.uv) + ' µV' : '–'],
     ['Potenza relativa δ / θ / α / β', [rb.d1 + rb.d2, rb.theta, rb.alpha, rb.beta].map(pc).join(' / ')],
-    ['Indice di rallentamento globale', s.g50 != null ? s.g50.toFixed(2).replace('.', ',') : '–'],
+    ['Indice di rallentamento globale', s.g50 != null ? s.g50.toFixed(2).replace('.', ',') + ' (soglia ≥ ' + C.SLOW.diffuse.toFixed(2).replace('.', ',') + ')' : '–'],
     ['Rallentamento lateralizzato', s.side ? (s.side === 'sx' ? 'sinistra' : 'destra') + ' (' + (s.latRegions || []).join(', ') + ')' : s.sideWeak ? 'lieve prevalenza ' + s.sideWeak : 'no'],
-    ['Pattern ACNS (≥ 1%)', rp || 'nessuno'], ['Anomalie sospette', ied ? ied.total + ' (' + ied.confirmed.length + ' confermate)' : ied === undefined ? 'analisi in corso…' : 'modello non eseguito su questo EEG'],
+    ['Pattern ACNS (≥ 1%)', rp || 'nessuno'], ['Anomalie sospette', typeof ied === 'string' ? ied : ied ? ied.total + ' (' + ied.confirmed.length + ' confermate)' : ied === undefined ? 'analisi in corso…' : 'modello non ancora eseguito su questo EEG'],
     ['Livello decisionale', d ? (d.abnormal ? 'Anormale' : 'Normale') + (d.labels.length ? ': ' + d.labels.join(' + ') : '') : '–']]; }
 let CMP = null;
 function renderCmp() { if (!S.A || !CMP) return; const a = cmpMeasures(S.A, S.rec, S.fname, iedSummary()), b = cmpMeasures(CMP.A, CMP.rec, CMP.name, null);
@@ -2845,6 +2849,7 @@ function renderSide2() { if (!CMPCOL) return; const others = SESS.map((x, i) => 
   st.innerHTML = '<div title="' + esc(S.fname) + '"><small>EEG sul tracciato' + dd(S.rec) + '</small><b>' + esc(S.fname) + '</b>' + pv(SCUR, !!S.prev) + '</div><div title="' + esc(SESS[CMPI].fname) + '"><small>EEG di confronto' + dd(SESS[CMPI].rec) + '</small><b>' + esc(SESS[CMPI].fname) + '</b>' + pv(CMPI, !!SESS[CMPI].prev) + '</div>'; side.insertBefore(st, side.firstChild);
   st.querySelectorAll('input[data-prev]').forEach(cb => cb.onchange = () => setPrev(+cb.dataset.prev, cb.checked));
   Object.entries(RR).forEach(([k, Rr]) => { const c = tmp.querySelector('.sec[data-sec="' + k + '"]'); if (c) Rr.appendChild(c); });
+  { const o = SESS[CMPI], st = $('c2-iedstatus'), t = o && iedState(o.fname); if (st) st.textContent = t ? 'Anomalie sospette: ' + t + '.' : o && o.ied ? st.textContent : 'Modello non ancora eseguito su questo EEG: premi Analizza.'; const pg = $('c2-iedprog'); if (pg) pg.hidden = true; }
   drawTopo(); drawSpec(); renderCmpSum(); alignSum(); }
 /* sintesi automatica nel confronto: ogni sottosezione (da un titolo al successivo) alta uguale nelle due colonne */
 function sumSegs(box) { if (!box) return []; if (!box.querySelector(':scope > .sumseg')) { const kids = [...box.childNodes]; let seg = null;
@@ -2859,6 +2864,8 @@ new ResizeObserver(() => { if (CMPCOL) requestAnimationFrame(alignSum); }).obser
 function c2Proxy(ev) { const side = $('side'); if (!CMPCOL || !side.classList.contains('dual')) return; const R = ev.target.closest('.cmpR'); if (!R) return;
   const el = ev.target.closest('button,select,input,a[href],li,summary,.rb'); if (!el || el.tagName === 'SUMMARY' || (el.tagName === 'A' && el.target === '_blank')) return;
   if (el.id === 'c2-reptext') return;
+  if (el.id === 'c2-iedrun') { ev.preventDefault(); ev.stopPropagation(); const o = SESS[CMPI]; if (!o) return; if (IEDOWNER === o.fname) { toast('Analisi di ' + o.fname + ' già in corso.'); return; }
+    if (o.ied) { o.ied = null; } runIED(o.fname); toast(IEDBUSY && IEDOWNER !== o.fname ? o.fname + ' in coda: parte dopo ' + IEDOWNER + '.' : 'Analisi di ' + o.fname + ' avviata.'); iedProgUI(); return; }
   if (el.id === 'c2-repcopy') { ev.preventDefault(); const ta = $('c2-reptext'), st = $('c2-repstate'); navigator.clipboard.writeText(ta.value).then(() => { if (st) st.textContent = 'copiato'; }, () => { ta.select(); document.execCommand('copy'); if (st) st.textContent = 'copiato'; }); return; }
   ev.preventDefault(); ev.stopPropagation(); const oi = CMPI; if (!SESS[oi]) return;
   let target = null, li = -1, lst = null;
@@ -2907,8 +2914,8 @@ function evoAppend(text, i) { const e = evoFor(i); if (!e) return text;
   const line = 'Rispetto al tracciato precedente' + (e.date ? ' del ' + e.date : '') + ': ' + (e.ch.length ? e.ch.join('; ') : 'quadro sostanzialmente sovrapponibile') + '.';
   return /^In conclusione:.*$/m.test(text) ? text.replace(/^(In conclusione:.*)$/m, '$1 ' + line) : text + '\n' + line; }
 function renderCmpSum() { const box = $('cmpsumbox'), o = SESS[CMPI]; if (!CMPCOL || !o || !S.A) { $('cmpsum').style.display = 'none'; return; }
-  const oi = iedSummaryOf(o);
-  const a = cmpMeasures(S.A, S.rec, S.fname, S.ied ? iedSummary() : (!$('iedbusy').hidden || needOf(iedKind()).every(j => ONNXBUF[j]) ? undefined : null)), b = cmpMeasures(o.A, o.rec, o.fname, oi);
+  const oi = iedState(o.fname) || iedSummaryOf(o), si = iedState(S.fname) || (S.ied ? iedSummary() : null);
+  const a = cmpMeasures(S.A, S.rec, S.fname, si), b = cmpMeasures(o.A, o.rec, o.fname, oi);
   const dif = a.map((r, i) => i > 2 && r[1] !== b[i][1] ? r[0] : null).filter(Boolean);
   const others = SESS.map((x, i) => i).filter(i => i !== SCUR);
   box.innerHTML = '<div class="cmphead"><span><b>' + S.fname + '</b> (tracciato)</span><span>⇆</span><span>' + (others.length > 1 ? '<select id="c2sel">' + others.map(i => `<option value="${i}"${i === CMPI ? ' selected' : ''}>${SESS[i].fname}</option>`).join('') + '</select>' : '<b>' + o.fname + '</b>') + '</span><span class="spacer"></span><button class="btn" id="c2x" title="Chiudi il confronto">×</button></div>'
