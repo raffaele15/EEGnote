@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --tab:#2F67C9;
+  --tab:#34507F;
   --bg:#EEF2F4; --panel:#FFFFFF; --paper:#FBFCFD; --ink:#16212B; --muted:#5B6B78; --line:#D6DEE4; --grid:#E6ECF0; --grid2:#AFBBC5;
   --trace:#1C2A38; --accent:#0E6E78; --accentSoft:#D7ECEE;
   --stato:#2F67C9; --stim:#7C45C4; --art:#B97B00; --tec:#7A8791; --zero:#9AA6AF; --flag:#C2410C;
@@ -3213,8 +3213,8 @@ $('theme').onclick = () => setTheme(document.documentElement.dataset.theme === '
 </script>
 <script>/* etichette della barra superiore: nascoste solo se non entrano in una riga */
 (function(){const h=document.querySelector('header');if(!h)return;
-const fit=()=>{h.classList.remove('compact');const k=[...h.children].filter(x=>x.offsetParent!==null);if(!k.length)return;
-const t=Math.min(...k.map(x=>x.offsetTop)),wrap=k.some(x=>x.offsetTop>t+8);h.classList.toggle('compact',wrap);};
+const fit=()=>{h.classList.remove('compact');const k=[...h.children].filter(x=>x.offsetParent!==null&&x.offsetHeight>4&&!x.classList.contains('spacer'));if(!k.length)return;
+const t=Math.min(...k.map(x=>x.offsetTop)),wrap=k.some(x=>x.offsetTop>t+18);h.classList.toggle('compact',wrap);};
 let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(fit);};
 window.addEventListener('resize',go);new MutationObserver(go).observe(h,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden','style']});
 document.fonts&&document.fonts.ready.then(go);go();})();</script>
