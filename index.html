@@ -100,7 +100,7 @@ header h1 small{font-weight:400;color:var(--muted);margin-left:.4rem}
 .ib{display:inline-grid;place-items:center;padding:.15rem .35rem} .fname{font-size:.85rem;color:var(--muted);max-width:12rem;flex-shrink:1;min-width:3rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 main{display:grid;grid-template-columns:1fr 340px 40px;min-height:0}
 main.cmp2{grid-template-columns:1fr 700px 40px} main.cmp2 #railtog{right:720px}
-#side.dual{overflow-x:hidden} .cmpstick{position:sticky;top:-.8rem;z-index:4;background:var(--panel);margin:-.8rem -1rem .5rem;padding:.4rem 1rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;font-size:.8rem;box-shadow:0 2px 4px -3px rgba(0,0,0,.25)} .cmpstick>div{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .cmpstick b{display:block;overflow:hidden;text-overflow:ellipsis} .prevck{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;color:var(--muted);cursor:pointer} .prevck input{margin:0} .cmpstick small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em} .cmpstick>div+div{border-left:2px solid var(--accent);padding-left:.8rem} .cmpstick>div:first-child{padding-right:.8rem;border-right:2px solid transparent} #side.dual .sec[data-sec=ann] .annlist{flex:none!important;max-height:360px!important;overflow:auto} #side.dual .sumseg{display:block} #side.dual .cmpR canvas{width:100%!important;max-width:100%;height:auto;display:block} #side.dual .cmprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
+#side.dual{overflow-x:hidden} .cmpstick{position:sticky;top:-.8rem;z-index:4;background:var(--panel);margin:-.8rem -1rem .5rem;padding:.4rem 1rem;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;font-size:.8rem;box-shadow:0 2px 4px -3px rgba(0,0,0,.25)} .cmpstick>div{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .cmpstick b{display:block;overflow:hidden;text-overflow:ellipsis} .cmpsel{display:block;max-width:100%;font:inherit;font-weight:600;margin:.05rem 0} .prevck{display:inline-flex;align-items:center;gap:.25rem;font-size:.72rem;color:var(--muted);cursor:pointer} .prevck input{margin:0} .cmpstick small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em} .cmpstick>div+div{border-left:2px solid var(--accent);padding-left:.8rem} .cmpstick>div:first-child{padding-right:.8rem;border-right:2px solid transparent} #side.dual .sec[data-sec=ann] .annlist{flex:none!important;max-height:360px!important;overflow:auto} #side.dual .sumseg{display:block} #side.dual .cmpR canvas{width:100%!important;max-width:100%;height:auto;display:block} #side.dual .cmprow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 .9rem;border-top:1px solid var(--line);padding-top:.6rem;margin-top:.6rem} #side.dual .cmprow .sec{border-top:0;margin-top:0;padding-top:0} #side.dual .sec[data-sec=ann]{height:auto;min-height:0}
 #side.dual .cmpR{border-left:2px solid var(--accent);padding-left:.8rem;min-width:0} #side.dual .cmpL{min-width:0;padding-right:.8rem;border-right:2px solid transparent} #side.dual .cmpR h2 .helpq,#side.dual .cmpR .pdfl{display:none}
 .cmphead{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;font-size:.82rem} .cmphead select{font:inherit;font-weight:600} #side2{border-left:2px solid var(--accent)} #side2[hidden]{display:none} main.closed{grid-template-columns:1fr 40px}
 .c2head{position:sticky;top:-.8rem;z-index:2;background:var(--panel);margin:-.8rem -1rem .6rem;padding:.45rem 1rem;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.4rem;font-size:.82rem} .c2head b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2511,10 +2511,14 @@ function makePool(fs) {
 /* ---- rilevatori ONNX (CBraMod v2/v3, SpikeNet2) ---- */
 const OX = window.EEGONNX, ONNXBUF = {}; let OPOOL = [];
 function iedKind() { return $('iedmodel').value; }
-async function fetchOnnx(k) { const m = OX.MODELS[k];
+/* lettura di una risposta con avanzamento (byte letti, byte totali se noti) */
+async function readProg(r, onp) { const tot = +(r.headers.get('content-length') || 0); if (!r.body || !r.body.getReader) { const b = await r.arrayBuffer(); onp(b.byteLength, tot); return new Uint8Array(b); }
+  const rd = r.body.getReader(), ch = []; let n = 0; for (;;) { const { done, value } = await rd.read(); if (done) break; ch.push(value); n += value.length; onp(n, tot); }
+  const u = new Uint8Array(n); let o = 0; for (const c of ch) { u.set(c, o); o += c.length; } return u; }
+async function fetchOnnx(k, onp = () => { }) { const m = OX.MODELS[k];
   for (const dir of ['modelli/', 'modelli_locali/']) {
-    try { const r = await fetch(dir + m.file); if (r.ok) return { buf: await r.arrayBuffer(), name: dir + m.file };
-      const parts = []; for (let i = 0; i < 20; i++) { const q = await fetch(dir + m.file + '.part' + String(i).padStart(2, '0')); if (!q.ok) break; parts.push(new Uint8Array(await q.arrayBuffer())); }
+    try { const r = await fetch(dir + m.file); if (r.ok) { const u = await readProg(r, onp); return { buf: u.buffer, name: dir + m.file }; }
+      const parts = []; let base = 0; for (let i = 0; i < 20; i++) { const q = await fetch(dir + m.file + '.part' + String(i).padStart(2, '0')); if (!q.ok) break; const u = await readProg(q, (b, t) => onp(base + b, 0, i + 1)); base += u.length; parts.push(u); }
       if (parts.length) { const n = parts.reduce((a, x) => a + x.length, 0), u = new Uint8Array(n); let o = 0; for (const x of parts) { u.set(x, o); o += x.length; }
         return { buf: u.buffer, name: dir + m.file + ' (' + parts.length + ' parti)' }; } } catch (e) { /* pagina da disco */ } }
   return null; }
@@ -2531,15 +2535,21 @@ async function selectModel(k) {
   setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
   const busy = $('iedbusy'), tip = busy.title;
   if (needOf(k).some(j => !ONNXBUF[j])) { busy.hidden = false; busy.title = 'Caricamento dei modelli IED nel browser (prima volta: circa 160 MB)…'; }
-  try { for (const j of needOf(k)) { if (ONNXBUF[j]) continue; $('iedstatus').textContent = 'Caricamento dei modelli…'; $('iedstatus').title = OX.MODELS[j].file; const r = await fetchOnnx(j); if (r) ONNXBUF[j] = r; } }
+  try { const need = needOf(k); for (const [q, j] of need.entries()) { if (ONNXBUF[j]) continue; const nm = OX.MODELS[j].label || j, pre = 'Caricamento dei modelli (' + (q + 1) + '/' + need.length + ', ' + nm + ')… ';
+      $('iedstatus').textContent = pre; $('iedstatus').title = OX.MODELS[j].file; let last = 0;
+      const r = await fetchOnnx(j, (b, t, part) => { const now = performance.now(); if (now - last < 150) return; last = now; $('iedstatus').textContent = pre + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB' + (part ? ' (parte ' + part + ')' : '')); });
+      if (r) ONNXBUF[j] = r; } }
   finally { busy.hidden = true; busy.title = tip; }
   const miss = needOf(k).filter(j => !ONNXBUF[j]);
   if (miss.length) { $('iedrun').disabled = true;
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
   const mb = needOf(k).reduce((x, j) => x + ONNXBUF[j].buf.byteLength, 0) / 1048576;
   $('iedrun').disabled = false; $('iedstatus').textContent = 'Modelli pronti.'; $('iedstatus').title = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
-  if (S.A) runIED();
+  if (S.A) iedQueueAll();
 }
+/* coda di tutti gli EEG aperti senza esito, nell'ordine di apertura */
+function iedQueueAll() { sessSave(); const fs = SESS.filter(o => o && o.A && !o.ied).map(o => o.fname); if (S.A && !S.ied && !fs.includes(S.fname)) fs.push(S.fname);
+  if (!fs.length) return; fs.forEach(f => { if (!IEDQ.includes(f) && f !== IEDOWNER) IEDQ.push(f); }); runIED(fs[0]); }
 $('iedmodel').onchange = () => selectModel(iedKind());
 function makeOnnxPool(k) {
   const n = Math.max(1, Math.min(k === 'sn2' ? 3 : 4, (navigator.hardwareConcurrency || 4) - 1));
@@ -2846,7 +2856,12 @@ function renderSide2() { if (!CMPCOL) return; const others = SESS.map((x, i) => 
   // una riga per sezione: a sinistra la sezione dell'EEG sul tracciato, a destra quella dell'altro; la riga è alta quanto la più lunga
   const st = document.createElement('div'); st.className = 'cmpstick'; const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pv = (i, on) => '<label class="prevck" title="Segna questo EEG come tracciato precedente: il referto e la chat dell\'altro ne descrivono l\'evoluzione"><input type="checkbox" data-prev="' + i + '"' + (on ? ' checked' : '') + '> tracciato precedente</label>', dd = r => recDate(r) ? ' · ' + recDate(r) : '';
-  st.innerHTML = '<div title="' + esc(S.fname) + '"><small>EEG sul tracciato' + dd(S.rec) + '</small><b>' + esc(S.fname) + '</b>' + pv(SCUR, !!S.prev) + '</div><div title="' + esc(SESS[CMPI].fname) + '"><small>EEG di confronto' + dd(SESS[CMPI].rec) + '</small><b>' + esc(SESS[CMPI].fname) + '</b>' + pv(CMPI, !!SESS[CMPI].prev) + '</div>'; side.insertBefore(st, side.firstChild);
+  const many = SESS.length > 2, opt = (list, cur) => list.map(i => '<option value="' + i + '"' + (i === cur ? ' selected' : '') + '>' + esc(SESS[i].fname) + '</option>').join('');
+  const nmL = many ? '<select class="cmpsel" id="cmpselL" title="EEG da mostrare sul tracciato">' + opt(SESS.map((x, i) => i), SCUR) + '</select>' : '<b>' + esc(S.fname) + '</b>';
+  const nmR = many ? '<select class="cmpsel" id="cmpselR" title="EEG da confrontare">' + opt(SESS.map((x, i) => i).filter(i => i !== SCUR), CMPI) + '</select>' : '<b>' + esc(SESS[CMPI].fname) + '</b>';
+  st.innerHTML = '<div title="' + esc(S.fname) + '"><small>EEG sul tracciato' + dd(S.rec) + '</small>' + nmL + pv(SCUR, !!S.prev) + '</div><div title="' + esc(SESS[CMPI].fname) + '"><small>EEG di confronto' + dd(SESS[CMPI].rec) + '</small>' + nmR + pv(CMPI, !!SESS[CMPI].prev) + '</div>'; side.insertBefore(st, side.firstChild);
+  if (many) { const keep = CMPI; $('cmpselL').onchange = e => { const i = +e.target.value, old = SCUR; sessSwitch(i); const want = i === keep ? old : keep; if (SESS[want] && want !== SCUR && want !== CMPI) { CMPI = want; renderSide2(); } };
+    $('cmpselR').onchange = e => { CMPI = +e.target.value; renderSide2(); }; }
   st.querySelectorAll('input[data-prev]').forEach(cb => cb.onchange = () => setPrev(+cb.dataset.prev, cb.checked));
   Object.entries(RR).forEach(([k, Rr]) => { const c = tmp.querySelector('.sec[data-sec="' + k + '"]'); if (c) Rr.appendChild(c); });
   { const o = SESS[CMPI], st = $('c2-iedstatus'), t = o && iedState(o.fname); if (st) st.textContent = t ? 'Anomalie sospette: ' + t + '.' : o && o.ied ? st.textContent : 'Modello non ancora eseguito su questo EEG: premi Analizza.'; const pg = $('c2-iedprog'); if (pg) pg.hidden = true; }
