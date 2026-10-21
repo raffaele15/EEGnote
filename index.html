@@ -2039,7 +2039,7 @@ function iirNotch(f0, Q, fs) { const w0 = 2 * Math.PI * f0 / fs, beta = Math.tan
   return [[g, -2 * g * Math.cos(w0), g, 1, -2 * g * Math.cos(w0), 2 * g - 1]]; }
 /* SPaRCNet: probabilità delle 6 classi (Altro, Crisi, LPD, GPD, LRDA, GRDA) per finestre di 10 s a passo 2 s */
 async function sparcRun(sess, P, ort, prog) {
-  const { X, n } = P, bp = makeFF(G.EEGIED.butterBandSOS(4, 0.5, 40, 200)), n50 = makeFF(notchSOS(50, 30, 200)), n60 = makeFF(notchSOS(60, 30, 200));
+  const { X, n } = P, bp = makeFF(G.EEGIED.butterBandSOS(4, 0.25, 45, 200))   /* -6 dB come il FIR di MNE (patch75) */, n50 = makeFF(notchSOS(50, 30, 200)), n60 = makeFF(notchSOS(60, 30, 200));
   const B = SP_BIP16.map(([a, b]) => { const d = new Float64Array(n), xa = X[a], xb = X[b]; for (let i = 0; i < n; i++) d[i] = xa[i] - xb[i];
     const y = bp(n60(n50(d))), z = new Float32Array(n); for (let i = 0; i < n; i++) z[i] = Math.max(-500, Math.min(500, y[i])); return z; });
   const nw = Math.max(0, Math.floor(n / 400) - 5), out = new Float32Array(nw * 6);
