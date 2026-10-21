@@ -46,7 +46,11 @@ button,select,input{font:inherit;color:inherit}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:70;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.25);padding:.55rem .7rem;display:flex;align-items:center;gap:.6rem;font-size:.85rem} #toast[hidden]{display:none}
 #montage{max-width:8.5rem} header::-webkit-scrollbar{display:none}
 @media (max-width:1560px){header{gap:.25rem .4rem;padding:.3rem .5rem} header h1{font-size:.95rem;margin-right:.2rem} header .btn{padding-left:.4rem;padding-right:.4rem} header .ctl{font-size:.78rem} header input[type=number]{width:3.1rem} #montage{max-width:7rem} header .fname{max-width:7rem;overflow:hidden;text-overflow:ellipsis} #filesel{max-width:8rem}}
-#filesel{max-width:14rem;font-size:.82rem;font-weight:600;border:1px solid transparent;background:transparent;color:var(--ink);cursor:pointer;padding:.1rem .2rem;border-radius:4px} #filesel:hover{border-color:var(--line)} body.multi #fname{display:none}
+#filesel{display:none!important} .filewrap{position:relative;display:inline-flex} header .btn.filebtn{border-color:transparent;background:transparent;font-size:.82rem;font-weight:600;gap:.3rem;max-width:16rem} header .btn.filebtn:hover{border-color:var(--line)} #filebtnt{overflow:hidden;text-overflow:ellipsis}
+#filemenu{position:absolute;top:calc(100% + 4px);left:0;z-index:60;min-width:220px;max-width:90vw;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:4px;display:flex;flex-direction:column;gap:2px} #filemenu[hidden]{display:none}
+.fitem{display:flex;align-items:center;gap:.25rem;border-radius:4px} .fitem.cur{background:var(--accentSoft)} .fitem .fsel{flex:1;min-width:0;text-align:left;border:0;background:none;color:inherit;font:inherit;font-size:.85rem;padding:.35rem .5rem;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .fitem.cur .fsel{font-weight:600} .fitem:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.fitem .fdel{flex:none;display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:4px;background:none;color:var(--muted);cursor:pointer;padding:0} .fitem .fdel:hover{color:var(--flag);background:color-mix(in srgb,var(--flag) 12%,transparent)} .fitem .fdel svg{width:18px;height:18px}
+body.multi #fname{display:none}
 .lt.ls{display:none} header.compact .lt.lf{display:none} header.compact .lt.ls{display:inline} header.compact1{gap:.15rem .18rem} header.compact1 .btn{padding-left:.24rem;padding-right:.24rem} header.compact1 input[type=number]{width:2.9rem} header.compact1 #montage{max-width:4.8rem} header.compact1 .ctl+.ctl{margin-left:.15rem}
 header.compact{gap:.2rem .22rem;padding-left:.4rem;padding-right:.4rem} header.compact .btn{padding-left:.28rem;padding-right:.28rem} header.compact input[type=number]{width:3.2rem} header.compact #montage{max-width:5.6rem} header.compact h1{margin-right:.1rem} header.compact .ctl+.ctl{margin-left:.22rem}
 header.compact2 .lt{display:none!important}
@@ -195,13 +199,13 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 .srcline{margin:0 0 .45rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap} .srcline select{font:inherit;max-width:100%}
 /* patch76 */
 #iedbusy{display:none!important} aside .sec[hidden],#rail .rb[hidden]{display:none!important}
-.modwrap{position:relative;display:inline-flex} #modbtn .spin{display:none!important} #modpct{font-variant-numeric:tabular-nums;margin-left:.2rem} #modpct:empty{display:none} #modbtn.mrun svg{animation:modpulse 1.1s ease-in-out infinite} @keyframes modpulse{50%{opacity:.35}}
+.modwrap{position:relative;display:inline-flex} #modspin{display:none!important} #modpct{display:inline-flex;align-items:center;gap:.2rem;font-size:.8rem} #modpct .mdl{width:14px;height:14px} #modpct{font-variant-numeric:tabular-nums;margin-left:.2rem} #modpct:empty{display:none} #modbtn.mrun svg{animation:modpulse 1.1s ease-in-out infinite} @keyframes modpulse{50%{opacity:.35}}
 .icutab{width:100%;border-collapse:collapse;font-size:.78rem;margin:.3rem 0} .icutab th{text-align:left;color:var(--muted);font-weight:600;font-size:.72rem;position:sticky;top:0;background:var(--panel)} .icutab th,.icutab td{padding:.18rem .3rem;border-bottom:1px solid var(--grid);vertical-align:top}
 .icutab tr[data-it]{cursor:pointer} .icutab tr[data-it]:hover{background:var(--sel)} .icutab tr.w td{color:var(--muted)} .icutab td.ok{font-weight:600;color:var(--ied)} .icuwrap{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:4px}
 #modmenu{position:absolute;top:calc(100% + 4px);left:0;z-index:60;width:300px;max-width:90vw;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:4px}
 #modmenu[hidden]{display:none} .mitem{display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;padding:.4rem .5rem;border-radius:4px;border:1px solid var(--line);background:var(--paper);color:inherit;font:inherit;cursor:pointer}
 .mitem:hover{border-color:var(--accent)} .mitem[aria-checked=true]{border-color:var(--accent);background:var(--accentSoft)} .mitem small{display:block;color:var(--muted);font-size:.75rem}
-.mplay{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff} .mplay svg{display:block;margin-left:2px} .mitem .mst{margin-left:auto;display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;color:var(--muted);white-space:nowrap} #modsrc{border-top:1px solid var(--line);padding:.4rem .2rem 0;font-size:.8rem} #modsrc .srcline{margin:0}
+.mplay{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff} .mplay svg{display:block;margin-left:2px} .mgo{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent)} .mgo svg{display:block} .mitem .mst{margin-left:auto;display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;color:var(--muted);white-space:nowrap} #modsrc{border-top:1px solid var(--line);padding:.4rem .2rem 0;font-size:.8rem} #modsrc .srcline{margin:0}
 .tlhead{gap:.5rem;align-items:center} .tlhead .chips{flex:1 1 auto;min-width:0;flex-wrap:nowrap;gap:.3rem;overflow:hidden}
 .tlhead .cg,.tlhead .cg.allbtns{border-radius:4px;flex:1 1 0;min-width:0;align-items:stretch;overflow:hidden}
 .tlhead .chip{border-radius:0;justify-content:center;text-align:center;flex:1 1 auto;min-width:0;margin:0;padding:.12rem .3rem;font-size:var(--chipfs,.74rem);white-space:nowrap}
@@ -232,7 +236,7 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
   <button class="btn ic" id="cmpbtn" title="Confronta con un altro EEG: apre un secondo EDF come tracciato e mostra l'EEG attuale in una seconda colonna laterale"><svg viewBox="0.66 0.66 14.69 14.69" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.29" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="5.5" height="11" rx="1"/><rect x="9" y="2.5" width="5.5" height="11" rx="1"/><path d="M2.8 8l1-1.5 1 3 1-1.5M10.3 8l1-1.5 1 3 1-1.5"/></svg></button>
   <input type="file" id="cmpfile" accept=".edf,.EDF" hidden>
   <button class="btn ic" id="cmpcol" hidden aria-pressed="false" title="Confronto: affianca nel pannello le sezioni dell'altro EEG aperto" aria-label="Affianca confronto"><svg viewBox="1.21 1.21 13.59 13.59" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.19" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5.5h11M10 2.5l3 3-3 3M14 10.5H3M6 7.5l-3 3 3 3"/></svg></button>
-  <span class="fname" id="fname">nessun file</span><select id="filesel" hidden title="EEG aperti in questa finestra: scegli quale vedere (per aprirne un altro usa Apri EDF)" aria-label="EEG aperti"></select><button class="btn ic" id="sessdel" hidden title="Chiudi questo EEG (lo toglie dagli EEG aperti)" aria-label="Chiudi EEG"><svg viewBox="1.76 2.01 12.49 12.49" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.09" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9M6.7 7v4.5M9.3 7v4.5"/></svg></button>
+  <span class="fname" id="fname">nessun file</span><select id="filesel" hidden title="EEG aperti in questa finestra: scegli quale vedere (per aprirne un altro usa Apri EDF)" aria-label="EEG aperti"></select><span class="filewrap" id="filewrap" hidden><button class="btn filebtn" id="filebtn" aria-haspopup="menu" aria-expanded="false" title="EEG aperti: scegli quale vedere o chiudilo (per aprirne un altro usa Apri EDF)"><span id="filebtnt"></span><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button><div id="filemenu" hidden role="menu"></div></span>
   <span class="spacer"></span>
   <label class="ctl" title="Montaggio"><span class="lt lf">Montaggio </span><span class="lt ls">Mont.</span><select id="montage"></select></label>
   <label class="ctl" title="Filtro passa-alto (Hz)"><span class="lt">HP </span><input id="hp" type="number" step="0.1" min="0" value="0.5"><span class="lt un"> Hz</span></label>
@@ -294,15 +298,6 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
    <section class="sec" data-sec="icu" id="icusec" hidden>
     <h2 title="Concordanza tra le regole ACNS dell'app, il modello ICU 1 (SPaRCNet, Jing et al., Neurology 2023; ODC-By) e il modello ICU 2 (SeizureTransformer, Wu et al. 2025; MIT), entrambi rifiniti su HMS (BDSP) e TUH (NEDC) con i loro permessi; solo uso didattico e di ricerca non commerciale.">Pattern ritmici e periodici (modelli ICU) <span class="cnt" id="icucnt"></span></h2><div id="icubox" class="small"></div>
    </section>
-   <section class="sec" data-sec="rep">
-    <h2>Referto automatico (bozza)</h2>
-    <div id="repbox">
-      <textarea id="reptext" class="rep" spellcheck="false" placeholder="Apri un file per generare la bozza." aria-label="Bozza di referto modificabile"></textarea>
-      <div class="iedbar"><button class="btn" id="repcopy">Copia</button><button class="btn" id="repbig" title="Apri il referto in una finestra grande">Ingrandisci</button><select id="repfmt" aria-label="Formato del referto" hidden><option value="std">Stile dei referti</option></select><button class="btn" id="repregen" title="Rigenera dal tracciato (perde le modifiche manuali)">Rigenera</button><span class="small" id="repstate"></span></div>
-      <div class="iedbar"><button class="btn" id="repsave" title="Scarica un file di testo con il referto e l'elenco dei reperti annotati">Salva testo e annotazioni</button></div>
-      
-    </div>
-   </section>
    <section class="sec" data-sec="ied">
     <h2>Anomalie IED sospette <button class="helpq" id="iedhelpbtn" aria-expanded="false" title="Come funziona e come si usa">?</button></h2><div id="iedhelp" class="helpbox small" hidden><p><b>Modelli.</b> <b>Modello IED 1</b> = CBraMod v3 (nostro, pubblicato con il permesso di NEDC e BDSP): analizza tutto il tracciato. <b>Modello IED 2</b> = SpikeNet2 (Li et al., NEJM AI 2025; permesso BDSP): rivaluta le finestre con probabilità del modello IED 1 ≥ 0,10; punteggio = media dei due. Validato su esempi di referti: AUROC 0,90 (IED franche contro il resto), 0,94 (franche contro assenti), 0,83 (franche e non franche contro assenti). Solo uso didattico e di ricerca non commerciale.</p><p><b>Cosa cerca.</b> Anomalie rilevabili dai modelli IED 1 e 2: anomalie epilettiformi intercritiche (IED) — punte, onde aguzze, complessi punta-onda e polipunta-onda, focali o generalizzati. Possono comparire anche scariche periodiche (LPD/GPD) e onde aguzze non epilettiformi (trifasiche, varianti benigne) da valutare in revisione. Non rileva crisi, rallentamenti o attività ritmica delta (cercati a regole in altre sezioni).</p><p><b>Come si usa.</b> Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p><p><b>Tasti.</b> N/P anomalia successiva/precedente, 1/2/3 giudizio sì/no/dubbio.</p></div>
     <div id="iedbox">
@@ -321,6 +316,15 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
       <div id="anares" class="small" hidden></div>
       <div class="iedbar"><span id="iedcount"></span><span class="spacer"></span>
         <button class="btn" id="iedcsv">Esporta CSV</button><button class="btn" id="iedjson">Esporta JSON</button></div>
+    </div>
+   </section>
+   <section class="sec" data-sec="rep">
+    <h2>Referto automatico (bozza)</h2>
+    <div id="repbox">
+      <textarea id="reptext" class="rep" spellcheck="false" placeholder="Apri un file per generare la bozza." aria-label="Bozza di referto modificabile"></textarea>
+      <div class="iedbar"><button class="btn" id="repcopy">Copia</button><button class="btn" id="repbig" title="Apri il referto in una finestra grande">Ingrandisci</button><select id="repfmt" aria-label="Formato del referto" hidden><option value="std">Stile dei referti</option></select><button class="btn" id="repregen" title="Rigenera dal tracciato (perde le modifiche manuali)">Rigenera</button><span class="small" id="repstate"></span></div>
+      <div class="iedbar"><button class="btn" id="repsave" title="Scarica un file di testo con il referto e l'elenco dei reperti annotati">Salva testo e annotazioni</button></div>
+      
     </div>
    </section>
    <section class="sec" data-sec="sum">
@@ -355,8 +359,8 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
     <button class="rb" data-sec="ilae" title="Requisiti minimi ILAE-IFCN" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2.5" width="10" height="12" rx="1"/><path d="M6 2.5h4v2H6zM5.5 9.5l2 2 3-4"/></svg></button>
     <button class="rb" data-sec="acns" title="Pattern ritmici e periodici (ACNS 2021)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg></button>
     <button class="rb" data-sec="icu" title="Pattern ritmici e periodici (modelli ICU)" aria-pressed="false" hidden><svg viewBox="180 195 660 610" width="16" height="16" fill="none" stroke="currentColor" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M490 300C490 240 420 210 385 265 330 245 290 290 300 330 240 340 215 400 245 455 195 480 195 560 255 590 240 650 280 690 300 690 300 740 360 770 385 740 420 800 490 790 490 730Z"/><path d="M385 265v30M300 330c25 5 40 15 50 30M245 455c20 10 35 15 55 15M255 590c20-15 40-20 60-20M300 690c20 0 35-5 50-15M385 740v-25M425 385c30-5 52 10 62 30M350 440c20 20 50 25 70 15M425 635c30 5 52-10 62-30M362 615c2-28 20-45 48-50"/><rect x="490" y="315" width="240" height="375" rx="50"/><path d="M545 315v-85M605 315v-85M665 315v-85M545 690v85M605 690v85M665 690v85M730 385h90M730 447h90M730 510h90M730 572h90M730 635h90"/><path d="M552 445 662 510 552 575Z" fill="#1976D2" stroke="#1976D2" stroke-width="16"/></svg></button>
-    <button class="rb" data-sec="rep" title="Referto automatico" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5.5L12 4v10.5H4z"/><path d="M6 7h4M6 9.5h4M6 12h3"/></svg></button>
     <button class="rb" data-sec="ied" title="Anomalie IED sospette" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg></button>
+    <button class="rb" data-sec="rep" title="Referto automatico" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5.5L12 4v10.5H4z"/><path d="M6 7h4M6 9.5h4M6 12h3"/></svg></button>
     <button class="rb" data-sec="sum" title="Sintesi automatica" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14h12M4 12V8M8 12V4M12 12V6"/></svg></button>
     <button class="rb" data-sec="cmp" title="Confronto con il referto" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h10l-2.5-2.5M14 11H4l2.5 2.5"/></svg></button>
     <button class="rb" data-sec="map" title="Mappa delle bande e spettro posteriore" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="9" r="5.5"/><path d="M6.8 3.6L8 1.5l1.2 2.1"/><circle cx="6" cy="8" r=".6" fill="currentColor"/><circle cx="10" cy="10" r=".6" fill="currentColor"/></svg></button>
@@ -2110,7 +2114,7 @@ const GROUPCOL = { stato: '--stato', stimolazione: '--stim', artefatto: '--art',
 const fmtT = s => { const m = Math.floor(s / 60), x = Math.floor(s % 60); return m + ':' + String(x).padStart(2, '0'); };
 
 for (const m in C.MONTAGES) $('montage').add(new Option(m, m));
-['delta', 'theta', 'alpha', 'beta'].forEach(b => { const x = document.createElement('button'); x.className = 'btn'; x.textContent = b; x.setAttribute('aria-pressed', b === S.band); x.onclick = () => { S.band = b; [...$('bandsel').children].forEach(y => y.setAttribute('aria-pressed', y.textContent === b)); drawTopo(); }; $('bandsel').appendChild(x); });
+['delta', 'theta', 'alpha', 'beta'].forEach(b => { const x = document.createElement('button'); x.className = 'btn'; x.textContent = b; x.setAttribute('aria-pressed', b === S.band); x.onclick = () => { S.band = b; [...$('bandsel').children].forEach(y => y.setAttribute('aria-pressed', y.textContent === b)); if (CMPCOL) { const sd = $('side'), y = sd.scrollTop; renderSide2(); sd.scrollTop = y; } else drawTopo(); };   /* nel confronto la banda vale per tutte e due le colonne */ $('bandsel').appendChild(x); });
 
 /* ---- caricamento file ---- */
 $('open').onclick = () => $('file').click(); $('open2').onclick = () => $('file').click();
@@ -2857,7 +2861,7 @@ function iedKind() { return $('iedmodel').value; }
 async function readProg(r, onp) { const tot = +(r.headers.get('content-length') || 0); if (!r.body || !r.body.getReader) { const b = await r.arrayBuffer(); onp(b.byteLength, tot); return new Uint8Array(b); }
   const rd = r.body.getReader(), ch = []; let n = 0; for (;;) { const { done, value } = await rd.read(); if (done) break; ch.push(value); n += value.length; onp(n, tot); }
   const u = new Uint8Array(n); let o = 0; for (const c of ch) { u.set(c, o); o += c.length; } return u; }
-async function fetchOnnx(k, onp = () => { }) { const m = OX.MODELS[k];
+async function fetchOnnx(k, onp0 = () => { }) { const m = OX.MODELS[k], onp = (b, t, part) => { DLB[k] = b; onp0(b, t, part); };
   for (const dir of ['modelli/', 'modelli_locali/']) {
     try { const r = await fetch(dir + m.file); if (r.ok) { const u = await readProg(r, onp); return { buf: u.buffer, name: dir + m.file }; }
       const parts = []; let base = 0; for (let i = 0; i < 20; i++) { const q = await fetch(dir + m.file + '.part' + String(i).padStart(2, '0')); if (!q.ok) break; const u = await readProg(q, (b, t) => onp(base + b, 0, i + 1)); base += u.length; parts.push(u); }
@@ -2876,15 +2880,15 @@ async function selectModel(k) {
   $('iedmodel').value = k; try { localStorage.setItem('ied-model', k); } catch (e) { /* */ }
   setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
   { const need = needOf(k); for (const [q, j] of need.entries()) { if (ONNXBUF[j]) continue; const nm = 'modello ' + (q + 1), pre = 'Caricamento dei modelli (' + (q + 1) + '/' + need.length + ', ' + nm + ')… ';
-      $('iedstatus').textContent = pre; $('iedstatus').title = OX.MODELS[j].file; let last = 0;
-      const r = await fetchOnnx(j, (b, t, part) => { const now = performance.now(); if (now - last < 150) return; last = now; $('iedstatus').textContent = pre + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB' + (part ? ' (parte ' + part + ')' : '')); });
+      if (WANT.ied) $('iedstatus').textContent = pre; $('iedstatus').title = OX.MODELS[j].file; let last = 0;
+      const r = await fetchOnnx(j, (b, t, part) => { const now = performance.now(); if (now - last < 150) return; last = now; if (WANT.ied) $('iedstatus').textContent = pre + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB' + (part ? ' (parte ' + part + ')' : '')); });
       if (r) ONNXBUF[j] = r; } }
   const miss = needOf(k).filter(j => !ONNXBUF[j]);
   if (miss.length) { $('iedrun').disabled = true;
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
   const mb = needOf(k).reduce((x, j) => x + ONNXBUF[j].buf.byteLength, 0) / 1048576;
-  if (!ONNXBUF.slow && !SLOWTRIED) { SLOWTRIED = true; try { const r = await fetchOnnx('slow'); if (r) ONNXBUF.slow = r; } catch (e) { /* facoltativo */ } }
-  setTimeout(icuPreload, 1000);   // poi i modelli ICU, sempre in background
+  // modello dei rallentamenti e poi i modelli ICU, sempre in background (non ritardano il play IED)
+  if (!ONNXBUF.slow && !SLOWTRIED) { SLOWTRIED = true; fetchOnnx('slow').then(r => { if (r) ONNXBUF.slow = r; }, () => { /* facoltativo */ }).finally(() => setTimeout(icuPreload, 1000)); } else setTimeout(icuPreload, 1000);
   $('iedrun').disabled = false; $('iedstatus').textContent = 'Modelli pronti.'; $('iedstatus').title = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
 }
 /* ---- modelli ICU (patch74, 76, 78): modello ICU 1 = SPaRCNet, modello ICU 2 = SeizureTransformer ---- */
@@ -2892,7 +2896,7 @@ const ICU_CL = ['Altro', 'Crisi', 'LPD', 'GPD', 'LRDA', 'GRDA'], ICU_PAT = { 2: 
 let ICUW = null, ICUBUSY = null, ICUMSG = '', ICUPRE = null, ICUP = 0, ICUDL = null;
 const icuOn = () => !!S.A && S.src === 'micromed';
 function icuMaybe() { renderICU(); renderMod(); drawAll(); }   // l'analisi ICU parte solo dal play (icuStart)
-function icuStart() { if (!icuOn() || ICUBUSY) return; if (S.icu && S.icu.err) S.icu = null; if (!S.icu) icuRun(); }
+function icuStart() { if (!icuOn() || ICUBUSY) return; WANT.icu = true; if (S.icu && S.icu.err) S.icu = null; if (!S.icu) icuRun(); }
 function icuStore(rec, v) { if (S.rec === rec) { S.icu = v; renderICU(); drawAll(); } else { const o = SESS.find(x => x && x.rec === rec); if (o) o.icu = v; } }
 /* download anticipato dei file (senza avviarli): parte dopo i modelli IED */
 function icuPreload() { if (ICUW || ICUPRE || ICUBUSY) return ICUPRE;
@@ -2942,7 +2946,7 @@ async function icuRun() {
   const msg = m => { ICUMSG = m; if (S.rec === rec) renderICU(); renderMod(); };
   try { await icuEnsure(msg); const sig = icuSig(rec, A); msg('Preparazione del segnale…'); icuStore(rec, await icuJob(sig, A.fs, msg, r => icuStore(rec, r))); }
   catch (err) { icuStore(rec, { err: err.message }); }
-  finally { ICUBUSY = null; ICUMSG = ''; renderMod(); if (S.rec === rec) renderICU(); setTimeout(icuMaybe, 0); }
+  finally { ICUBUSY = null; ICUMSG = ''; WANT.icu = false; renderMod(); if (S.rec === rec) renderICU(); setTimeout(icuMaybe, 0); }
 }
 /* modello ICU 1: classe più probabile per finestra; modello ICU 2: secondi consecutivi con p > 0,8 (≥ 10 s) */
 function icuDerive(R) {
@@ -3039,23 +3043,36 @@ function icuTractDraw(M, X, lab, sec, plotW, H) { const R = M.icu, d = icuD(R), 
   if (R.Q) { tctx.fillStyle = css('--ecg'); for (let q = 0; q < R.Q.length; q++) { const t = R.off + q; if (R.Q[q] > 0.8 && t >= lo && t < hi) tctx.fillRect(X(t), y - 5, Math.max(1, X(Math.min(hi, t + 1)) - X(t)), 4); } } }
 $('anaset').onchange = () => { const icu = $('anaset').value === 'icu'; $('anamods').hidden = icu; $('anathr').closest('label').hidden = icu; };
 /* pulsante dei modelli: rotellina e percentuale durante caricamento o analisi */
-function iedPct() { if ($('iedbusy').hidden) return null; if (typeof IEDOWNER !== 'undefined' && IEDOWNER && IEDPN[IEDOWNER] != null && IEDPN[IEDOWNER] > 0) return 100 * IEDPN[IEDOWNER];
-  const m = /(\d+)\s*%/.exec($('iedstatus').textContent || ''); return m ? +m[1] : null; }
-function renderMod() { const b = $('modbtn'); if (!b) return; const ir = !$('iedbusy').hidden, icu = !!ICUBUSY, ip = iedPct(), p = icu ? ICUP : ip;
-  $('modspin').hidden = true; b.classList.toggle('mrun', ir || icu); const pt = (ir || icu) && p != null ? Math.round(p) + '%' : ''; if ($('modpct').textContent !== pt) $('modpct').textContent = pt;
-  const tt = ir || icu ? 'Analisi in corso: ' + (icu ? 'ICU' : 'IED') + ' (percentuale accanto all\'icona)' : 'Modelli: IED (anomalie epilettiformi) o ICU (crisi e pattern ritmici e periodici)'; if (b.title !== tt) b.title = tt;   // titolo stabile: niente tooltip intermittente
-  const SP = '<span class="spin small" aria-hidden="true"></span>', PL = '<span class="mplay" title="Avvia" aria-label="Avvia"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 3.2v9.6L12.8 8z" fill="currentColor"/></svg></span>', mst = (id, h) => { const e = $(id); if (e.innerHTML !== h) e.innerHTML = h; };   // aggiorna solo se cambia: la rotella non riparte
-  mst('miedst', !S.A ? '' : S.ied ? 'fatto' : ir ? SP + (ip != null ? Math.round(ip) + '%' : '') : PL);
-  mst('micust', !S.A ? '' : ICUBUSY && (ICUBUSY === S.fname || ICUBUSY === 'tratto') ? SP + Math.round(ICUP) + '%' : !icuOn() ? PL : S.icu && S.icu.err ? 'errore' : S.icu && S.icu.Q ? 'fatto' : ICUBUSY ? 'in coda' : PL);
+/* pulsante e menu dei modelli: i simboli compaiono solo dopo il play (scaricamento con %, poi rotella con %); a fine analisi la freccia porta ai risultati */
+const MIC = { dl: '<svg class="mdl" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8M4.5 6.5L8 10l3.5-3.5M2.5 13.5h11"/></svg>',
+  spin: '<span class="spin small" aria-hidden="true"></span>',
+  play: '<span class="mplay" title="Avvia" aria-label="Avvia"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 3.2v9.6L12.8 8z" fill="currentColor"/></svg></span>',
+  go: '<span class="mgo" title="Vai ai risultati" aria-label="Vai ai risultati"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8h9M9 4.5L12.5 8 9 11.5"/></svg></span>' };
+const dlPct = ks => 100 * ks.reduce((x, k) => x + (ONNXBUF[k] ? MSZ[k] : Math.min(DLB[k] || 0, MSZ[k])), 0) / ks.reduce((x, k) => x + MSZ[k], 0);
+function modState(m) {
+  if (m === 'ied') { const ld = needOf(iedKind()).every(j => ONNXBUF[j]);
+    if (IEDBUSY) return { st: 'run', p: IEDOWNER && IEDPN[IEDOWNER] ? 100 * IEDPN[IEDOWNER] : 0 };
+    if (WANT.ied && !ld) return { st: 'dl', p: dlPct(needOf(iedKind())) };
+    return { st: S.ied ? 'done' : 'idle' }; }
+  const ks = ['sparc', 'st'], ld = ks.every(k => ONNXBUF[k]);
+  if (ICUBUSY && (ICUBUSY === S.fname || ICUBUSY === 'tratto')) return !ld ? { st: 'dl', p: dlPct(ks) } : { st: 'run', p: ICUW ? ICUP : 0 };
+  if (ICUBUSY) return { st: 'queue' };
+  return { st: !icuOn() ? 'idle' : S.icu && S.icu.err ? 'err' : S.icu && S.icu.Q ? 'done' : 'idle' }; }
+const modHtml = o => o.st === 'dl' ? MIC.dl + Math.round(o.p) + '%' : o.st === 'run' ? MIC.spin + Math.round(o.p) + '%' : '';
+function renderMod() { const b = $('modbtn'); if (!b) return; const mi = modState('ied'), mc = modState('icu'), act = [mc, mi].find(o => o.st === 'dl' || o.st === 'run');
+  $('modspin').hidden = true; b.classList.remove('mrun'); const ph = act ? modHtml(act) : ''; if ($('modpct').innerHTML !== ph) $('modpct').innerHTML = ph;
+  const tt = act ? (act.st === 'dl' ? 'Scaricamento del modello ' : 'Analisi in corso: ') + (act === mc ? 'ICU' : 'IED') : 'Modelli: IED (anomalie epilettiformi) o ICU (crisi e pattern ritmici e periodici)'; if (b.title !== tt) b.title = tt;   // titolo stabile: niente tooltip intermittente
+  const mst = (id, o) => { const h = !S.A ? '' : o.st === 'done' ? MIC.go : o.st === 'err' ? 'errore ' + MIC.play : o.st === 'queue' ? 'in coda' : o.st === 'idle' ? MIC.play : modHtml(o); const e = $(id); if (e.innerHTML !== h) e.innerHTML = h; };   // aggiorna solo se cambia: la rotella non riparte
+  mst('miedst', mi); mst('micust', mc);
   $('micu').setAttribute('aria-checked', String(icuOn())); }
-setInterval(() => { if (ICUBUSY || !$('iedbusy').hidden) renderMod(); }, 600);
+setInterval(() => { if (ICUBUSY || IEDBUSY || WANT.ied || WANT.icu) renderMod(); }, 400);
 $('modbtn').onclick = e => { e.stopPropagation(); const m = $('modmenu'); m.hidden = !m.hidden; $('modbtn').setAttribute('aria-expanded', String(!m.hidden)); renderMod(); };
 document.addEventListener('click', e => { const m = $('modmenu'); if (m && !m.hidden && !e.target.closest('.modwrap')) { m.hidden = true; $('modbtn').setAttribute('aria-expanded', 'false'); } });
-$('mied').onclick = () => { $('modmenu').hidden = true; if (!S.A) return; goSection('ied'); if (S.ied || IEDBUSY) return; iedStart(); };
+$('mied').onclick = () => { $('modmenu').hidden = true; if (!S.A) return; goSection('ied'); if (S.ied || IEDBUSY) return; WANT.ied = true; renderMod(); iedStart(); };
 /* play IED: se i modelli stanno ancora scaricando, prima la percentuale di caricamento poi quella dell'analisi */
 async function iedStart() { const busy = $('iedbusy');
   if (!needOf(iedKind()).every(j => ONNXBUF[j])) { busy.hidden = false; try { await (IEDLOAD || (IEDLOAD = selectModel(iedKind()).finally(() => { IEDLOAD = null; }))); } finally { busy.hidden = true; } }
-  if (needOf(iedKind()).every(j => ONNXBUF[j]) && !S.ied) runIED(); }
+  if (needOf(iedKind()).every(j => ONNXBUF[j]) && !S.ied) runIED(); else { WANT.ied = false; renderMod(); } }
 $('micu').onclick = () => { $('modmenu').hidden = true; if (!S.A) return;
   if (!icuOn()) { try { localStorage.setItem(S.srcKey, 'micromed'); } catch (e) { /* */ } renderSummary(); } icuStart();
   setTimeout(() => goSection('icu'), 50); };
@@ -3154,6 +3171,7 @@ function slowLatText(A) { const m = S.ied && S.ied.slow; if (!m) return S.ied ? 
   const br = breachSide(A), brT = br && m.side === br.side ? ' — stesso lato della breccia annotata: l\'asimmetria può dipendere dalla breccia' : '';
   return (m.side ? '⚠ prevalenza ' + (m.side === 'sx' ? 'sinistra' : 'destra') + ' (' + m.top.join(', ') + '), da verificare' + brT : 'nessuna prevalenza netta')
     + ' <span class="muted">(quota ' + f2(m.q) + '; attività lenta nel ' + Math.round(m.hot * 100) + '% delle finestre)</span>' + cmp; }
+var WANT = { ied: false, icu: false }, DLB = {}; const MSZ = { v3: 39.26e6, sn2: 123.15e6, sparc: 4.42e6, st: 163.97e6 };   // play premuto; byte scaricati per modello
 var IEDLOAD = selectModel('casc').finally(() => { IEDLOAD = null; });   // download in background all'avvio: l'analisi parte solo dal play
 let iedRun = 0;
 var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {}, IEDPN = {};
@@ -3171,7 +3189,7 @@ function iedLiveUI() { if (!S.A) return; const done = iedBoxUI(S.fname, $('iedpr
 function iedSnapUI() { const o = SESS[CMPI], pg = $('c2-iedprog'), st = $('c2-iedstatus'); if (!o || !st) return; if (!iedBoxUI(o.fname, pg, st) && !o.ied) st.textContent = 'Modello non ancora eseguito su questo EEG: premi Analizza.'; }
 async function runIED(fn) { fn = typeof fn === 'string' ? fn : S.fname; if (!IEDQ.includes(fn)) IEDQ.push(fn); if (IEDBUSY) return; IEDBUSY = true; $('iedbusy').hidden = false;
   try { while (IEDQ.length) { const f = IEDQ.shift(), o = f === S.fname ? { A: S.A, rec: S.rec, fname: f } : (SESS.find(x => x.fname === f) || null); if (o && o.A) await runONNX(iedKind(), { A: o.A, rec: o.rec, fname: f }); } }
-  finally { IEDBUSY = false; IEDOWNER = null; IEDPCT = {}; $('iedbusy').hidden = true; sessSave(); if (CMPCOL) renderSide2(); } }
+  finally { IEDBUSY = false; IEDOWNER = null; IEDPCT = {}; WANT.ied = false; $('iedbusy').hidden = true; sessSave(); if (CMPCOL) renderSide2(); } }
 /* esito di un EEG non visibile: eventi calcolati sul suo snapshot e salvati nella sua sessione */
 function storeIED(fn, I) { const idx = SESS.findIndex(x => x.fname === fn); if (idx < 0) return; sessSave(); const cur = SCUR, keepDirty = repDirty;
   Object.assign(S, SESS[idx]); S.ied = I; S.review = loadReview(); try { buildEvents(); } catch (e) { } SESS[idx] = sessSnap();
@@ -3362,7 +3380,7 @@ function renderCmp() { if (!S.A || !CMP) return; const a = cmpMeasures(S.A, S.re
 const SESS = [], SKEYS = ['rec', 'A', 'ms', 'fileId', 'fname', 't', 'icu', 'ied', 'iedCur', 'anaSel', 'multi', 'repText', 'repEdited', 'prev']; let SCUR = -1;
 function sessSnap() { const o = {}; SKEYS.forEach(k => { o[k] = S[k]; }); return o; }
 function sessSave() { if (SCUR >= 0 && S.rec && SESS[SCUR]) { S.repText = $('reptext').value; S.repEdited = repDirty; SESS[SCUR] = sessSnap(); } }
-function renderSess() { const sel = $('filesel'); sel.hidden = SESS.length < 2; $('sessdel').hidden = !SESS.length; document.body.classList.toggle('multi', SESS.length > 1); $('cmpcol').hidden = SESS.length < 2; if (SESS.length < 2 && CMPCOL) setCmpCol(false);
+function renderSess() { const sel = $('filesel'); sel.hidden = SESS.length < 2; $('filewrap').hidden = !SESS.length; $('fname').hidden = !!SESS.length; $('filebtnt').textContent = S.fname || ''; renderFileMenu(); document.body.classList.toggle('multi', SESS.length > 1); $('cmpcol').hidden = SESS.length < 2; if (SESS.length < 2 && CMPCOL) setCmpCol(false);
   sel.innerHTML = SESS.map((x, i) => `<option value="${i}"${i === SCUR ? ' selected' : ''}>${x.fname}</option>`).join(''); }
 function sessAdd() { const i = SESS.findIndex(x => x.fname === S.fname);
   if (i >= 0) { SESS[i] = sessSnap(); SCUR = i; } else { SESS.push(sessSnap()); SCUR = SESS.length - 1; if (SESS.length > 4) { SESS.shift(); SCUR--; } }
@@ -3375,11 +3393,21 @@ function sessSwitch(i) { if (i === SCUR || !SESS[i]) return;
   iedLiveUI(); if (CMPCOL) { CMPI = NEXTCMPI != null ? NEXTCMPI : -1; NEXTCMPI = null; renderSide2(); }
   }
 $('filesel').onchange = () => sessSwitch(+$('filesel').value);
-/* cestino: chiude l'EEG visibile e passa al successivo; se era l'unico torna alla pagina iniziale */
-$('sessdel').onclick = () => { if (SCUR < 0 || !S.fname || !confirm('Chiudere ' + S.fname + '?')) return;
-  const fn = S.fname; IEDQ = IEDQ.filter(f => f !== fn); if (CMPLEFT === fn) CMPLEFT = null;
+/* menu degli EEG aperti: clic sul nome per vederlo, cestino a destra per chiuderlo */
+const TRASH = '<svg viewBox="1.76 2.01 12.49 12.49" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.09" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9M6.7 7v4.5M9.3 7v4.5"/></svg>';
+function renderFileMenu() { const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  $('filemenu').innerHTML = SESS.map((x, i) => '<div class="fitem' + (i === SCUR ? ' cur' : '') + '"><button class="fsel" data-i="' + i + '" role="menuitem" title="' + esc(x.fname) + '">' + esc(x.fname) + '</button><button class="fdel" data-del="' + i + '" title="Chiudi ' + esc(x.fname) + '" aria-label="Chiudi ' + esc(x.fname) + '">' + TRASH + '</button></div>').join(''); }
+const fileMenu = on => { $('filemenu').hidden = !on; $('filebtn').setAttribute('aria-expanded', String(on)); };
+$('filebtn').onclick = e => { e.stopPropagation(); renderFileMenu(); fileMenu($('filemenu').hidden); };
+document.addEventListener('click', e => { if (!$('filemenu').hidden && !e.target.closest('.filewrap')) fileMenu(false); });
+$('filemenu').onclick = e => { const a = e.target.closest('[data-i]'), d = e.target.closest('[data-del]'); if (a) { fileMenu(false); sessSwitch(+a.dataset.i); } else if (d) sessDel(+d.dataset.del); };
+/* chiude l'EEG i; se è quello visibile passa a un altro; se era l'unico torna alla pagina iniziale */
+function sessDel(i) { const o = i === SCUR ? S : SESS[i]; if (!o || !o.fname || !confirm('Chiudere ' + o.fname + '?')) return;
+  const fn = o.fname; IEDQ = IEDQ.filter(f => f !== fn); if (CMPLEFT === fn) CMPLEFT = null; fileMenu(false);
   if (SESS.length < 2) { location.reload(); return; }
-  SESS.splice(SCUR, 1); const j = Math.min(SCUR, SESS.length - 1); SCUR = -1; CMPI = -1; sessSwitch(j); };
+  SESS.splice(i, 1); CMPI = -1;
+  if (i === SCUR) { const j = Math.min(i, SESS.length - 1); SCUR = -1; sessSwitch(j); }
+  else { if (i < SCUR) SCUR--; renderSess(); if (CMPCOL) renderSide2(); } }
 $('iedhelpbtn').onclick = () => { const h = $('iedhelp'); h.hidden = !h.hidden; $('iedhelpbtn').setAttribute('aria-expanded', String(!h.hidden)); };
 /* ---- colonna di confronto: pannello laterale dell'altro EEG aperto, scorrimento allineato per sezione ---- */
 let CMPCOL = false, CMPI = -1, C2SYNC = false, NEXTCMPI = null, CMPLEFT = null; // CMPLEFT: file nella colonna sinistra (le colonne restano ferme quando cambia l'EEG sul tracciato)
@@ -3440,6 +3468,7 @@ new ResizeObserver(() => { if (CMPCOL) requestAnimationFrame(alignSum); }).obser
 function c2Proxy(ev) { const side = $('side'); if (!CMPCOL || !side.classList.contains('dual')) return; const R = ev.target.closest('.cmpSnap'); if (!R) return;
   const el = ev.target.closest('button,select,input,a[href],li,summary,.rb'); if (!el || el.tagName === 'SUMMARY' || (el.tagName === 'A' && el.target === '_blank')) return;
   if (el.id === 'c2-reptext') return;
+  if (el.closest('#c2-bandsel')) { ev.preventDefault(); ev.stopPropagation(); const t = [...$('bandsel').children].find(y => y.textContent === el.textContent); if (t) t.click(); return; }   // banda: si applica a entrambe le colonne, senza cambiare EEG
   if (el.classList.contains('helpq')) { ev.preventDefault(); ev.stopPropagation(); const h = el.closest('h2'), box = h && h.nextElementSibling; if (box && box.classList.contains('helpbox')) { box.hidden = !box.hidden; el.setAttribute('aria-expanded', String(!box.hidden)); } return; }
   if (el.id === 'c2-iedrun') { ev.preventDefault(); ev.stopPropagation(); const o = SESS[CMPI]; if (!o) return; if (IEDOWNER === o.fname) { toast('Analisi di ' + o.fname + ' già in corso.'); return; }
     if (o.ied) { o.ied = null; } runIED(o.fname); toast(IEDBUSY && IEDOWNER !== o.fname ? o.fname + ' in coda: parte dopo ' + IEDOWNER + '.' : 'Analisi di ' + o.fname + ' avviata.'); iedProgUI(); return; }
