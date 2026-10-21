@@ -2987,7 +2987,7 @@ function renderICU() { const sec = $('icusec'); if (!sec) return; const on = icu
   const h2 = document.querySelector('.sec[data-sec="acns"] h2'); if (h2 && h2.firstChild && h2.firstChild.nodeType === 3) h2.firstChild.nodeValue = on ? 'Regole ACNS 2021 (dettaglio) ' : ACNS_H2;
   if (!on) { icuMarkRpp(); return; }
   const R = S.icu, box = $('icubox'), busy = ICUBUSY === S.fname, H = [], cnt = $('icucnt');
-  const spin = t => '<p><span class="spin small" aria-hidden="true"></span> ' + t + '</p>';
+  const spin = t => '<p>' + t + '</p>';
   if (R && R.err) { H.push('<p class="warnline">Analisi non riuscita: ' + R.err + '</p><p><button class="btn" id="icuretry">Riprova</button></p>'); cnt.textContent = '· errore'; }
   else if (!R || !R.P) { H.push(busy ? spin(ICUMSG || 'Avvio…') : ICUBUSY ? '<p>In coda.</p>' : '<p>In attesa.</p>'); cnt.textContent = busy ? '· ' + Math.round(ICUP) + '%' : ICUBUSY ? '· in coda' : ''; }
   else { const d = icuD(R), E = icuCons(R, S.A), strong = E.filter(e => e.strong), labs = [...new Set(strong.map(e => e.lab))];
