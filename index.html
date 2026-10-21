@@ -2140,7 +2140,6 @@ async function handleFiles(files) {
     S.t = 0; S.cache = null; S.icu = null; S.ied = null; S.iedCur = -1; S.anaSel = null; S.multi = null; if (typeof renderAnaRes === 'function') { anaRun++; renderAnaRes(); anaSelText(); } S.review = loadReview(); repDirty = false; loadUA();
     $('drop').style.display = 'none'; if (window.__restorePanels) window.__restorePanels();
     renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll(); sessAdd();
-    if (needOf(iedKind()).every(j => ONNXBUF[j])) setTimeout(runIED, 50);
   } catch (err) {
     $('summary').innerHTML = '<p class="warnline">Il file non è un EDF valido o è danneggiato (' + err.message + '). Controllalo con EDFbrowser.</p>';
   } finally { $('busy').style.display = 'none'; }
@@ -2876,35 +2875,34 @@ async function selectModel(k) {
   k = 'casc';   // dal 18/10/2026 (patch31) solo la cascata
   $('iedmodel').value = k; try { localStorage.setItem('ied-model', k); } catch (e) { /* */ }
   setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
-  const busy = $('iedbusy'), tip = busy.title;
-  if (needOf(k).some(j => !ONNXBUF[j])) { busy.hidden = false; busy.title = 'Caricamento dei modelli IED nel browser (prima volta: circa 160 MB)…'; }
-  try { const need = needOf(k); for (const [q, j] of need.entries()) { if (ONNXBUF[j]) continue; const nm = 'modello ' + (q + 1), pre = 'Caricamento dei modelli (' + (q + 1) + '/' + need.length + ', ' + nm + ')… ';
+  { const need = needOf(k); for (const [q, j] of need.entries()) { if (ONNXBUF[j]) continue; const nm = 'modello ' + (q + 1), pre = 'Caricamento dei modelli (' + (q + 1) + '/' + need.length + ', ' + nm + ')… ';
       $('iedstatus').textContent = pre; $('iedstatus').title = OX.MODELS[j].file; let last = 0;
       const r = await fetchOnnx(j, (b, t, part) => { const now = performance.now(); if (now - last < 150) return; last = now; $('iedstatus').textContent = pre + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB' + (part ? ' (parte ' + part + ')' : '')); });
       if (r) ONNXBUF[j] = r; } }
-  finally { busy.hidden = true; busy.title = tip; }
   const miss = needOf(k).filter(j => !ONNXBUF[j]);
   if (miss.length) { $('iedrun').disabled = true;
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
   const mb = needOf(k).reduce((x, j) => x + ONNXBUF[j].buf.byteLength, 0) / 1048576;
   if (!ONNXBUF.slow && !SLOWTRIED) { SLOWTRIED = true; try { const r = await fetchOnnx('slow'); if (r) ONNXBUF.slow = r; } catch (e) { /* facoltativo */ } }
-  setTimeout(icuPreload, 1000);
+  setTimeout(icuPreload, 1000);   // poi i modelli ICU, sempre in background
   $('iedrun').disabled = false; $('iedstatus').textContent = 'Modelli pronti.'; $('iedstatus').title = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
-  if (S.A) iedQueueAll();
 }
 /* ---- modelli ICU (patch74, 76, 78): modello ICU 1 = SPaRCNet, modello ICU 2 = SeizureTransformer ---- */
 const ICU_CL = ['Altro', 'Crisi', 'LPD', 'GPD', 'LRDA', 'GRDA'], ICU_PAT = { 2: 'LPD', 3: 'GPD', 4: 'LRDA', 5: 'GRDA' };
-let ICUW = null, ICUBUSY = null, ICUMSG = '', ICUPRE = null, ICUP = 0;
+let ICUW = null, ICUBUSY = null, ICUMSG = '', ICUPRE = null, ICUP = 0, ICUDL = null;
 const icuOn = () => !!S.A && S.src === 'micromed';
-function icuMaybe() { renderICU(); renderMod(); drawAll(); if (!icuOn() || S.icu || ICUBUSY) return; icuRun(); }
+function icuMaybe() { renderICU(); renderMod(); drawAll(); }   // l'analisi ICU parte solo dal play (icuStart)
+function icuStart() { if (!icuOn() || ICUBUSY) return; if (S.icu && S.icu.err) S.icu = null; if (!S.icu) icuRun(); }
 function icuStore(rec, v) { if (S.rec === rec) { S.icu = v; renderICU(); drawAll(); } else { const o = SESS.find(x => x && x.rec === rec); if (o) o.icu = v; } }
 /* download anticipato dei file (senza avviarli): parte dopo i modelli IED */
-function icuPreload() { if (ICUW || ICUPRE) return ICUPRE;
-  ICUPRE = (async () => { for (const k of ['sparc', 'st']) { if (ONNXBUF[k] && ONNXBUF[k].buf) continue; try { const r = await fetchOnnx(k); if (r && !ICUW) ONNXBUF[k] = r; } catch (e) { /* facoltativo */ } } })()
+function icuPreload() { if (ICUW || ICUPRE || ICUBUSY) return ICUPRE;
+  ICUPRE = (async () => { for (const [q, k] of ['sparc', 'st'].entries()) { if (ONNXBUF[k] && ONNXBUF[k].buf) continue; try { const r = await fetchOnnx(k, (b, t) => ICUDL && ICUDL(q, k, b, t)); if (r && !ICUW) ONNXBUF[k] = r; } catch (e) { /* facoltativo */ } } })()
     .finally(() => { ICUPRE = null; }); return ICUPRE; }
 async function icuEnsure(msg) {
   if (ICUW) return;
-  if (ICUPRE) { ICUP = 0; msg('Download dei modelli ICU…'); await ICUPRE; }
+  if (ICUPRE) { ICUP = 0; msg('Caricamento dei modelli ICU…'); let last = 0;
+    ICUDL = (q, k, b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; ICUP = t ? 100 * b / t : Math.min(99, 100 * b / (k === 'st' ? 164e6 : 4.4e6)); msg('Caricamento del modello ICU ' + (q + 1) + '… ' + Math.round(ICUP) + '%'); };
+    try { await ICUPRE; } finally { ICUDL = null; } }
   for (const [q, k] of ['sparc', 'st'].entries()) { if (ONNXBUF[k] && ONNXBUF[k].buf) continue; let last = 0; ICUP = 0; msg('Caricamento del modello ICU ' + (q + 1) + '…');
     const r = await fetchOnnx(k, (b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; ICUP = t ? 100 * b / t : Math.min(99, 100 * b / (k === 'st' ? 164e6 : 4.4e6)); msg('Caricamento del modello ICU ' + (q + 1) + '… ' + Math.round(ICUP) + '%'); });
     if (!r) throw new Error('file ' + OX.MODELS[k].file + ' non trovato in modelli/ (o trascinalo nella pagina)'); ONNXBUF[k] = r; }
@@ -2989,7 +2987,7 @@ function renderICU() { const sec = $('icusec'); if (!sec) return; const on = icu
   const R = S.icu, box = $('icubox'), busy = ICUBUSY === S.fname, H = [], cnt = $('icucnt');
   const spin = t => '<p>' + t + '</p>';
   if (R && R.err) { H.push('<p class="warnline">Analisi non riuscita: ' + R.err + '</p><p><button class="btn" id="icuretry">Riprova</button></p>'); cnt.textContent = '· errore'; }
-  else if (!R || !R.P) { H.push(busy ? spin(ICUMSG || 'Avvio…') : ICUBUSY ? '<p>In coda.</p>' : '<p>In attesa.</p>'); cnt.textContent = busy ? '· ' + Math.round(ICUP) + '%' : ICUBUSY ? '· in coda' : ''; }
+  else if (!R || !R.P) { H.push(busy ? spin(ICUMSG || 'Avvio…') : ICUBUSY ? '<p>In coda.</p>' : '<p>Premi play nel menu Modelli per avviare l\'analisi.</p>'); cnt.textContent = busy ? '· ' + Math.round(ICUP) + '%' : ICUBUSY ? '· in coda' : ''; }
   else { const d = icuD(R), E = icuCons(R, S.A), strong = E.filter(e => e.strong), labs = [...new Set(strong.map(e => e.lab))];
     const tot = l => Math.round(strong.filter(e => e.lab === l).reduce((x, e) => x + e.b - e.a, 0));
     cnt.textContent = '· ' + (labs.length ? labs.join(', ') : 'nessuna concordanza') + (R.Q ? '' : ' (' + Math.round(ICUP) + '%)');
@@ -3010,7 +3008,7 @@ function renderICU() { const sec = $('icusec'); if (!sec) return; const on = icu
         + E.slice(0, 80).map(row).join('') + '</tbody></table></div>' + (E.length > 80 ? '<p>… altri ' + (E.length - 80) + ' tratti</p>' : '')); } }
   box.innerHTML = H.join('');
   box.querySelectorAll('[data-it]').forEach(a => a.onclick = ev => { ev.preventDefault(); eyeOn('ICU'); goTo(+a.dataset.it - 2); });
-  const rr = $('icuretry'); if (rr) rr.onclick = () => { S.icu = null; icuMaybe(); };
+  const rr = $('icuretry'); if (rr) rr.onclick = () => { S.icu = null; icuStart(); };
   icuMarkRpp(); }
 /* sezione ACNS: pattern delle regole che cadono in una crisi concordante (modelli ICU 1 e 2) */
 function icuMarkRpp() { const box = $('rppbox'); if (!box) return; box.querySelectorAll('.icumark').forEach(x => x.remove());
@@ -3053,18 +3051,19 @@ function renderMod() { const b = $('modbtn'); if (!b) return; const ir = !$('ied
 setInterval(() => { if (ICUBUSY || !$('iedbusy').hidden) renderMod(); }, 600);
 $('modbtn').onclick = e => { e.stopPropagation(); const m = $('modmenu'); m.hidden = !m.hidden; $('modbtn').setAttribute('aria-expanded', String(!m.hidden)); renderMod(); };
 document.addEventListener('click', e => { const m = $('modmenu'); if (m && !m.hidden && !e.target.closest('.modwrap')) { m.hidden = true; $('modbtn').setAttribute('aria-expanded', 'false'); } });
-$('mied').onclick = () => { $('modmenu').hidden = true; if (!S.A) return; goSection('ied'); if (S.ied || IEDBUSY) return; if (needOf(iedKind()).every(j => ONNXBUF[j])) runIED(); else selectModel(iedKind()); };
+$('mied').onclick = () => { $('modmenu').hidden = true; if (!S.A) return; goSection('ied'); if (S.ied || IEDBUSY) return; iedStart(); };
+/* play IED: se i modelli stanno ancora scaricando, prima la percentuale di caricamento poi quella dell'analisi */
+async function iedStart() { const busy = $('iedbusy');
+  if (!needOf(iedKind()).every(j => ONNXBUF[j])) { busy.hidden = false; try { await (IEDLOAD || (IEDLOAD = selectModel(iedKind()).finally(() => { IEDLOAD = null; }))); } finally { busy.hidden = true; } }
+  if (needOf(iedKind()).every(j => ONNXBUF[j]) && !S.ied) runIED(); }
 $('micu').onclick = () => { $('modmenu').hidden = true; if (!S.A) return;
-  if (!icuOn()) { try { localStorage.setItem(S.srcKey, 'micromed'); } catch (e) { /* */ } renderSummary(); } else { if (S.icu && S.icu.err) S.icu = null; icuMaybe(); }
+  if (!icuOn()) { try { localStorage.setItem(S.srcKey, 'micromed'); } catch (e) { /* */ } renderSummary(); } icuStart();
   setTimeout(() => goSection('icu'), 50); };
 new MutationObserver(renderMod).observe($('iedbusy'), { attributes: true, attributeFilter: ['hidden'] });
 /* barra inferiore: testo ridotto finché entra nei rettangoli */
 function fitChips() { const c = document.querySelector('.tlhead .chips'); if (!c) return; let f = 12; c.style.setProperty('--chipfs', f + 'px');
   while (f > 8.5 && [...c.querySelectorAll('.chip span')].some(x => x.scrollWidth > x.clientWidth + 1)) { f -= 0.5; c.style.setProperty('--chipfs', f + 'px'); } }
 window.addEventListener('resize', fitChips); setTimeout(fitChips, 0);
-/* coda di tutti gli EEG aperti senza esito, nell'ordine di apertura */
-function iedQueueAll() { sessSave(); const fs = SESS.filter(o => o && o.A && !o.ied).map(o => o.fname); if (S.A && !S.ied && !fs.includes(S.fname)) fs.push(S.fname);
-  if (!fs.length) return; fs.forEach(f => { if (!IEDQ.includes(f) && f !== IEDOWNER) IEDQ.push(f); }); runIED(fs[0]); }
 $('iedmodel').onchange = () => selectModel(iedKind());
 function makeOnnxPool(k) {
   const n = Math.max(1, Math.min(k === 'sn2' ? 3 : 4, (navigator.hardwareConcurrency || 4) - 1));
@@ -3155,7 +3154,7 @@ function slowLatText(A) { const m = S.ied && S.ied.slow; if (!m) return S.ied ? 
   const br = breachSide(A), brT = br && m.side === br.side ? ' — stesso lato della breccia annotata: l\'asimmetria può dipendere dalla breccia' : '';
   return (m.side ? '⚠ prevalenza ' + (m.side === 'sx' ? 'sinistra' : 'destra') + ' (' + m.top.join(', ') + '), da verificare' + brT : 'nessuna prevalenza netta')
     + ' <span class="muted">(quota ' + f2(m.q) + '; attività lenta nel ' + Math.round(m.hot * 100) + '% delle finestre)</span>' + cmp; }
-(async () => { await selectModel('casc'); })();
+var IEDLOAD = selectModel('casc').finally(() => { IEDLOAD = null; });   // download in background all'avvio: l'analisi parte solo dal play
 let iedRun = 0;
 var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {}, IEDPN = {};
 /* stato dell'analisi IED di un EEG: in corso (con %), in coda, oppure null */
@@ -3374,7 +3373,7 @@ function sessSwitch(i) { if (i === SCUR || !SESS[i]) return;
   renderAnaRes(); anaSelText(); renderSummary(); renderRef(); renderAnn(); renderScore(); renderIED(); drawTopo(); drawSpec(); drawAll(); renderSess();
   if (S.repEdited && S.repText != null) { $('reptext').value = S.repText; repDirty = true; $('repstate').textContent = 'modificato'; } else renderReport(true);
   iedLiveUI(); if (CMPCOL) { CMPI = NEXTCMPI != null ? NEXTCMPI : -1; NEXTCMPI = null; renderSide2(); }
-  if (!S.ied && needOf(iedKind()).every(j => ONNXBUF[j])) setTimeout(runIED, 50); }
+  }
 $('filesel').onchange = () => sessSwitch(+$('filesel').value);
 $('iedhelpbtn').onclick = () => { const h = $('iedhelp'); h.hidden = !h.hidden; $('iedhelpbtn').setAttribute('aria-expanded', String(!h.hidden)); };
 /* ---- colonna di confronto: pannello laterale dell'altro EEG aperto, scorrimento allineato per sezione ---- */
