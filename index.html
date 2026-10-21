@@ -193,6 +193,24 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 @media (max-width:900px){main,main.closed{grid-template-columns:1fr} #rail{flex-direction:row;justify-content:center} aside{border-top:1px solid var(--line)} .viewer{min-height:70vh}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .srcline{margin:0 0 .45rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap} .srcline select{font:inherit;max-width:100%}
+/* patch76 */
+#iedbusy{display:none!important} aside .sec[hidden],#rail .rb[hidden]{display:none!important}
+.modwrap{position:relative;display:inline-flex} #modbtn .spin{margin-right:.2rem}
+#modmenu{position:absolute;top:calc(100% + 4px);left:0;z-index:60;width:300px;max-width:90vw;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:4px}
+#modmenu[hidden]{display:none} .mitem{display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;padding:.4rem .5rem;border-radius:4px;border:1px solid var(--line);background:var(--paper);color:inherit;font:inherit;cursor:pointer}
+.mitem:hover{border-color:var(--accent)} .mitem[aria-checked=true]{border-color:var(--accent);background:var(--accentSoft)} .mitem small{display:block;color:var(--muted);font-size:.75rem}
+.mitem .mst{margin-left:auto;font-size:.75rem;color:var(--muted);white-space:nowrap} #modsrc{border-top:1px solid var(--line);padding:.4rem .2rem 0;font-size:.8rem} #modsrc .srcline{margin:0}
+.tlhead{gap:.5rem;align-items:center} .tlhead .chips{flex:1 1 auto;min-width:0;flex-wrap:nowrap;gap:.3rem;overflow:hidden}
+.tlhead .cg,.tlhead .cg.allbtns{border-radius:4px;flex:1 1 0;min-width:0;align-items:stretch;overflow:hidden}
+.tlhead .chip{border-radius:0;justify-content:center;text-align:center;flex:1 1 auto;min-width:0;margin:0;padding:.12rem .3rem;font-size:var(--chipfs,.74rem);white-space:nowrap}
+.tlhead .chip span{min-width:0;overflow:hidden;text-overflow:ellipsis} .tlhead .chip svg{flex:0 0 auto}
+.tlhead .cg.allbtns .chip:first-child,.tlhead .cg.allbtns .chip:last-child{padding-left:.3rem;padding-right:.3rem}
+.tlhead .cg .eye{flex:0 0 24px;width:24px;height:auto;margin:0;border-radius:0;border:0;border-left:1px solid var(--line)} .tlhead .cg .eye[aria-pressed=true]{background:var(--accentSoft);color:var(--accent)}
+.icumark{color:var(--ied)}
+/* patch77: elenco anomalie sospette, il reperto va su una seconda riga a tutta larghezza (nel pannello stretto la colonna spariva) */
+.iedlist li{grid-template-columns:3.1rem 2.4rem 2.3rem minmax(2.7rem,1fr) auto;row-gap:.05rem}
+.iedlist li .ctx{grid-column:1 / -1;grid-row:2;min-width:0;padding-left:.1rem} .iedlist li.head>span:nth-child(5){display:none}
+.iedlist li.cur .ctx{white-space:normal;overflow-wrap:break-word}
 </style>
 </head>
 <body>
@@ -201,7 +219,8 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <h1 class="brand"><svg class="brandic" viewBox="20 30 162 142" aria-hidden="true"><path d="M152 40 H48 A20 20 0 0 0 28 60 V120 A20 20 0 0 0 48 140 H116 L144 164 L140 140 H152 A20 20 0 0 0 172 120 V60 A20 20 0 0 0 152 40 Z" fill="none" stroke="currentColor" stroke-width="16" stroke-linejoin="round"/><path d="M52 90 L76 90 L88 62 L104 118 L116 90 L148 90" fill="none" stroke="#2EC4B6" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="bword"><b>EEG</b> Notes</span></h1>
   <button class="btn primary" id="open">Apri EDF</button>
   <button class="btn iedbusy" id="iedbusy" hidden title="Il modello IED sta cercando le anomalie: clic per vedere la sezione dei candidati"><span class="spin small" aria-hidden="true"></span> IED</button>
-  <button class="btn" id="anabtn" aria-pressed="false" title="Analizza un tratto del tracciato con più modelli IED insieme"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14.5 14.5M4.5 7h1l1-2 1.2 4 1-2h.8"/></svg><span> Analizza</span></button>
+  <span class="modwrap"><button class="btn" id="modbtn" aria-haspopup="menu" aria-expanded="false" title="Modelli: IED (anomalie epilettiformi) o ICU (crisi e pattern in terapia intensiva)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><circle cx="3" cy="4" r="1.5"/><circle cx="3" cy="12" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="13" cy="4" r="1.5"/><circle cx="13" cy="12" r="1.5"/><path d="M4.3 4.8l2.4 2.4M4.3 11.2l2.4-2.4M9.3 7.2l2.4-2.4M9.3 8.8l2.4 2.4"/></svg><span class="spin small" id="modspin" hidden aria-hidden="true"></span><span> Modelli</span></button><div id="modmenu" hidden role="menu"><button class="mitem" id="mied" role="menuitem"><span><b>IED</b><small>CBraMod + SpikeNet2: anomalie epilettiformi</small></span><span class="mst" id="miedst"></span></button><button class="mitem" id="micu" role="menuitemcheckbox" aria-checked="false"><span><b>ICU</b><small>SPaRCNet + SeizureTransformer: crisi e pattern ACNS</small></span><span class="mst" id="micust"></span></button><div id="modsrc"></div></div></span>
+  <button class="btn" id="anabtn" aria-pressed="false" title="Analizza un tratto del tracciato con i modelli IED o ICU" aria-label="Analizza tratto"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14.5 14.5M4.5 7h1l1-2 1.2 4 1-2h.8"/></svg></button>
   <button class="btn" id="annot" aria-pressed="false" title="Annota reperti sul tracciato (tasto A)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/><path d="M9.5 4l2.5 2.5"/></svg><span> Annota</span></button>
   <button class="btn" id="rulerbtn" aria-pressed="false" title="Righello: trascina sul tracciato per misurare la durata e il picco-picco di tutte le derivazioni (tasto R)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 10.5l9-9 4 4-9 9z"/><path d="M4.5 7.5l1.5 1.5M6.5 5.5l1 1M8.5 3.5l1.5 1.5M2.5 9.5l1 1"/></svg></button>
   <button class="btn" id="cmpbtn" title="Confronta con un altro EEG: apre un secondo EDF come tracciato e mostra l'EEG attuale in una seconda colonna laterale"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="5.5" height="11" rx="1"/><rect x="9" y="2.5" width="5.5" height="11" rx="1"/><path d="M2.8 8l1-1.5 1 3 1-1.5M10.3 8l1-1.5 1 3 1-1.5"/></svg></button>
@@ -221,7 +240,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
   <input type="file" id="file" accept=".edf,.EDF,.json,.safetensors,.onnx" multiple hidden>
 </header>
 <div id="anabar" hidden>
-  <span class="small">Modelli:</span>
+  <label class="small" title="IED: modelli 1 e 2 (anomalie epilettiformi). ICU: SPaRCNet e SeizureTransformer (crisi e pattern ACNS).">Modelli <select id="anaset"><option value="ied">IED</option><option value="icu">ICU</option></select></label>
   <span class="anamods" id="anamods"></span>
   <span class="annsep"></span>
   <span class="small" id="anasel">Tratto: trascina sulla panoramica o sul tracciato (ora: pagina corrente)</span>
@@ -251,7 +270,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
       <div class="busy" id="busy" role="status" aria-live="polite"><div class="spin" aria-hidden="true"></div><span id="busytxt">Caricamento e analisi in corso…</span></div>
     </div>
     <div class="tl"><button id="tltab" title="Comprimi la panoramica" aria-label="Comprimi o espandi la panoramica">⌄</button>
-      <div class="tlhead"><span class="chips"><span class="cg allbtns"><button class="chip" id="eyesall" title="Mostra sul tracciato tutti i reperti della panoramica (accende tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/></svg><span>mostra tutto</span></button><button class="chip" id="eyesnone" title="Nascondi dal tracciato tutti i reperti della panoramica (spegne tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path d="M2.5 13.5l11-11"/></svg><span>nascondi tutto</span></button></span><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni: segnalate dal tecnico (nell'EDF). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti (calcolati dall'app): > 350 µV su ≥ 3 canali o annotati dal tecnico; viola chiaro = delta solo frontopolare (oculare). Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Rallentamenti" aria-pressed="true" title="Rallentamenti per epoca di 4 s: rosso = sinistra, blu = destra (pieno = solo da quel lato, chiaro = maggiore da quel lato), grigio = diffuso. Al passaggio del mouse: attività lenta % (potenza theta+delta 2–8 Hz sulla potenza 2–30 Hz, derivazione temporale o fronto-centrale più lenta) e asimmetria tra i lati (lieve 1,6–2,5 volte, marcata ≥ 2,5 volte; soglie tarate su esempi di referti). Sul tracciato (occhio): rettangolo sulle derivazioni coinvolte con banda e frequenza, morfologia, voltaggio rispetto al tracciato, durata del burst, regione (derivazione di massimo), sonnolenza; tratteggiato = delta &lt; 2 Hz da verificare. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Rallentamenti</span></button><button class="eye" data-eye="Rallentamenti" aria-pressed="false" title="Mostra rallentamenti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS: LPD/GPD/LRDA/GRDA rilevati automaticamente. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>Pattern ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="IED: probabilità del modello e candidati. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button><button class="chip" data-row="Terapia intensiva" aria-pressed="true" title="Modelli per terapia intensiva (solo EEG Micromed): sopra SPaRCNet (rosso = crisi, indaco = LPD/GPD, chiaro = LRDA/GRDA), sotto SeizureTransformer p &gt; 0,8. Clic: mostra o nascondi la riga."><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8h3l1.5-4 2 8 2-6 1.5 2H15"/></svg><span>ICU</span></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
+      <div class="tlhead"><span class="chips"><span class="cg allbtns"><button class="chip" id="eyesall" title="Mostra sul tracciato tutti i reperti della panoramica (accende tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/></svg><span>mostra tutto</span></button><button class="chip" id="eyesnone" title="Nascondi dal tracciato tutti i reperti della panoramica (spegne tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path d="M2.5 13.5l11-11"/></svg><span>nascondi tutto</span></button></span><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni del tecnico (EDF)"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti: &gt; 350 µV su ≥ 3 canali o annotati"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Rallentamenti" aria-pressed="true" title="Rallentamenti: rosso = sx, blu = dx, grigio = diffuso"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Lenti</span></button><button class="eye" data-eye="Rallentamenti" aria-pressed="false" title="Mostra rallentamenti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS dalle regole (LPD, GPD, LRDA, GRDA)"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="Anomalie epilettiformi: probabilità e candidati"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button><button class="eye" data-eye="IED" aria-pressed="false" title="Mostra i candidati IED sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Terapia intensiva" aria-pressed="true" title="Terapia intensiva: accordo regole e modelli (rosso = crisi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8h3l1.5-4 2 8 2-6 1.5 2H15"/></svg><span>ICU</span></button><button class="eye" data-eye="ICU" aria-pressed="false" title="Mostra crisi e pattern di terapia intensiva sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
       <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div>
     </div>
   </section>
@@ -263,11 +282,11 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
    <section class="sec" data-sec="ilae">
     <details class="fold"><summary>Requisiti minimi di registrazione (ILAE-IFCN 2023) <a class="pdfl" href="https://www.ilae.org/files/dmfile/eeg-minimum-standards.pdf" target="_blank" rel="noopener" title="Standard minimi ILAE-IFCN per EEG di routine e di sonno (Peltola et al. 2023)">PDF</a> <span class="cnt" id="stdcnt"></span></summary><div id="stdbox" class="small">Apri un file.</div></details>
    </section>
+   <section class="sec" data-sec="icu" id="icusec" hidden>
+    <h2 title="Accordo tra regole ACNS, SPaRCNet (Jing et al., Neurology 2023; ODC-By) e SeizureTransformer (Wu et al. 2025; MIT), rifiniti su HMS (BDSP) e TUH (NEDC) con i loro permessi; solo uso didattico e di ricerca non commerciale.">Terapia intensiva: crisi e pattern <span class="cnt" id="icucnt"></span></h2><div id="icubox" class="small"></div>
+   </section>
    <section class="sec" data-sec="acns">
     <h2 title="Rilevamento automatico: LPD/GPD con ≥ 6 scariche a intervallo regolare, LRDA/GRDA 1–4 Hz; esclusi ECG e ammiccamenti">Pattern ritmici e periodici (ACNS 2021) <span class="cnt" id="rppcnt"></span></h2><div id="rppbox" class="small">Apri un file.</div>
-   </section>
-   <section class="sec" data-sec="icu" id="icusec" hidden>
-    <h2 title="Solo per gli EEG Micromed di terapia intensiva. SPaRCNet (Jing et al., Neurology 2023; ODC-By): pattern ACNS e crisi per finestre di 10 s. SeizureTransformer (Wu et al. 2025; MIT): probabilità di crisi per secondo. Entrambi rifiniti da noi su HMS (BDSP) e TUH (NEDC), pubblicati con i loro permessi, solo uso didattico e di ricerca non commerciale. Screening da verificare sul tracciato: non entrano nel referto né nella classificazione.">Modelli per terapia intensiva <span class="cnt" id="icucnt"></span></h2><div id="icubox" class="small"></div>
    </section>
    <section class="sec" data-sec="rep">
     <h2>Referto automatico (bozza)</h2>
@@ -329,6 +348,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
     <button class="rb" data-sec="score" title="Livello decisionale (regole SCORE)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12M4 14h8M3 4h10M3 4l-2 5h4zM13 4l-2 5h4z"/></svg></button>
     <button class="rb" data-sec="ilae" title="Requisiti minimi ILAE-IFCN" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2.5" width="10" height="12" rx="1"/><path d="M6 2.5h4v2H6zM5.5 9.5l2 2 3-4"/></svg></button>
     <button class="rb" data-sec="acns" title="Pattern ritmici e periodici ACNS" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg></button>
+    <button class="rb" data-sec="icu" title="Terapia intensiva: crisi e pattern" aria-pressed="false" hidden><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="3" cy="4" r="1.5"/><circle cx="3" cy="12" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="13" cy="4" r="1.5"/><circle cx="13" cy="12" r="1.5"/><path d="M4.3 4.8l2.4 2.4M4.3 11.2l2.4-2.4M9.3 7.2l2.4-2.4M9.3 8.8l2.4 2.4"/></svg></button>
     <button class="rb" data-sec="rep" title="Referto automatico" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5.5L12 4v10.5H4z"/><path d="M6 7h4M6 9.5h4M6 12h3"/></svg></button>
     <button class="rb" data-sec="ied" title="Anomalie sospette" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg></button>
     <button class="rb" data-sec="sum" title="Sintesi automatica" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14h12M4 12V8M8 12V4M12 12V6"/></svg></button>
@@ -2232,6 +2252,7 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
     const BU = EYEON.has('Rallentamenti') && A.bursts ? A.bursts.filter(b => (b.ok || b.verify) && b.t1 > S.t && b.t0 < S.t + sec) : [];
     for (const r of SR) { const cov = BU.some(b => b.ok && b.t1 > r.t0 && b.t0 < r.t1); band(r.t0, r.t1, css('--slow'), cov ? .05 : .16); if (!cov) slowTag(r, lab, sec, plotW); }
     for (const b of BU) burstRect(b, P, rowH, sec, lab, plotW);
+    icuTraceDraw(band, lab, sec, plotW, H);
     if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) for (const q of A.rpp.patterns) { const col = css('--rpp'); band(q.t0, q.t1, col, .2);
       const x0 = lab + Math.max(0, q.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, q.t1 - S.t) / sec * plotW; if (x1 > x0) { tctx.strokeStyle = col; tctx.lineWidth = 2; tctx.globalAlpha = .9;
         if (q.t0 >= S.t) { tctx.beginPath(); tctx.moveTo(x0, 0); tctx.lineTo(x0, H - 18); tctx.stroke(); } if (q.t1 <= S.t + sec) { tctx.beginPath(); tctx.moveTo(x1, 0); tctx.lineTo(x1, H - 18); tctx.stroke(); } tctx.globalAlpha = 1;
@@ -2265,7 +2286,7 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
     tctx.stroke();
   });
   // candidati IED: banda colorata sulla finestra di 4 s del picco
-  if (S.ied) S.ied.events.forEach((ev, i) => { if (ev.t1 < S.t || ev.t0 > S.t + sec) return;
+  if (S.ied && EYEON.has('IED')) S.ied.events.forEach((ev, i) => { if (ev.t1 < S.t || ev.t0 > S.t + sec) return;
     const x0 = lab + Math.max(0, ev.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, ev.t1 - S.t) / sec * plotW, j = S.review[evKey(ev)];
     if (i === S.iedCur) { tctx.fillStyle = css('--ied'); tctx.globalAlpha = .05; tctx.fillRect(x0, 16, x1 - x0, H - 34); tctx.globalAlpha = 1; } // finestre del modello solo per il candidato selezionato
     const L = ev.loc; let lx = x0 + 3, txt = 'IED ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : '');
@@ -2294,7 +2315,7 @@ function slowText(o) { const lm = o.latMax, pct = isFinite(o.slowAbs) ? Math.rou
   const bu = (S.A && S.A.bursts || []).filter(b => (b.ok || b.verify) && b.t1 > o.t && b.t0 < o.t + S.A.epoch).map(b => C.burstLabel(b));
   return (bu.length ? bu.join(' | ') + ' · ' : '') + (o.drowsy && !bu.length ? 'sonnolenza' + (o.drowsy === 'stimata' ? ' (stimata)' : '') + ' · ' : '') + (o.slowCat ? 'rallentamento ' + o.slowCat + (o.flagReg && o.slowCat !== 'diffuso' ? ' (' + o.flagReg + ')' : '') + ' · ' : '') + (pct != null ? 'attività lenta ' + pct + '%' : '') + (asym ? ' · ' + asym : ''); }
 const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'Terapia intensiva', 'IED (modello)', 'Modelli'];
-const TLOFF = new Set(); // righe nascoste dall'utente
+const TLLAB = { 'Rallentamenti': 'Lenti', 'Pattern ACNS': 'ACNS', 'IED (modello)': 'IED', 'Terapia intensiva': 'ICU', 'Modelli': 'Tratto' }, TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
 function tlRows() { const A = S.A; const r = TLROWS.filter(n => !TLOFF.has(n) && (n === 'Pattern ACNS' ? !!(A && A.rpp && A.rpp.patterns && A.rpp.patterns.length) : n === 'IED (modello)' ? !!S.ied : n === 'Modelli' ? !!(S.multi || S.anaSel) : n === 'Terapia intensiva' ? !!(S.icu && S.icu.P && S.src === 'micromed') : true)); return r.length ? r : ['Annotazioni']; }
 function drawTimeline() {
@@ -2305,7 +2326,7 @@ function drawTimeline() {
   const rows = tlRows(), RI = n => rows.indexOf(n);
   const { A } = S, lab = 92, pw = W - lab - 8, D = A.duration, rh = (H - 16) / rows.length, X = t => lab + t / D * pw;
   lctx.font = '11px IBM Plex Sans, system-ui';
-  rows.forEach((n, i) => { lctx.fillStyle = css('--muted'); lctx.fillText(n, 4, i * rh + rh * .62); lctx.fillStyle = css('--grid'); lctx.fillRect(lab, i * rh + 2, pw, rh - 4); });
+  rows.forEach((n, i) => { lctx.fillStyle = css('--muted'); lctx.fillText(TLLAB[n] || n, 4, i * rh + rh * .62); lctx.fillStyle = css('--grid'); lctx.fillRect(lab, i * rh + 2, pw, rh - 4); });
   // annotazioni
   const yA = RI('Annotazioni') * rh, yR = RI('Artefatti') * rh, yS = RI('Rallentamenti') * rh;
   if (yA >= 0) for (const u of UA) { lctx.fillStyle = css(ucat(u.cat).col); lctx.fillRect(X(u.t0), yA + 1, Math.max(3, (u.t1 - u.t0) / D * pw), rh - 2); }
@@ -2333,10 +2354,9 @@ function drawTimeline() {
   const yM = RI('Modelli') * rh;
   if (yM >= 0 && (S.multi || S.anaSel)) { const r = S.multi || S.anaSel; lctx.strokeStyle = css('--accent'); lctx.setLineDash([3, 2]); lctx.strokeRect(X(r.t0) + .5, yM + 2.5, Math.max(2, X(r.t1) - X(r.t0)), rh - 5); lctx.setLineDash([]);
     if (S.multi) for (const sg of anaAgree()) { lctx.fillStyle = css('--ied'); lctx.globalAlpha = sg.n / sg.of; lctx.fillRect(X(sg.a), yM + 3, Math.max(2, X(sg.b) - X(sg.a)), rh - 6); lctx.globalAlpha = 1; } }
-  const yU = RI('Terapia intensiva') * rh;   // modelli per terapia intensiva (patch74)
-  if (yU >= 0 && S.icu && S.icu.P) { const d = icuD(S.icu), sw = 2 / D * pw + .6, h1 = (rh - 6) * .62;
-    d.top.forEach((k, j) => { if (!k) return; lctx.fillStyle = css(k === 1 ? '--ied' : '--rpp'); lctx.globalAlpha = k <= 3 ? 1 : .45; lctx.fillRect(X(2 * j + 4), yU + 3, sw, h1); });
-    lctx.globalAlpha = 1; lctx.fillStyle = css('--ecg'); d.st.forEach(r => lctx.fillRect(X(r.a), yU + 4 + h1, Math.max(2, (r.b - r.a) / D * pw), rh - 7 - h1)); }
+  const yU = RI('Terapia intensiva') * rh;   // terapia intensiva: accordo (pieno = 2 metodi, chiaro = 1; rosso = crisi, indaco = pattern)
+  if (yU >= 0 && icuOn() && S.icu && S.icu.P) for (const e of icuCons(S.icu, A)) { lctx.fillStyle = css(e.crisi ? '--ied' : '--rpp'); lctx.globalAlpha = e.strong ? 1 : .35;
+    lctx.fillRect(X(e.a), yU + 3, Math.max(2, (e.b - e.a) / D * pw), rh - 6); lctx.globalAlpha = 1; }
   // finestra visibile
   lctx.fillStyle = css('--sel'); lctx.strokeStyle = css('--accent'); const vx = X(S.t), vw = Math.max(3, pageLen() / D * pw);
   lctx.fillRect(vx, 0, vw, H - 14); lctx.strokeRect(vx + .5, .5, vw, H - 15);
@@ -2361,8 +2381,7 @@ function tlHit(e) { // cosa c'è sotto il mouse nella linea del tempo
   else if (row === 'Modelli') { const sg = S.multi ? anaAgree().find(q => t >= q.a - tol && t <= q.b + tol) : null;
     if (sg) { hit.go = (sg.a + sg.b) / 2 - pageLen() / 2; hit.txt = fmtT(sg.a) + ' · accordo ' + sg.n + '/' + sg.of + ' (' + sg.ks.map(MLAB).join(', ') + ')'; }
     else { const r = S.multi || S.anaSel; if (r && t >= r.t0 && t <= r.t1) hit.txt = 'tratto ' + fmtT(r.t0) + '–' + fmtT(r.t1) + (S.multi ? ': nessun accordo qui' : ': da analizzare'); } }
-  else if (row === 'Terapia intensiva') { const R = S.icu; if (R && R.P) { const d = icuD(R), j = Math.max(0, Math.min(d.top.length - 1, Math.round((t - 5) / 2))), q = R.Q ? R.Q[Math.floor(t)] : null;
-      hit.go = t - pageLen() / 2; hit.txt = fmtT(t) + ' · SPaRCNet: ' + ICU_CL[d.top[j]] + ' ' + Math.round(100 * R.P[j * 6 + d.top[j]]) + '%' + (q != null ? ' · SeizureTransformer p ' + q.toFixed(2) : ''); } }
+  else if (row === 'Terapia intensiva') { const x = icuAt(t); if (x) { hit.go = t - pageLen() / 2; hit.txt = fmtT(t) + ' · ' + x; } }
   else if (o && !o.zero) { const ts = fmtT(o.t) + ' · ';
     if (row === 'Artefatti') hit.txt = ts + (o.artifact ? 'artefatto: ampiezza > 350 µV su ≥ 3 canali' : o.annArt ? 'artefatto annotato dal tecnico' : o.popCh && o.popCh.length ? 'elettrodo instabile: ' + o.popCh.join(', ') : o.eyeDelta ? 'delta solo frontopolare (probabile movimento oculare)' : 'nessun artefatto');
     if (row === 'Rallentamenti') hit.txt = ts + slowText(o); }
@@ -2382,7 +2401,7 @@ function epText(row, o) {
   if (row === 'Rallentamenti') return o.slowCat ? slowText(o) : null;
   return null;
 }
-const TIPCOL = { 'Artefatti': '--art', 'Rallentamenti': '--flag', 'Pattern ACNS': '--stato', 'IED': '--ied', 'Modelli': '--ied' };
+const TIPCOL = { 'Artefatti': '--art', 'Rallentamenti': '--flag', 'Pattern ACNS': '--stato', 'IED': '--ied', 'ICU': '--rpp', 'Modelli': '--ied' };
 function traceTip(e) {
   const tip = $('trtip'), hide = () => { tip.style.display = 'none'; };
   if (!S.A || !S.geo || (e.target.closest && e.target.closest('.ua'))) return hide();
@@ -2391,7 +2410,8 @@ function traceTip(e) {
   const t = S.t + (px - G.lab) / G.plotW * G.sec, A = S.A, o = A.epochs.find(q => t >= q.t && t < q.t + A.epoch), L = [];
   if (o && !o.zero) for (const row of ['Artefatti', 'Rallentamenti']) if (EYEON.has(row)) { if (row === 'Artefatti' && !(S.artZ || []).some(z => z.o === o && t >= z.t0 && t <= z.t1)) continue; const x = epText(row, o); if (x) L.push([row, x]); }
   if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) A.rpp.patterns.filter(q => t >= q.t0 && t <= q.t1).forEach(q => L.push(['Pattern ACNS', C.rppDesc(q)]));
-  if (S.ied) S.ied.events.forEach(ev => { if (t < ev.t0 || t > ev.t1) return; const Q = ev.loc && ev.loc.found ? ev.loc : null, j = S.review[evKey(ev)];
+  if (EYEON.has('ICU')) { const x = icuAt(t); if (x) L.push(['ICU', x]); }
+  if (S.ied && EYEON.has('IED')) S.ied.events.forEach(ev => { if (t < ev.t0 || t > ev.t1) return; const Q = ev.loc && ev.loc.found ? ev.loc : null, j = S.review[evKey(ev)];
     const eps = A.epochs.filter(q => q.t + A.epoch > ev.t0 && q.t < ev.t1 && !q.zero), na = eps.filter(q => q.artifact || q.annArt).length;
     L.push(['IED', 'candidato p ' + ev.pmax.toFixed(2).replace('.', ',') + (Q ? ' · ' + (Q.morph || Q.type) + ' ' + Q.ch + ', ' + Q.durMs + ' ms' + (Q.quality !== 'buona' ? ' (' + Q.quality + ')' : '') : ev.ch ? ' · ' + ev.ch : '')
       + (na ? ' · su artefatto (' + na + '/' + eps.length + ' epoche' + (ev.art ? ', escluso dal conteggio' : '') + ')' : '') + (j ? ' · giudizio: ' + j : '')]); });
@@ -2497,12 +2517,12 @@ function renderSummary() {
   S.src = srcO || srcA.src; S.srcKey = srcK; setTimeout(icuMaybe, 0);
   const srcN = { micromed: 'Micromed – terapia intensiva', galileo: 'Galileo – routine' };
   const srcLine = '<div class="srcline" title="Riconosciuta automaticamente dall\'intestazione dell\'EDF (' + srcA.why + '). '
-    + 'Servirà ad attivare i modelli per la terapia intensiva (pattern ACNS e crisi) solo sugli EEG Micromed. Se il riconoscimento sbaglia, cambiala dal menu: la scelta resta salvata nel browser per questo file.">'
-    + '<b>Registrazione:</b> <select id="srcsel" aria-label="Origine della registrazione">'
+    + 'Micromed = terapia intensiva: si avviano SPaRCNet e SeizureTransformer. La scelta resta salvata nel browser per questo file.">'
+    + '<b>Tipo di EEG:</b> <select id="srcsel" aria-label="Origine della registrazione">'
     + '<option value=""' + (srcO ? '' : ' selected') + '>' + srcN[srcA.src] + ' (automatico)</option>'
     + ['micromed', 'galileo'].map(k => '<option value="' + k + '"' + (srcO === k ? ' selected' : '') + '>' + srcN[k] + '</option>').join('') + '</select></div>';
+  if ($('modsrc')) $('modsrc').innerHTML = srcLine;
   $('summary').innerHTML = `
-    ${srcLine}
     <div class="bgline">${verdict}</div>
     <h2>Ritmo dominante posteriore</h2>
     <dl class="kv">
@@ -2760,6 +2780,7 @@ function drawAll() { sizeTimeline(); drawTrace(); drawTimeline(); }
   const applyRows = () => { document.querySelectorAll('.chip[data-row]').forEach(c => c.setAttribute('aria-pressed', String(!TLOFF.has(c.dataset.row)))); set('eeg.tloff', [...TLOFF].join('|')); drawAll(); };
   document.querySelectorAll('.chip[data-row]').forEach(c => c.onclick = () => { TLOFF.has(c.dataset.row) ? TLOFF.delete(c.dataset.row) : TLOFF.add(c.dataset.row); applyRows(); });
   (get('eeg.eyes') || '').split('|').filter(Boolean).forEach(n => EYEON.add(n));
+  if (!get('eeg.eyes.p76')) { EYEON.add('IED'); EYEON.add('ICU'); set('eeg.eyes.p76', '1'); set('eeg.eyes', [...EYEON].join('|')); }   // IED visibili come prima
   const applyEyes = () => { const eyes = [...document.querySelectorAll('.eye')]; eyes.forEach(b => b.setAttribute('aria-pressed', String(EYEON.has(b.dataset.eye))));
     $('eyesall').setAttribute('aria-pressed', String(eyes.length > 0 && eyes.every(b => EYEON.has(b.dataset.eye)))); $('eyesnone').setAttribute('aria-pressed', String(!eyes.some(b => EYEON.has(b.dataset.eye))));
     set('eeg.eyes', [...EYEON].join('|')); drawTrace(); };
@@ -2861,54 +2882,64 @@ async function selectModel(k) {
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
   const mb = needOf(k).reduce((x, j) => x + ONNXBUF[j].buf.byteLength, 0) / 1048576;
   if (!ONNXBUF.slow && !SLOWTRIED) { SLOWTRIED = true; try { const r = await fetchOnnx('slow'); if (r) ONNXBUF.slow = r; } catch (e) { /* facoltativo */ } }
+  setTimeout(icuPreload, 1000);
   $('iedrun').disabled = false; $('iedstatus').textContent = 'Modelli pronti.'; $('iedstatus').title = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
   if (S.A) iedQueueAll();
 }
-/* ---- modelli per terapia intensiva (patch74): SPaRCNet + SeizureTransformer solo se Registrazione = Micromed ---- */
-const ICU_CL = ['Altro', 'Crisi', 'LPD', 'GPD', 'LRDA', 'GRDA'];
-let ICUW = null, ICUBUSY = null, ICUMSG = '';
-function icuMaybe() { renderICU(); drawAll(); if (S.src !== 'micromed' || !S.A || S.icu || ICUBUSY) return; icuRun(); }
+/* ---- modelli per terapia intensiva (patch74, rivista patch76): SPaRCNet + SeizureTransformer ---- */
+const ICU_CL = ['Altro', 'Crisi', 'LPD', 'GPD', 'LRDA', 'GRDA'], ICU_PAT = { 2: 'LPD', 3: 'GPD', 4: 'LRDA', 5: 'GRDA' };
+let ICUW = null, ICUBUSY = null, ICUMSG = '', ICUPRE = null;
+const icuOn = () => !!S.A && S.src === 'micromed';
+function icuMaybe() { renderICU(); renderMod(); drawAll(); if (!icuOn() || S.icu || ICUBUSY) return; icuRun(); }
 function icuStore(rec, v) { if (S.rec === rec) { S.icu = v; renderICU(); drawAll(); } else { const o = SESS.find(x => x && x.rec === rec); if (o) o.icu = v; } }
-async function icuRun() {
-  const rec = S.rec, A = S.A; ICUBUSY = S.fname;
-  const msg = m => { ICUMSG = m; if (S.rec === rec) renderICU(); };
-  try {
-    if (!ICUW) {
-      for (const k of ['sparc', 'st']) { if (ONNXBUF[k]) continue; let last = 0; msg('Caricamento di ' + OX.MODELS[k].label + '…');
-        const r = await fetchOnnx(k, (b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; msg('Caricamento di ' + OX.MODELS[k].label + '… ' + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB')); });
-        if (!r) throw new Error('file ' + OX.MODELS[k].file + ' non trovato in modelli/ (servi la pagina da un server o trascina il file nella pagina)'); ONNXBUF[k] = r; }
-      msg('Avvio dei modelli (onnxruntime-web)…');
-      const src = document.getElementById('iedsrc').textContent + '\n' + document.getElementById('onnxsrc').textContent + `
-        importScripts('${OX.ORT_URL}ort.min.js'); ort.env.wasm.numThreads = 1; ort.env.wasm.wasmPaths = '${OX.ORT_URL}';
-        let sp = null, st = null;
-        self.onmessage = async e => { const d = e.data;
-          try {
-            if (d.type === 'init') { sp = await ort.InferenceSession.create(new Uint8Array(d.sp), { executionProviders: ['wasm'] }); st = await ort.InferenceSession.create(new Uint8Array(d.st), { executionProviders: ['wasm'] }); postMessage({ type: 'ready' }); return; }
-            const P = EEGONNX.icuPrep(d.sig, d.fs); postMessage({ type: 'prep', interp: P.interp });
-            const Psp = await EEGONNX.sparcRun(sp, P, ort, (a, b) => postMessage({ type: 'prog', what: 'SPaRCNet', a, b, u: 'finestre di 10 s' }));
-            postMessage({ type: 'sparc', P: Psp }, [Psp.buffer]);
-            const Q = await EEGONNX.stRun(st, P, ort, (a, b) => postMessage({ type: 'prog', what: 'SeizureTransformer', a, b, u: 'finestre di 60 s' }));
-            postMessage({ type: 'st', Q }, [Q.buffer]);
-          } catch (err) { postMessage({ type: 'error', msg: String(err && err.message || err) }); } };`;
-      const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
-      await new Promise((res, rej) => { w.onmessage = e => e.data.type === 'ready' ? res() : e.data.type === 'error' && rej(new Error(e.data.msg));
-        w.postMessage({ type: 'init', sp: ONNXBUF.sparc.buf.slice(0), st: ONNXBUF.st.buf.slice(0) }); });
-      ICUW = w; }
-    const sig = {}; for (const c of OX.ICU_EL) if (A.cmap[c] !== undefined && !A.bad.has(c)) sig[c] = Float32Array.from(rec.signals[A.cmap[c]].data);
-    if (Object.keys(sig).length < 8) throw new Error('meno di 8 elettrodi 10-20 utilizzabili');
-    const res = { interp: [], P: null, Q: null }; msg('Preparazione del segnale…');
-    const out = await new Promise((resolve, reject) => { ICUW.onmessage = e => { const d = e.data;
-        if (d.type === 'prep') res.interp = d.interp;
-        else if (d.type === 'prog') msg(d.what + ': ' + d.a + '/' + d.b + ' ' + d.u);
-        else if (d.type === 'sparc') { res.P = d.P; icuStore(rec, Object.assign({}, res, { partial: true })); }
-        else if (d.type === 'st') { res.Q = d.Q; resolve(res); }
-        else if (d.type === 'error') reject(new Error(d.msg)); };
-      ICUW.postMessage({ type: 'job', sig, fs: A.fs }, Object.values(sig).map(x => x.buffer)); });
-    icuStore(rec, out);
-  } catch (err) { icuStore(rec, { err: err.message }); }
-  finally { ICUBUSY = null; ICUMSG = ''; if (S.rec === rec) renderICU(); setTimeout(icuMaybe, 0); }
+/* download anticipato dei file (senza avviarli): parte dopo i modelli IED */
+function icuPreload() { if (ICUW || ICUPRE) return ICUPRE;
+  ICUPRE = (async () => { for (const k of ['sparc', 'st']) { if (ONNXBUF[k] && ONNXBUF[k].buf) continue; try { const r = await fetchOnnx(k); if (r && !ICUW) ONNXBUF[k] = r; } catch (e) { /* facoltativo */ } } })()
+    .finally(() => { ICUPRE = null; }); return ICUPRE; }
+async function icuEnsure(msg) {
+  if (ICUW) return;
+  if (ICUPRE) { msg('Download dei modelli ICU…'); await ICUPRE; }
+  for (const k of ['sparc', 'st']) { if (ONNXBUF[k] && ONNXBUF[k].buf) continue; let last = 0; msg('Caricamento di ' + OX.MODELS[k].label + '…');
+    const r = await fetchOnnx(k, (b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; msg('Caricamento di ' + OX.MODELS[k].label + '… ' + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB')); });
+    if (!r) throw new Error('file ' + OX.MODELS[k].file + ' non trovato in modelli/ (o trascinalo nella pagina)'); ONNXBUF[k] = r; }
+  msg('Avvio dei modelli…');
+  const src = document.getElementById('iedsrc').textContent + '\n' + document.getElementById('onnxsrc').textContent + `
+    importScripts('${OX.ORT_URL}ort.min.js'); ort.env.wasm.numThreads = 1; ort.env.wasm.wasmPaths = '${OX.ORT_URL}';
+    let sp = null, st = null;
+    self.onmessage = async e => { const d = e.data;
+      try {
+        if (d.type === 'init') { sp = await ort.InferenceSession.create(new Uint8Array(d.sp), { executionProviders: ['wasm'] }); st = await ort.InferenceSession.create(new Uint8Array(d.st), { executionProviders: ['wasm'] }); postMessage({ type: 'ready' }); return; }
+        const P = EEGONNX.icuPrep(d.sig, d.fs); postMessage({ type: 'prep', interp: P.interp });
+        const Psp = await EEGONNX.sparcRun(sp, P, ort, (a, b) => postMessage({ type: 'prog', what: 'SPaRCNet', a, b, u: 'finestre di 10 s' }));
+        postMessage({ type: 'sparc', P: Psp }, [Psp.buffer]);
+        const Q = await EEGONNX.stRun(st, P, ort, (a, b) => postMessage({ type: 'prog', what: 'SeizureTransformer', a, b, u: 'finestre di 60 s' }));
+        postMessage({ type: 'st', Q }, [Q.buffer]);
+      } catch (err) { postMessage({ type: 'error', msg: String(err && err.message || err) }); } };`;
+  const w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' }))), sp = ONNXBUF.sparc.buf, st = ONNXBUF.st.buf;
+  ONNXBUF.sparc = { buf: null, name: 'nel worker' }; ONNXBUF.st = { buf: null, name: 'nel worker' };   // trasferiti, non copiati
+  try { await new Promise((res, rej) => { w.onmessage = e => e.data.type === 'ready' ? res() : e.data.type === 'error' && rej(new Error(e.data.msg)); w.postMessage({ type: 'init', sp, st }, [sp, st]); }); }
+  catch (err) { w.terminate(); throw err; }
+  ICUW = w;
 }
-/* classe più probabile per finestra, percentuali, tratti consecutivi; SeizureTransformer: secondi consecutivi con p > 0,8 */
+function icuSig(rec, A, a, b) { const sig = {};
+  for (const c of OX.ICU_EL) if (A.cmap[c] !== undefined && !A.bad.has(c)) { const d = rec.signals[A.cmap[c]].data; sig[c] = Float32Array.from(a == null ? d : d.slice(a, b)); }
+  if (Object.keys(sig).length < 8) throw new Error('meno di 8 elettrodi 10-20 utilizzabili'); return sig; }
+function icuJob(sig, fs, msg, onSparc) { return new Promise((resolve, reject) => { const res = { interp: [], P: null, Q: null };
+  ICUW.onmessage = e => { const d = e.data;
+    if (d.type === 'prep') res.interp = d.interp;
+    else if (d.type === 'prog') msg(d.what + ': ' + d.a + '/' + d.b + ' ' + d.u);
+    else if (d.type === 'sparc') { res.P = d.P; if (onSparc) onSparc(Object.assign({}, res, { partial: true })); }
+    else if (d.type === 'st') { res.Q = d.Q; resolve(res); }
+    else if (d.type === 'error') reject(new Error(d.msg)); };
+  ICUW.postMessage({ type: 'job', sig, fs }, Object.values(sig).map(x => x.buffer)); }); }
+async function icuRun() {
+  const rec = S.rec, A = S.A; ICUBUSY = S.fname; renderMod();
+  const msg = m => { ICUMSG = m; if (S.rec === rec) renderICU(); };
+  try { await icuEnsure(msg); const sig = icuSig(rec, A); msg('Preparazione del segnale…'); icuStore(rec, await icuJob(sig, A.fs, msg, r => icuStore(rec, r))); }
+  catch (err) { icuStore(rec, { err: err.message }); }
+  finally { ICUBUSY = null; ICUMSG = ''; renderMod(); if (S.rec === rec) renderICU(); setTimeout(icuMaybe, 0); }
+}
+/* SPaRCNet: classe più probabile per finestra; SeizureTransformer: secondi consecutivi con p > 0,8 (≥ 10 s) */
 function icuDerive(R) {
   const nw = R.P.length / 6, top = new Uint8Array(nw); for (let j = 0; j < nw; j++) { let b = 0; for (let k = 1; k < 6; k++) if (R.P[j * 6 + k] > R.P[j * 6 + b]) b = k; top[j] = b; }
   const pct = ICU_CL.map((_, k) => nw ? 100 * top.filter(v => v === k).length / nw : 0), runs = [];
@@ -2918,25 +2949,96 @@ function icuDerive(R) {
   return { top, pct, runs, crisi, st };
 }
 const icuD = R => R._d || (R._d = icuDerive(R));
-function renderICU() { const sec = $('icusec'); if (!sec) return; const on = !!S.A && S.src === 'micromed'; sec.hidden = !on; if (!on) return;
-  const R = S.icu, box = $('icubox'), busy = ICUBUSY === S.fname, H = [];
+/* accordo per tratti di 2 s (centro delle finestre di SPaRCNet): crisi = SPaRCNet "crisi" e/o SeizureTransformer p > 0,8
+   (le regole non cercano crisi); pattern = regole ACNS e/o SPaRCNet. Forte = 2 metodi d'accordo per ≥ 4 s; con un solo
+   metodo si mostrano i tratti ≥ 10 s (crisi) o ≥ 6 s (pattern). Scelta dell'app per lo screening, non da linea guida. */
+function icuCons(R, A) { if (R._c) return R._c; const d = icuD(R), pats = (A && A.rpp && A.rpp.patterns) || [], ev = [];
+  for (let j = 0; j < d.top.length; j++) { const a = 2 * j + 4, b = a + 2, tc = a + 1, sp = d.top[j];
+    let st = false; if (R.Q) for (let q = a; q < b && q < R.Q.length; q++) if (R.Q[q] > 0.8) st = true;
+    const ru = pats.find(q => tc >= q.t0 - 1 && tc <= q.t1 + 1), rn = ru ? ru.name + (ru.side === 'G' ? '' : ' ' + ru.side) : null, sl = ICU_PAT[sp];
+    let lab, n, who;
+    if (sp === 1 || st) { lab = 'Crisi'; n = (sp === 1 ? 1 : 0) + (st ? 1 : 0); who = [sp === 1 && 'SPaRCNet', st && 'SeizureTransformer'].filter(Boolean); }
+    else if (ru && sl) { lab = ru.name === sl ? rn : rn + ' / ' + sl; n = 2; who = ['regole', 'SPaRCNet']; }
+    else if (ru) { lab = rn; n = 1; who = ['regole']; } else if (sl) { lab = sl; n = 1; who = ['SPaRCNet']; } else continue;
+    const l = ev[ev.length - 1];
+    if (l && l.lab === lab && a - l.b <= 2) { l.b = b; l.k[n - 1]++; who.forEach(x => l.who.add(x)); if (rn && lab === 'Crisi') l.ru.add(rn); }
+    else ev.push({ lab, a, b, k: [n === 1 ? 1 : 0, n === 2 ? 1 : 0], who: new Set(who), ru: new Set(rn && lab === 'Crisi' ? [rn] : []) }); }
+  ev.forEach(e => { e.crisi = e.lab === 'Crisi'; e.strong = e.k[1] >= 2; e.show = e.strong || e.b - e.a >= (e.crisi ? 10 : 6); });
+  return (R._c = ev.filter(e => e.show)); }
+function icuAt(t) { const R = S.icu; if (!icuOn() || !R || !R.P) return null; const d = icuD(R), j = Math.max(0, Math.min(d.top.length - 1, Math.round((t - 5) / 2))), q = R.Q ? R.Q[Math.floor(t)] : null;
+  const e = icuCons(R, S.A).find(x => t >= x.a && t <= x.b);
+  return (e ? e.lab + ' ' + (e.strong ? '2' : '1') + '/3 · ' : '') + 'SPaRCNet ' + ICU_CL[d.top[j]].toLowerCase() + ' ' + Math.round(100 * R.P[j * 6 + d.top[j]]) + '%' + (q != null ? ' · ST ' + q.toFixed(2).replace('.', ',') : ''); }
+function icuTraceDraw(band, lab, sec, plotW, H) { if (!EYEON.has('ICU') || !icuOn() || !S.icu || !S.icu.P) return;
+  for (const e of icuCons(S.icu, S.A)) { if (e.b < S.t || e.a > S.t + sec) continue; const col = css(e.crisi ? '--ied' : '--rpp'); band(e.a, e.b, col, e.strong ? .16 : .07);
+    const x0 = lab + Math.max(0, e.a - S.t) / sec * plotW, x1 = lab + Math.min(sec, e.b - S.t) / sec * plotW, tx = e.lab + ' ' + (e.strong ? '2' : '1') + '/3';
+    tctx.font = '600 11px IBM Plex Sans, system-ui'; const tw = tctx.measureText(tx).width + 10;
+    if (x1 - x0 >= tw) { tctx.fillStyle = col; tctx.globalAlpha = e.strong ? 1 : .6; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x0 + 3, 41, tw, 16, 4); else tctx.rect(x0 + 3, 41, tw, 16); tctx.fill(); tctx.globalAlpha = 1; tctx.fillStyle = '#fff'; tctx.fillText(tx, x0 + 8, 53); } } }
+function renderICU() { const sec = $('icusec'); if (!sec) return; const on = icuOn(), rb = document.querySelector('#rail .rb[data-sec="icu"]'); sec.hidden = !on; if (rb) rb.hidden = !on; if (!on) { icuMarkRpp(); return; }
+  const R = S.icu, box = $('icubox'), busy = ICUBUSY === S.fname, H = [], cnt = $('icucnt');
   const spin = t => '<p><span class="spin small" aria-hidden="true"></span> ' + t + '</p>';
-  if (R && R.err) { H.push('<p class="warnline">Analisi non riuscita: ' + R.err + '</p><p><button class="btn" id="icuretry">Riprova</button></p>'); $('icucnt').textContent = '· errore'; }
-  else if (!R || !R.P) { H.push(busy ? spin(ICUMSG || 'Avvio…') : ICUBUSY ? '<p>In coda: i modelli stanno analizzando ' + ICUBUSY + '.</p>' : '<p>In attesa.</p>'); $('icucnt').textContent = busy || ICUBUSY ? '· in corso' : ''; }
-  else { const d = icuD(R), cl = [1, 2, 3, 4, 5].filter(k => d.pct[k] >= 1);
-    const pres = [1, 2, 3, 4, 5].filter(k => k === 1 ? d.crisi >= 3 : d.pct[k] >= 10).map(k => ICU_CL[k]).concat(d.st.length ? ['crisi (SeizureTransformer)'] : []);
-    $('icucnt').textContent = '· ' + (pres.length ? pres.join(', ') + ', da verificare' : 'nessun reperto');
-    H.push('<p><b>SPaRCNet</b> (finestre di 10 s, classe più probabile): ' + (cl.length ? cl.map(k => (d.pct[k] >= 10 ? '<b>' : '') + ICU_CL[k] + ' ' + Math.round(d.pct[k]) + '%' + (d.pct[k] >= 10 ? '</b>' : '')).join(', ') : 'solo "altro"')
-      + '. Crisi: sequenza più lunga ' + d.crisi + (d.crisi === 1 ? ' finestra' : ' finestre') + (d.crisi >= 3 ? ' (<b>≥ 3: sospetta</b>)' : '') + '.</p>');
-    const rr = d.runs.filter(r => r.n >= 3);
-    if (rr.length) H.push('<p>Tratti di almeno 3 finestre (clic per andarci):</p><ul>' + rr.slice(0, 30).map(r => '<li><a href="#" data-it="' + r.a + '">' + fmtT(r.a) + ' ' + ICU_CL[r.k] + '</a> <span class="small">' + (r.b - r.a) + ' s</span></li>').join('') + '</ul>' + (rr.length > 30 ? '<p>… altri ' + (rr.length - 30) + '</p>' : ''));
-    H.push(!R.Q ? spin(busy ? ICUMSG : 'SeizureTransformer in corso…') : '<p><b>SeizureTransformer</b>: ' + (d.st.length ? 'tratti con probabilità di crisi &gt; 0,8 per ≥ 10 s (clic per andarci):</p><ul>' + d.st.slice(0, 30).map(r => '<li><a href="#" data-it="' + r.a + '">' + fmtT(r.a) + '–' + fmtT(r.b) + '</a> <span class="small">' + (r.b - r.a) + ' s</span></li>').join('') + '</ul>' : 'nessun tratto con probabilità &gt; 0,8 per ≥ 10 s.</p>'));
-    if (R.interp && R.interp.length) H.push('<p class="small">Elettrodi mancanti o esclusi (' + R.interp.join(', ') + '): per l\'ingresso dei modelli sono ricostruiti come media dei vicini, come in addestramento; le regole ACNS dell\'app usano solo gli elettrodi reali.</p>');
-    H.push('<p class="small">Screening da verificare sul tracciato; non entra nel referto né nella classificazione. Prova su EEG di terapia intensiva AOPD (montaggio completo, 33 esami): SPaRCNet trova un pattern in 13/16 esami che lo hanno, con 5 falsi su 17; SeizureTransformer trova crisi/IIC in 10/15, con falsi positivi in 7/18. Su 89 EEG di routine: SPaRCNet 1 falso pattern, SeizureTransformer 22 tratti ≥ 10 s.</p>'); }
+  if (R && R.err) { H.push('<p class="warnline">Analisi non riuscita: ' + R.err + '</p><p><button class="btn" id="icuretry">Riprova</button></p>'); cnt.textContent = '· errore'; }
+  else if (!R || !R.P) { H.push(busy ? spin(ICUMSG || 'Avvio…') : ICUBUSY ? '<p>In coda.</p>' : '<p>In attesa.</p>'); cnt.textContent = busy || ICUBUSY ? '· in corso' : ''; }
+  else { const d = icuD(R), E = icuCons(R, S.A), strong = E.filter(e => e.strong), weak = E.filter(e => !e.strong), labs = [...new Set(strong.map(e => e.lab))];
+    const li = e => '<li><a href="#" data-it="' + e.a + '">' + fmtT(e.a) + '–' + fmtT(e.b) + ' ' + e.lab + '</a> <span class="small">' + (e.strong ? '2' : '1') + '/3 · ' + [...e.who].join(' + ') + (e.ru.size ? ' · regole: ' + [...e.ru].join(', ') : '') + '</span></li>';
+    const tot = l => Math.round(strong.filter(e => e.lab === l).reduce((x, e) => x + e.b - e.a, 0));
+    cnt.textContent = '· ' + (labs.length ? labs.join(', ') : 'nessun accordo') + (R.Q ? '' : ' (in corso)');
+    H.push('<p>Accordo tra regole ACNS, SPaRCNet e SeizureTransformer per tratti di 2 s. Le regole non cercano crisi: per le crisi contano i due modelli.</p>');
+    H.push(strong.length ? '<p><b>2 metodi d\'accordo</b>: ' + labs.map(l => l + ' ' + tot(l) + ' s').join(', ') + '</p><ul>' + strong.slice(0, 40).map(li).join('') + '</ul>' : '<p><b>Nessun tratto con 2 metodi d\'accordo.</b></p>');
+    if (weak.length) H.push('<details class="fold"><summary>Un solo metodo (' + weak.length + (weak.length === 1 ? ' tratto' : ' tratti') + ')</summary><ul>' + weak.slice(0, 40).map(li).join('') + '</ul></details>');
+    if (!R.Q) H.push(spin(busy && ICUMSG ? ICUMSG : 'SeizureTransformer in corso…'));
+    const cl = [1, 2, 3, 4, 5].filter(k => d.pct[k] >= 1);
+    H.push('<details class="fold"><summary>Dettagli dei modelli</summary><p>SPaRCNet (finestre di 10 s): ' + (cl.length ? cl.map(k => ICU_CL[k] + ' ' + Math.round(d.pct[k]) + '%').join(', ') : 'solo "altro"') + '; crisi: sequenza più lunga ' + d.crisi + (d.crisi === 1 ? ' finestra' : ' finestre') + '.</p>'
+      + (R.Q ? '<p>SeizureTransformer: ' + (d.st.length ? d.st.length + (d.st.length === 1 ? ' tratto' : ' tratti') + ' con p &gt; 0,8 per ≥ 10 s (' + d.st.reduce((x, r) => x + r.b - r.a, 0) + ' s).' : 'nessun tratto con p &gt; 0,8 per ≥ 10 s.') + '</p>' : '')
+      + (R.interp && R.interp.length ? '<p>Elettrodi mancanti o esclusi (' + R.interp.join(', ') + ') ricostruiti dai vicini solo come ingresso dei modelli.</p>' : '') + '</details>'); }
   box.innerHTML = H.join('');
-  box.querySelectorAll('a[data-it]').forEach(a => a.onclick = ev => { ev.preventDefault(); goTo(+a.dataset.it - 2); });
-  const rb = $('icuretry'); if (rb) rb.onclick = () => { S.icu = null; icuMaybe(); };
-}
+  box.querySelectorAll('a[data-it]').forEach(a => a.onclick = ev => { ev.preventDefault(); eyeOn('ICU'); goTo(+a.dataset.it - 2); });
+  const rr = $('icuretry'); if (rr) rr.onclick = () => { S.icu = null; icuMaybe(); };
+  icuMarkRpp(); }
+/* sezione ACNS: pattern delle regole che cadono in una crisi riconosciuta da entrambi i modelli */
+function icuMarkRpp() { const box = $('rppbox'); if (!box) return; box.querySelectorAll('.icumark').forEach(x => x.remove());
+  if (!icuOn() || !S.icu || !S.icu.P) return; const C2 = icuCons(S.icu, S.A).filter(e => e.crisi && e.strong); if (!C2.length) return; let n = 0;
+  box.querySelectorAll('a[data-rt]').forEach(a => { const t = +a.dataset.rt; if (C2.some(e => t >= e.a - 2 && t <= e.b)) { n++; const x = document.createElement('span'); x.className = 'icumark small'; x.textContent = ' · in crisi'; a.after(x); } });
+  const p = document.createElement('p'); p.className = 'icumark small';
+  p.textContent = 'Terapia intensiva: ' + C2.length + (C2.length === 1 ? ' tratto riconosciuto' : ' tratti riconosciuti') + ' come crisi da entrambi i modelli' + (n ? '; ' + n + (n === 1 ? ' pattern delle regole cade' : ' pattern delle regole cadono') + ' dentro una crisi (probabile parte della crisi, non pattern a sé)' : '') + '.';
+  box.prepend(p); }
+/* Analizza tratto con SPaRCNet e SeizureTransformer (30 s di margine per lato: finestre di 60 s) */
+async function icuTract() { const rec = S.rec, A = S.A, sel = S.anaSel || { t0: S.t, t1: Math.min(A.duration, S.t + pageLen()) }, run = ++anaRun; S.anaSel = sel; anaSelText();
+  S.multi = { t0: sel.t0, t1: sel.t1, order: [], res: {}, icu: null }; renderAnaRes(); $('anago').disabled = true;
+  const msg = m => { $('anastat').innerHTML = '<span class="spin small" aria-hidden="true"></span> ' + m; $('anaover').hidden = false; document.body.classList.add('anabusy'); $('anaovt').textContent = 'Analisi del tratto ' + fmtT(sel.t0) + '–' + fmtT(sel.t1) + ': ' + m; };
+  let mine = false;
+  try { await icuEnsure(msg); if (ICUBUSY) throw new Error('i modelli ICU stanno analizzando ' + ICUBUSY + ': riprova al termine'); ICUBUSY = 'tratto'; mine = true; renderMod();
+    const fs = A.fs, a = Math.max(0, Math.floor((sel.t0 - 30) * fs)), b = Math.ceil((sel.t1 + 30) * fs), r = await icuJob(icuSig(rec, A, a, b), fs, msg);
+    if (run !== anaRun || !S.multi) return; S.multi.icu = Object.assign(r, { off: a / fs }); $('anastat').textContent = 'Fatto: SPaRCNet e SeizureTransformer su ' + Math.round(sel.t1 - sel.t0) + ' s.'; }
+  catch (err) { if (S.multi && run === anaRun) S.multi.icu = { err: err.message }; $('anastat').textContent = ''; }
+  finally { if (mine) ICUBUSY = null; renderMod(); $('anago').disabled = false; $('anaover').hidden = true; document.body.classList.remove('anabusy'); renderAnaRes(); drawAll(); setTimeout(icuMaybe, 0); } }
+function renderAnaICU(box, M) { const R = M.icu; let h = '<b>Analisi del tratto ' + fmtT(M.t0) + '–' + fmtT(M.t1) + '</b> (SPaRCNet e SeizureTransformer)';
+  if (!R) h += '<div>In corso…</div>'; else if (R.err) h += '<div class="warnline">' + R.err + '</div>';
+  else { const d = icuD(R), js = []; d.top.forEach((k, j) => { const tc = R.off + 2 * j + 5; if (tc >= M.t0 && tc <= M.t1) js.push(k); });
+    const pc = ICU_CL.map((_, k) => js.length ? Math.round(100 * js.filter(v => v === k).length / js.length) : 0); let s8 = 0;
+    if (R.Q) for (let q = 0; q < R.Q.length; q++) { const t = R.off + q; if (t >= M.t0 && t < M.t1 && R.Q[q] > 0.8) s8++; }
+    h += '<ul><li>SPaRCNet: ' + [0, 1, 2, 3, 4, 5].filter(k => pc[k]).map(k => ICU_CL[k] + ' ' + pc[k] + '%').join(', ') + ' (' + js.length + ' finestre di 10 s)</li><li>SeizureTransformer: ' + s8 + ' s con probabilità di crisi &gt; 0,8 su ' + Math.round(M.t1 - M.t0) + ' s</li></ul>'; }
+  box.innerHTML = h; }
+function icuTractDraw(M, X, lab, sec, plotW, H) { const R = M.icu, d = icuD(R), y = H - 24, lo = Math.max(S.t, M.t0), hi = Math.min(S.t + sec, M.t1);
+  d.top.forEach((k, j) => { if (!k) return; const a = Math.max(lo, R.off + 2 * j + 4), b = Math.min(hi, R.off + 2 * j + 6); if (b <= a) return; tctx.fillStyle = css(k === 1 ? '--ied' : '--rpp'); tctx.fillRect(X(a), y, X(b) - X(a), 4); });
+  if (R.Q) { tctx.fillStyle = css('--ecg'); for (let q = 0; q < R.Q.length; q++) { const t = R.off + q; if (R.Q[q] > 0.8 && t >= lo && t < hi) tctx.fillRect(X(t), y - 5, Math.max(1, X(Math.min(hi, t + 1)) - X(t)), 4); } } }
+$('anaset').onchange = () => { const icu = $('anaset').value === 'icu'; $('anamods').hidden = icu; $('anathr').closest('label').hidden = icu; };
+/* pulsante Modelli (barra superiore) */
+function renderMod() { const b = $('modbtn'); if (!b) return; const ir = !$('iedbusy').hidden, run = ir || !!ICUBUSY;
+  $('modspin').hidden = !run;
+  $('miedst').textContent = !S.A ? '' : S.ied ? 'fatto' : ir ? 'in corso' : 'avvia';
+  $('micust').textContent = !S.A ? '' : !icuOn() ? 'avvia' : ICUBUSY === S.fname ? 'in corso' : S.icu && S.icu.err ? 'errore' : S.icu && S.icu.Q ? 'fatto' : S.icu ? 'in corso' : ICUBUSY ? 'in coda' : 'avvia';
+  $('micu').setAttribute('aria-checked', String(icuOn())); }
+$('modbtn').onclick = e => { e.stopPropagation(); const m = $('modmenu'); m.hidden = !m.hidden; $('modbtn').setAttribute('aria-expanded', String(!m.hidden)); renderMod(); };
+document.addEventListener('click', e => { const m = $('modmenu'); if (m && !m.hidden && !e.target.closest('.modwrap')) { m.hidden = true; $('modbtn').setAttribute('aria-expanded', 'false'); } });
+$('mied').onclick = () => { $('modmenu').hidden = true; if (!S.A) return; goSection('ied'); if (S.ied || IEDBUSY) return; if (needOf(iedKind()).every(j => ONNXBUF[j])) runIED(); else selectModel(iedKind()); };
+$('micu').onclick = () => { $('modmenu').hidden = true; if (!S.A) return;
+  if (!icuOn()) { try { localStorage.setItem(S.srcKey, 'micromed'); } catch (e) { /* */ } renderSummary(); } else { if (S.icu && S.icu.err) S.icu = null; icuMaybe(); }
+  setTimeout(() => goSection('icu'), 50); };
+new MutationObserver(renderMod).observe($('iedbusy'), { attributes: true, attributeFilter: ['hidden'] });
+/* barra inferiore: testo ridotto finché entra nei rettangoli */
+function fitChips() { const c = document.querySelector('.tlhead .chips'); if (!c) return; let f = 12; c.style.setProperty('--chipfs', f + 'px');
+  while (f > 8.5 && [...c.querySelectorAll('.chip span')].some(x => x.scrollWidth > x.clientWidth + 1)) { f -= 0.5; c.style.setProperty('--chipfs', f + 'px'); } }
+window.addEventListener('resize', fitChips); setTimeout(fitChips, 0);
 /* coda di tutti gli EEG aperti senza esito, nell'ordine di apertura */
 function iedQueueAll() { sessSave(); const fs = SESS.filter(o => o && o.A && !o.ied).map(o => o.fname); if (S.A && !S.ied && !fs.includes(S.fname)) fs.push(S.fname);
   if (!fs.length) return; fs.forEach(f => { if (!IEDQ.includes(f) && f !== IEDOWNER) IEDQ.push(f); }); runIED(fs[0]); }
@@ -3091,7 +3193,7 @@ $('anathr').onchange = () => { const M = S.multi; if (!M) return; for (const k i
 let ANAL = false, anaRun = 0, ADR = null; const MPOOL = {}; S.anaSel = null; S.multi = null;
 $('anamods').innerHTML = MKEYS.map(k => `<label title="${k === 'media' ? 'Media delle probabilità dei modelli 1 e 2 sulle finestre di 4 s (soglia = quella delle anomalie sospette)' : k === 'sn2' ? 'Modello 2: finestre di 1 s a passo 0,25 s (soglia 0,50). Nomi dei modelli nella guida ? della sezione Anomalie sospette.' : 'Modello 1: finestre di 4 s (soglia 0,57). Nomi dei modelli nella guida ? della sezione Anomalie sospette.'}"><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}</label>`).join('');
 function setAnal(on) { if (on && RULER) setRuler(false); ANAL = on; if (on && ANNOT) setAnnot(false); $('anabtn').setAttribute('aria-pressed', String(on)); $('anabar').hidden = !on; $('annlayer').classList.toggle('on', on || ANNOT); anaSelText(); requestAnimationFrame(drawAll); }
-$('anabtn').onclick = () => setAnal(!ANAL);
+$('anabtn').onclick = () => { if (!ANAL) { $('anaset').value = icuOn() ? 'icu' : 'ied'; $('anaset').onchange(); } setAnal(!ANAL); };
 function anaSelText() { const r = S.anaSel; $('anasel').textContent = r ? 'Tratto: ' + fmtT(r.t0) + '–' + fmtT(r.t1) + ' (' + Math.round(r.t1 - r.t0) + ' s)' : 'Tratto: trascina sulla panoramica o sul tracciato (ora: pagina corrente)'; }
 $('anapage').onclick = () => { if (!S.A) return; S.anaSel = { t0: S.t, t1: Math.min(S.A.duration, S.t + pageLen()) }; anaSelText(); drawAll(); };
 $('anaclear').onclick = () => { anaRun++; $('anaover').hidden = true; document.body.classList.remove('anabusy'); S.anaSel = null; S.multi = null; $('anastat').textContent = ''; anaSelText(); renderAnaRes(); drawAll(); };
@@ -3138,7 +3240,7 @@ async function scanRange(k, t0, t1, run, onProg) {
     const keys = [...mp.keys()].sort((a, b) => a - b); return { t: keys.map(q => q / 4), p: keys.map(q => mp.get(q)), ch: keys.map(() => null), thr: MTHR(k), w: 1, t4, p4: pr }; }
   return { t: t4, p: pr, ch: chn, thr: MTHR(k), w: 4 };
 }
-$('anago').onclick = async () => { if (!S.A) return; const ks = ['v3', 'sn2'];
+$('anago').onclick = async () => { if (!S.A) return; if ($('anaset').value === 'icu') return icuTract(); const ks = ['v3', 'sn2'];
   const sel = S.anaSel || { t0: S.t, t1: Math.min(S.A.duration, S.t + pageLen()) }, run = ++anaRun; S.anaSel = sel; anaSelText();
   S.multi = { t0: sel.t0, t1: sel.t1, order: ks, res: {} }; $('anago').disabled = true; $('iedbusy').hidden = false;
   const ovt = (k, d, n) => { $('anaover').hidden = false; document.body.classList.add('anabusy'); $('anaovt').textContent = 'Analisi del tratto ' + fmtT(sel.t0) + '–' + fmtT(sel.t1) + ': ' + MLAB(k).toLowerCase() + (n ? ' ' + Math.round(100 * d / n) + '%' : '…') + ' (' + (ks.indexOf(k) + 1) + '/' + ks.length + ')'; };
@@ -3464,6 +3566,7 @@ function anaAt(t) { const M = S.multi; if (!M || t < M.t0 - 4 || t > M.t1 + 4) r
     if (mx != null) parts.push((mx >= r.thr ? '<b>' : '') + MLAB(k) + ' ' + mx.toFixed(2).replace('.', ',') + (mx >= r.thr ? '</b>' : '')); }
   return parts.length ? parts.join(' · ') + ' <span class="small">(in grassetto sopra soglia)</span>' : null; }
 function renderAnaRes() { const box = $('anares'), M = S.multi; if (!M) { box.hidden = true; box.innerHTML = ''; return; } box.hidden = false;
+  if ('icu' in M) { renderAnaICU(box, M); return; }
   const ag = anaAgree();
   box.innerHTML = `<b>Analisi del tratto ${fmtT(M.t0)}–${fmtT(M.t1)}</b> (modello 1 e media: finestre di 4 s, passo ${$('iedstep').value} s; modello 2: finestre di 1 s, passo 0,25 s)<ul>` + M.order.map(k => { const r = M.res[k];
       if (!r) return `<li><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}: in corso…</li>`; if (r.err) return `<li><i style="background:var(${MCOL[k]})"></i>${MLAB(k)}: <span class="warnline">${r.err}</span></li>`;
@@ -3475,6 +3578,7 @@ function drawAna(lab, sec, plotW, H) { const X = t => lab + (t - S.t) / sec * pl
     for (const t of [a, b]) if (t >= S.t && t <= S.t + sec) { tctx.beginPath(); tctx.moveTo(X(t) + .5, 0); tctx.lineTo(X(t) + .5, H - 18); tctx.stroke(); } tctx.setLineDash([]); tctx.lineWidth = 1;
     if (!M) { tctx.fillStyle = css('--sel'); tctx.fillRect(Math.max(lab, X(a)), 0, Math.min(X(b), lab + plotW) - Math.max(lab, X(a)), H - 18); } }
   if (!M) return;
+  if (M.icu && M.icu.P) icuTractDraw(M, X, lab, sec, plotW, H);
   for (const s of anaAgree()) { if (s.b < S.t || s.a > S.t + sec) continue; const x0 = Math.max(lab, X(s.a)), x1 = Math.min(lab + plotW, X(s.b)); tctx.fillStyle = css('--ied'); tctx.globalAlpha = .05 + .04 * s.n; tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.globalAlpha = 1;
     tctx.font = '600 10px IBM Plex Sans, system-ui'; tctx.fillStyle = css('--ied'); tctx.fillText('accordo ' + s.n + '/' + s.of, x0 + 3, 32); }
   M.order.forEach((k, i) => { const y = H - 24 - i * 5, hot = anaHot(M.res[k]); tctx.fillStyle = css(MCOL[k]); for (const [p0, p1] of hot) { if (p1 < S.t || p0 > S.t + sec) continue; const x0 = Math.max(lab, X(p0)), x1 = Math.min(lab + plotW, X(p1)); tctx.fillRect(x0, y, x1 - x0, 4); } }); }
@@ -3533,7 +3637,7 @@ function ifcnCell(L) { const f = L && L.ifcn; if (!f) return '<span class="muted
   const d = f.det, extra = ['fasi: ' + d.fasi, 'semionda del fondo ' + (d.fondo_ms ?? '–') + ' ms (transiente ' + L.durMs + ' ms)', 'salita/discesa ' + (d.asimmetria ?? '–') + '×', '', 'fondo dopo/prima ' + d.fondo_dopo + '×', d.campo + ' elettrodi nel campo' + (L.reversal ? ', inversione in ' + L.reversal : '')];
   const tip = 'Criteri IFCN (Kural 2020; soglie provvisorie dell\'app): ' + f.score + '/6' + (f.score >= 5 ? ' — probabile IED' : f.score <= 3 ? ' — probabile non epilettiforme o artefatto' : '') + '\n' + IFCN_NOMI.map((n, k) => (f.c[k] ? '✓ ' : '✗ ') + (k + 1) + '. ' + n + (extra[k] ? ' (' + extra[k] + ')' : '')).join('\n');
   return `<span class="ifcn${f.score >= 5 ? ' hi' : f.score <= 3 ? ' lo' : ''}" title="${tip}">${f.score}/6</span>`; }
-function selectIED(i) { if (!S.ied || !S.ied.events[i]) return; S.iedCur = i; const e = S.ied.events[i]; goTo((e.loc && e.loc.found ? e.loc.t : e.tp) - pageLen() / 2); renderIED();
+function selectIED(i) { if (!S.ied || !S.ied.events[i]) return; S.iedCur = i; eyeOn('IED'); const e = S.ied.events[i]; goTo((e.loc && e.loc.found ? e.loc.t : e.tp) - pageLen() / 2); renderIED();
   const li = $('iedlist').querySelectorAll('li:not(.head)')[i]; if (li) li.scrollIntoView({ block: 'nearest' }); }
 function stepIED(d) { if (!S.ied || !S.ied.events.length) return; const n = S.ied.events.length; selectIED(S.iedCur < 0 ? (d > 0 ? 0 : n - 1) : (S.iedCur + d + n) % n); }
 function judge(i, v) { const e = S.ied.events[i], k = evKey(e); if (S.review[k] === v) delete S.review[k]; else S.review[k] = v; saveReview(); S.iedCur = i; renderIED(); renderScore(); renderRef(); drawAll(); }
@@ -3581,7 +3685,7 @@ function renderScore() {
     + (R.possible.length ? '<p>Possibili (1–10%), da verificare:</p><ul>' + R.possible.map(x => '<li>' + x + '</li>').join('') + '</ul>' : '')
     + (pats.length ? (!R.present.length && !R.possible.length ? '<p>Solo tratti brevi (rari, < 1% della registrazione), da verificare:</p>' : '<p>Tratti (clic per andarci):</p>') + '<ul>' + pats.slice(0, 30).map(p => `<li><a href="#" data-rt="${p.t0}" title="${C.rppDesc(p)}">${fmtT(p.t0)} ${p.name}${p.side === 'G' ? '' : ' ' + p.side}</a> <span class="small">${p.kind === 'PD' ? p.n + ' scariche, ' : ''}${Math.max(1, Math.round(p.t1 - p.t0))} s${p.channels && p.channels.length ? ', ' + p.channels.slice(0, 3).join(' ') : ''}</span></li>`).join('') + '</ul>' + (pats.length > 30 ? '<p>…</p>' : '') : '')
     + (!R.present.length && !R.possible.length && !pats.length ? '<p>Nessun pattern rilevato.</p>' : '');
-  $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); eyeOn('Pattern ACNS'); goTo(+a.dataset.rt - 2); });
+  $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); eyeOn('Pattern ACNS'); goTo(+a.dataset.rt - 2); }); icuMarkRpp();
   setTimeout(() => { const h3 = $('scorebox').querySelector('h3'); $('scorecnt').textContent = h3 ? '· ' + h3.textContent : ''; }, 0);
   $('scorebox').innerHTML = `<div class="score ${d.abnormal ? 'abn' : ''}">
     <h3>${d.abnormal ? (d.severity === 'anormale lieve' ? 'Anormale lieve' : 'Anormale') : d.possible.length ? 'Normale, con reperti da verificare' : 'Normale'}${d.labels.length ? ': ' + d.labels.join(' + ') : ''}${d.side && d.categories.includes('nonepi_focale') ? ' (' + d.side + ')' : ''}</h3>
