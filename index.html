@@ -201,7 +201,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 #modmenu{position:absolute;top:calc(100% + 4px);left:0;z-index:60;width:300px;max-width:90vw;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:4px}
 #modmenu[hidden]{display:none} .mitem{display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;padding:.4rem .5rem;border-radius:4px;border:1px solid var(--line);background:var(--paper);color:inherit;font:inherit;cursor:pointer}
 .mitem:hover{border-color:var(--accent)} .mitem[aria-checked=true]{border-color:var(--accent);background:var(--accentSoft)} .mitem small{display:block;color:var(--muted);font-size:.75rem}
-.mitem .mst{margin-left:auto;display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;color:var(--muted);white-space:nowrap} #modsrc{border-top:1px solid var(--line);padding:.4rem .2rem 0;font-size:.8rem} #modsrc .srcline{margin:0}
+.mplay{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff} .mplay svg{display:block;margin-left:2px} .mitem .mst{margin-left:auto;display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;color:var(--muted);white-space:nowrap} #modsrc{border-top:1px solid var(--line);padding:.4rem .2rem 0;font-size:.8rem} #modsrc .srcline{margin:0}
 .tlhead{gap:.5rem;align-items:center} .tlhead .chips{flex:1 1 auto;min-width:0;flex-wrap:nowrap;gap:.3rem;overflow:hidden}
 .tlhead .cg,.tlhead .cg.allbtns{border-radius:4px;flex:1 1 0;min-width:0;align-items:stretch;overflow:hidden}
 .tlhead .chip{border-radius:0;justify-content:center;text-align:center;flex:1 1 auto;min-width:0;margin:0;padding:.12rem .3rem;font-size:var(--chipfs,.74rem);white-space:nowrap}
@@ -3046,9 +3046,9 @@ function iedPct() { if ($('iedbusy').hidden) return null; if (typeof IEDOWNER !=
 function renderMod() { const b = $('modbtn'); if (!b) return; const ir = !$('iedbusy').hidden, icu = !!ICUBUSY, ip = iedPct(), p = icu ? ICUP : ip;
   $('modspin').hidden = true; b.classList.toggle('mrun', ir || icu); const pt = (ir || icu) && p != null ? Math.round(p) + '%' : ''; if ($('modpct').textContent !== pt) $('modpct').textContent = pt;
   const tt = ir || icu ? 'Analisi in corso: ' + (icu ? 'ICU' : 'IED') + ' (percentuale accanto all\'icona)' : 'Modelli: IED (anomalie epilettiformi) o ICU (crisi e pattern ritmici e periodici)'; if (b.title !== tt) b.title = tt;   // titolo stabile: niente tooltip intermittente
-  const SP = '<span class="spin small" aria-hidden="true"></span>', mst = (id, h) => { const e = $(id); if (e.innerHTML !== h) e.innerHTML = h; };   // aggiorna solo se cambia: la rotella non riparte
-  mst('miedst', !S.A ? '' : S.ied ? 'fatto' : ir ? SP + (ip != null ? Math.round(ip) + '%' : '') : 'avvia');
-  mst('micust', !S.A ? '' : ICUBUSY && (ICUBUSY === S.fname || ICUBUSY === 'tratto') ? SP + Math.round(ICUP) + '%' : !icuOn() ? 'avvia' : S.icu && S.icu.err ? 'errore' : S.icu && S.icu.Q ? 'fatto' : ICUBUSY ? 'in coda' : 'avvia');
+  const SP = '<span class="spin small" aria-hidden="true"></span>', PL = '<span class="mplay" title="Avvia" aria-label="Avvia"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 3.2v9.6L12.8 8z" fill="currentColor"/></svg></span>', mst = (id, h) => { const e = $(id); if (e.innerHTML !== h) e.innerHTML = h; };   // aggiorna solo se cambia: la rotella non riparte
+  mst('miedst', !S.A ? '' : S.ied ? 'fatto' : ir ? SP + (ip != null ? Math.round(ip) + '%' : '') : PL);
+  mst('micust', !S.A ? '' : ICUBUSY && (ICUBUSY === S.fname || ICUBUSY === 'tratto') ? SP + Math.round(ICUP) + '%' : !icuOn() ? PL : S.icu && S.icu.err ? 'errore' : S.icu && S.icu.Q ? 'fatto' : ICUBUSY ? 'in coda' : PL);
   $('micu').setAttribute('aria-checked', String(icuOn())); }
 setInterval(() => { if (ICUBUSY || !$('iedbusy').hidden) renderMod(); }, 600);
 $('modbtn').onclick = e => { e.stopPropagation(); const m = $('modmenu'); m.hidden = !m.hidden; $('modbtn').setAttribute('aria-expanded', String(!m.hidden)); renderMod(); };
