@@ -232,7 +232,7 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
   <button class="btn ic" id="cmpbtn" title="Confronta con un altro EEG: apre un secondo EDF come tracciato e mostra l'EEG attuale in una seconda colonna laterale"><svg viewBox="0.66 0.66 14.69 14.69" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.29" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="5.5" height="11" rx="1"/><rect x="9" y="2.5" width="5.5" height="11" rx="1"/><path d="M2.8 8l1-1.5 1 3 1-1.5M10.3 8l1-1.5 1 3 1-1.5"/></svg></button>
   <input type="file" id="cmpfile" accept=".edf,.EDF" hidden>
   <button class="btn ic" id="cmpcol" hidden aria-pressed="false" title="Confronto: affianca nel pannello le sezioni dell'altro EEG aperto" aria-label="Affianca confronto"><svg viewBox="1.21 1.21 13.59 13.59" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.19" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5.5h11M10 2.5l3 3-3 3M14 10.5H3M6 7.5l-3 3 3 3"/></svg></button>
-  <span class="fname" id="fname">nessun file</span><select id="filesel" hidden title="EEG aperti in questa finestra: scegli quale vedere (per aprirne un altro usa Apri EDF)" aria-label="EEG aperti"></select>
+  <span class="fname" id="fname">nessun file</span><select id="filesel" hidden title="EEG aperti in questa finestra: scegli quale vedere (per aprirne un altro usa Apri EDF)" aria-label="EEG aperti"></select><button class="btn ic" id="sessdel" hidden title="Chiudi questo EEG (lo toglie dagli EEG aperti)" aria-label="Chiudi EEG"><svg viewBox="1.76 2.01 12.49 12.49" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.09" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9M6.7 7v4.5M9.3 7v4.5"/></svg></button>
   <span class="spacer"></span>
   <label class="ctl" title="Montaggio"><span class="lt lf">Montaggio </span><span class="lt ls">Mont.</span><select id="montage"></select></label>
   <label class="ctl" title="Filtro passa-alto (Hz)"><span class="lt">HP </span><input id="hp" type="number" step="0.1" min="0" value="0.5"><span class="lt un"> Hz</span></label>
@@ -3362,7 +3362,7 @@ function renderCmp() { if (!S.A || !CMP) return; const a = cmpMeasures(S.A, S.re
 const SESS = [], SKEYS = ['rec', 'A', 'ms', 'fileId', 'fname', 't', 'icu', 'ied', 'iedCur', 'anaSel', 'multi', 'repText', 'repEdited', 'prev']; let SCUR = -1;
 function sessSnap() { const o = {}; SKEYS.forEach(k => { o[k] = S[k]; }); return o; }
 function sessSave() { if (SCUR >= 0 && S.rec && SESS[SCUR]) { S.repText = $('reptext').value; S.repEdited = repDirty; SESS[SCUR] = sessSnap(); } }
-function renderSess() { const sel = $('filesel'); sel.hidden = SESS.length < 2; document.body.classList.toggle('multi', SESS.length > 1); $('cmpcol').hidden = SESS.length < 2; if (SESS.length < 2 && CMPCOL) setCmpCol(false);
+function renderSess() { const sel = $('filesel'); sel.hidden = SESS.length < 2; $('sessdel').hidden = !SESS.length; document.body.classList.toggle('multi', SESS.length > 1); $('cmpcol').hidden = SESS.length < 2; if (SESS.length < 2 && CMPCOL) setCmpCol(false);
   sel.innerHTML = SESS.map((x, i) => `<option value="${i}"${i === SCUR ? ' selected' : ''}>${x.fname}</option>`).join(''); }
 function sessAdd() { const i = SESS.findIndex(x => x.fname === S.fname);
   if (i >= 0) { SESS[i] = sessSnap(); SCUR = i; } else { SESS.push(sessSnap()); SCUR = SESS.length - 1; if (SESS.length > 4) { SESS.shift(); SCUR--; } }
@@ -3375,6 +3375,11 @@ function sessSwitch(i) { if (i === SCUR || !SESS[i]) return;
   iedLiveUI(); if (CMPCOL) { CMPI = NEXTCMPI != null ? NEXTCMPI : -1; NEXTCMPI = null; renderSide2(); }
   }
 $('filesel').onchange = () => sessSwitch(+$('filesel').value);
+/* cestino: chiude l'EEG visibile e passa al successivo; se era l'unico torna alla pagina iniziale */
+$('sessdel').onclick = () => { if (SCUR < 0 || !S.fname || !confirm('Chiudere ' + S.fname + '?')) return;
+  const fn = S.fname; IEDQ = IEDQ.filter(f => f !== fn); if (CMPLEFT === fn) CMPLEFT = null;
+  if (SESS.length < 2) { location.reload(); return; }
+  SESS.splice(SCUR, 1); const j = Math.min(SCUR, SESS.length - 1); SCUR = -1; CMPI = -1; sessSwitch(j); };
 $('iedhelpbtn').onclick = () => { const h = $('iedhelp'); h.hidden = !h.hidden; $('iedhelpbtn').setAttribute('aria-expanded', String(!h.hidden)); };
 /* ---- colonna di confronto: pannello laterale dell'altro EEG aperto, scorrimento allineato per sezione ---- */
 let CMPCOL = false, CMPI = -1, C2SYNC = false, NEXTCMPI = null, CMPLEFT = null; // CMPLEFT: file nella colonna sinistra (le colonne restano ferme quando cambia l'EEG sul tracciato)
