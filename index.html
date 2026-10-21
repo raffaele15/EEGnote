@@ -195,7 +195,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 .srcline{margin:0 0 .45rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap} .srcline select{font:inherit;max-width:100%}
 /* patch76 */
 #iedbusy{display:none!important} aside .sec[hidden],#rail .rb[hidden]{display:none!important}
-.modwrap{position:relative;display:inline-flex} #modbtn .spin{display:none!important} #modpct{font-variant-numeric:tabular-nums;margin-left:.2rem} #modpct:empty{display:none} #modbtn.busy svg{animation:modpulse 1.1s ease-in-out infinite} @keyframes modpulse{50%{opacity:.35}}
+.modwrap{position:relative;display:inline-flex} #modbtn .spin{display:none!important} #modpct{font-variant-numeric:tabular-nums;margin-left:.2rem} #modpct:empty{display:none} #modbtn.mrun svg{animation:modpulse 1.1s ease-in-out infinite} @keyframes modpulse{50%{opacity:.35}}
 .icutab{width:100%;border-collapse:collapse;font-size:.78rem;margin:.3rem 0} .icutab th{text-align:left;color:var(--muted);font-weight:600;font-size:.72rem;position:sticky;top:0;background:var(--panel)} .icutab th,.icutab td{padding:.18rem .3rem;border-bottom:1px solid var(--grid);vertical-align:top}
 .icutab tr[data-it]{cursor:pointer} .icutab tr[data-it]:hover{background:var(--sel)} .icutab tr.w td{color:var(--muted)} .icutab td.ok{font-weight:600;color:var(--ied)} .icuwrap{max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:4px}
 #modmenu{position:absolute;top:calc(100% + 4px);left:0;z-index:60;width:300px;max-width:90vw;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:4px}
@@ -3040,7 +3040,7 @@ $('anaset').onchange = () => { const icu = $('anaset').value === 'icu'; $('anamo
 function iedPct() { if ($('iedbusy').hidden) return null; if (typeof IEDOWNER !== 'undefined' && IEDOWNER && IEDPN[IEDOWNER] != null && IEDPN[IEDOWNER] > 0) return 100 * IEDPN[IEDOWNER];
   const m = /(\d+)\s*%/.exec($('iedstatus').textContent || ''); return m ? +m[1] : null; }
 function renderMod() { const b = $('modbtn'); if (!b) return; const ir = !$('iedbusy').hidden, icu = !!ICUBUSY, ip = iedPct(), p = icu ? ICUP : ip;
-  $('modspin').hidden = true; b.classList.toggle('busy', ir || icu); const pt = (ir || icu) && p != null ? Math.round(p) + '%' : ''; if ($('modpct').textContent !== pt) $('modpct').textContent = pt;
+  $('modspin').hidden = true; b.classList.toggle('mrun', ir || icu); const pt = (ir || icu) && p != null ? Math.round(p) + '%' : ''; if ($('modpct').textContent !== pt) $('modpct').textContent = pt;
   const tt = ir || icu ? 'Analisi in corso: ' + (icu ? 'ICU' : 'IED') + ' (percentuale accanto all\'icona)' : 'Modelli: IED (anomalie epilettiformi) o ICU (crisi e pattern ritmici e periodici)'; if (b.title !== tt) b.title = tt;   // titolo stabile: niente tooltip intermittente
   $('miedst').textContent = !S.A ? '' : S.ied ? 'fatto' : ir ? 'in corso' + (ip != null ? ' ' + Math.round(ip) + '%' : '') : 'avvia';
   $('micust').textContent = !S.A ? '' : ICUBUSY && (ICUBUSY === S.fname || ICUBUSY === 'tratto') ? 'in corso ' + Math.round(ICUP) + '%' : !icuOn() ? 'avvia' : S.icu && S.icu.err ? 'errore' : S.icu && S.icu.Q ? 'fatto' : ICUBUSY ? 'in coda' : 'avvia';
