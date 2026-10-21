@@ -2888,7 +2888,7 @@ async function selectModel(k) {
     $('iedstatus').innerHTML = '<span class="warnline">File non trovati in modelli/ né in modelli_locali/: ' + miss.map(j => OX.MODELS[j].file).join(', ') + '. Trascinali nella pagina.</span>'; return; }
   const mb = needOf(k).reduce((x, j) => x + ONNXBUF[j].buf.byteLength, 0) / 1048576;
   // modello dei rallentamenti e poi i modelli ICU, sempre in background (non ritardano il play IED)
-  if (!ONNXBUF.slow && !SLOWTRIED) { SLOWTRIED = true; fetchOnnx('slow').then(r => { if (r) ONNXBUF.slow = r; }, () => { /* facoltativo */ }).finally(() => setTimeout(icuPreload, 1000)); } else setTimeout(icuPreload, 1000);
+  if (!ONNXBUF.slow && !SLOWTRIED) { SLOWTRIED = true; SLOWP = fetchOnnx('slow').then(r => { if (r) ONNXBUF.slow = r; }, () => { /* facoltativo */ }).finally(() => { SLOWP = null; setTimeout(icuPreload, 1000); }); } else setTimeout(icuPreload, 1000);
   $('iedrun').disabled = false; $('iedstatus').textContent = 'Modelli pronti.'; $('iedstatus').title = (k === 'casc' ? CASC.label : OX.MODELS[k].label) + ' (' + mb.toFixed(0) + ' MB). ' + (k === 'casc' ? CASC.info : OX.MODELS[k].info);
 }
 /* ---- modelli ICU (patch74, 76, 78): modello ICU 1 = SPaRCNet, modello ICU 2 = SeizureTransformer ---- */
@@ -3141,6 +3141,7 @@ async function runONNX(k, src) {
       const snf = new Map(); sel.forEach((i, j) => { const f = rs.fine[j]; if (f) f.forEach((v, q) => { if (v === null) return; const key = Math.round((starts[i] / fs + 0.25 * q) * 4); if (!(snf.get(key) >= v)) snf.set(key, v); }); });
       I = { t: starts.map(s0 => s0 / fs), p, p3: r3.p, psn, ch: r3.ch, step, sec: r3.sec + rs.sec, workers: r3.workers, model: 'Modelli 1 + 2 in cascata', errs: r3.errs + rs.errs,
             nSel: sel.length, snf };
+      if (!ONNXBUF.slow && SLOWP) { $('iedstatus').textContent = 'Download del modello dei rallentamenti…'; await SLOWP; }   // se il download non è ancora finito lo aspetta
       if (ONNXBUF.slow) { const hop2 = Math.round(2 * fs) - 1, st2 = []; let last = -1e9; starts.forEach(s0 => { if (s0 - last >= hop2) { st2.push(s0); last = s0; } });
         const rr = await scanONNX('slow', st2, run, 'Rallentamento (modello)', A, rec); if (!rr) return; I.slow = slowLat(st2.map(s0 => s0 / fs), rr); }
     }
@@ -3171,7 +3172,7 @@ function slowLatText(A) { const m = S.ied && S.ied.slow; if (!m) return S.ied ? 
   const br = breachSide(A), brT = br && m.side === br.side ? ' — stesso lato della breccia annotata: l\'asimmetria può dipendere dalla breccia' : '';
   return (m.side ? '⚠ prevalenza ' + (m.side === 'sx' ? 'sinistra' : 'destra') + ' (' + m.top.join(', ') + '), da verificare' + brT : 'nessuna prevalenza netta')
     + ' <span class="muted">(quota ' + f2(m.q) + '; attività lenta nel ' + Math.round(m.hot * 100) + '% delle finestre)</span>' + cmp; }
-var WANT = { ied: false, icu: false }, DLB = {}; const MSZ = { v3: 39.26e6, sn2: 123.15e6, sparc: 4.42e6, st: 163.97e6 };   // play premuto; byte scaricati per modello
+var WANT = { ied: false, icu: false }, DLB = {}, SLOWP = null; const MSZ = { v3: 39.26e6, sn2: 123.15e6, sparc: 4.42e6, st: 163.97e6 };   // play premuto; byte scaricati per modello
 var IEDLOAD = selectModel('casc').finally(() => { IEDLOAD = null; });   // download in background all'avvio: l'analisi parte solo dal play
 let iedRun = 0;
 var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {}, IEDPN = {};
