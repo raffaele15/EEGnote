@@ -192,6 +192,7 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (max-width:900px){main,main.closed{grid-template-columns:1fr} #rail{flex-direction:row;justify-content:center} aside{border-top:1px solid var(--line)} .viewer{min-height:70vh}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.srcline{margin:0 0 .45rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap} .srcline select{font:inherit;max-width:100%}
 </style>
 </head>
 <body>
@@ -390,6 +391,14 @@ function parseEDF(buf) {
     type: reserved, nRecords: nR, recordDuration: recDur, duration: nR * recDur,
     signals, annotations: ann
   };
+}
+/* origine della registrazione (patch72): Micromed (terapia intensiva) o Galileo (routine) */
+function recSource(rec) {
+  const r = rec.recording || '', names = rec.signals.map(x => (x.name || '').toUpperCase()), labs = rec.signals.map(x => x.label || '');
+  if (/micromed/i.test(r)) return { src: 'micromed', why: 'campo apparecchio dell\'EDF' };
+  if (/bepluspro|galileo|eb ?neuro/i.test(r)) return { src: 'galileo', why: 'campo apparecchio dell\'EDF' };
+  if (names.some(n => /^(MKR|EMG\d)/.test(n)) && !labs.some(l => /^EEG\s/i.test(l))) return { src: 'micromed', why: 'nomi dei canali (MKR/EMG, senza prefisso EEG)' };
+  return { src: 'galileo', why: 'non riconosciuta: si assume routine' };
 }
 function parseTAL(bytes, out) {
   let i = 0; const n = bytes.length; const dec = new TextDecoder('utf-8');
@@ -596,9 +605,12 @@ function analyze(rec, opts = {}) {
   const meds = present.map(c => chStats[c].rmsMed).sort((a, b) => a - b), gmed = meds[Math.floor(meds.length / 2)];
   const rawMed = median(present.map(c => chStats[c].rawRms));
   const bad = new Set(), badWhy = {}, warn = {};
+  // rapporto mediano (rms dell'epoca / mediana dell'elettrodo) tra gli elettrodi, per epoca: un aumento condiviso da quasi tutti
+  // gli elettrodi (burst generalizzati, fondo soppresso con scariche) non è un difetto del singolo elettrodo (patch71)
+  const epR = []; for (let e = 0; e < nE; e++) epR.push(median(present.map(c => chStats[c].epochRms[e] / (chStats[c].rmsMed || 1e-9))));
   for (const c of present) {
     const s = chStats[c];
-    const hiFrac = s.epochRms.filter(v => v > 4 * s.rmsMed).length / Math.max(1, nE);
+    const hiFrac = s.epochRms.filter((v, e) => v > 4 * s.rmsMed && v > 2.5 * epR[e] * s.rmsMed).length / Math.max(1, nE);
     if (s.rmsMed > 3 * gmed) { bad.add(c); badWhy[c] = 'ampiezza ×' + (s.rmsMed / gmed).toFixed(1); }
     // piatto = segnale assente (< 0,5 µV efficaci 1-30 Hz), per tutti gli elettrodi: l'ampiezza riferenziale dipende dalla distanza
     // dal riferimento (Fpz in AOPD), quindi un confronto con la mediana escludeva per errore Fp1/Fp2 (EEG41, EEG49). Sugli 89 EEG AOPD
@@ -1306,8 +1318,25 @@ function ecgRPeaks(rec, A) {
   const rr = []; for (let i = 1; i < R.length; i++) rr.push(R[i] - R[i - 1]);
   const mrr = median(rr); return mrr > 0.3 && mrr < 2 ? R : null; // frequenza cardiaca plausibile
 }
+const RPP_NB = { Fp1: ['Fp2', 'F3', 'F7', 'Fz'], Fp2: ['Fp1', 'F4', 'F8', 'Fz'], F7: ['Fp1', 'F3', 'T3'], F3: ['Fp1', 'F7', 'Fz', 'C3'], Fz: ['Fp1', 'Fp2', 'F3', 'F4', 'Cz'],
+  F4: ['Fp2', 'Fz', 'F8', 'C4'], F8: ['Fp2', 'F4', 'T4'], T3: ['F7', 'C3', 'T5'], C3: ['F3', 'T3', 'Cz', 'P3'], Cz: ['Fz', 'C3', 'C4', 'Pz'], C4: ['F4', 'Cz', 'T4', 'P4'],
+  T4: ['F8', 'C4', 'T6'], T5: ['T3', 'P3', 'O1'], P3: ['C3', 'T5', 'Pz', 'O1'], Pz: ['Cz', 'P3', 'P4', 'O1', 'O2'], P4: ['C4', 'Pz', 'T6', 'O2'], T6: ['T4', 'P4', 'O2'],
+  O1: ['P3', 'T5', 'O2', 'Pz'], O2: ['P4', 'T6', 'O1', 'Pz'] };
+/* montaggio ridotto (patch71): elettrodi mancanti = media di ≥ 2 vicini disponibili, a ondate; restituisce null se non bastano */
+function rppInterp(rec, A, chs) {
+  const ok = new Set(chs), sig = rec.signals.slice(), cmap = Object.assign({}, A.cmap), N = rec.signals[A.cmap[chs[0]]].data.length, add = [];
+  let miss = STD19.filter(c => !ok.has(c)), prog = true;
+  while (miss.length && prog) { prog = false;
+    for (const c of miss.slice()) { const v = RPP_NB[c].filter(n => ok.has(n)); if (v.length < 2) continue;
+      const d = new Float32Array(N); for (const n of v) { const x = sig[cmap[n]].data; for (let i = 0; i < N; i++) d[i] += x[i] / v.length; }
+      cmap[c] = sig.length; sig.push(Object.assign({}, sig[cmap[v[0]]], { name: c, label: c, data: d })); ok.add(c); add.push(c); miss = miss.filter(m => m !== c); prog = true; } }
+  if (miss.length || chs.length < 8) return null;
+  return { rec: Object.assign({}, rec, { signals: sig }), A: Object.assign({}, A, { cmap, bad: new Set(), rppInterp: add }), add };
+}
 function rhythmicPeriodic(rec, A) {
-  const fs = A.fs, chs = STD19.filter(c => A.cmap[c] !== undefined && !A.bad.has(c)); if (chs.length < 12) return { patterns: [], note: 'troppi canali esclusi' };
+  const fs = A.fs, chs = STD19.filter(c => A.cmap[c] !== undefined && !A.bad.has(c));
+  if (chs.length < 12) { const I = A.rppInterp ? null : rppInterp(rec, A, chs); if (!I) return { patterns: [], note: 'troppi canali esclusi' };
+    const r = rhythmicPeriodic(I.rec, I.A); r.note = 'montaggio ridotto: elettrodi ricostruiti dai vicini (' + I.add.join(', ') + ')'; r.interp = I.add; return r; }
   const N = rec.signals[A.cmap[chs[0]]].data.length, avg = new Float64Array(N);
   for (const c of chs) { const d = rec.signals[A.cmap[c]].data; for (let i = 0; i < N; i++) avg[i] += d[i] / chs.length; }
   const bad = new Uint8Array(Math.ceil(N / fs) + 1); // secondi da escludere: tratti a zero ed epoche con artefatti
@@ -1529,7 +1558,7 @@ function pdrPeak(acc, fs, nfft) {
 }
 function median(a) { const v = a.filter(x => isFinite(x)).sort((x, y) => x - y); if (!v.length) return NaN; const m = v.length >> 1; return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; }
 
-G.EEGCore = { rppDesc, STAB_THR2, STAB_THR, alphaStability, userFindings, slowPhrase,  generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
+G.EEGCore = { recSource, rppDesc, STAB_THR2, STAB_THR, alphaStability, userFindings, slowPhrase,  generateReportSCORE, rppText, incidenceTerm, recordingStandards, diagnosticSignificance, rhythmicPeriodic, prevalenceTerm, localizeIED, generateReport, parseLabel, scoreDecision, SLOW, LATREG, slowLayer, FINE, BIP, BIPREG, parseEDF, normAnn, STD19, POS, MONTAGES, channelMap, avgRef, derivation, makeFilters, filtfilt, analyze, welch, spectrum, BANDS, median };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script id="iedsrc">/* Annotatore EEG — rilevatore di scariche epilettiformi intercritiche (IED).
@@ -2227,7 +2256,17 @@ function renderSummary() {
   const verdict = '<p><b title="Rallentato: RPD sotto 8 Hz (banda alfa 8–13 Hz, glossario IFCN). Asimmetrico: differenza di frequenza sx/dx oltre 1 Hz (marcata, ACNS 2021). Non reattivo: attenuazione all\'apertura degli occhi sotto 10%; scarsamente reagente: sotto 35% (soglia calibrata su esempi di referto AOPD). Da notare: RPD 8–8,5 Hz, asimmetria di voltaggio ≥ 50% o di frequenza 0,5–1 Hz (ACNS 2021), picco posteriore poco netto, gradiente antero-posteriore sotto 1.">Attività di fondo:</b> ' + (p.freq ? 'ritmo dominante posteriore ' + (p.freq >= 8 ? 'alfa' : p.freq >= 4 ? 'theta' : 'delta') + ' a ' + (Math.round(p.freq * 2) / 2).toLocaleString('it-IT') + ' Hz' + (p.reactivity != null ? ', attenuazione all\'apertura degli occhi ' + Math.round(p.reactivity * 100) + '%' : '') + ' — ' : 'ritmo dominante posteriore non definito — ') + (abn.length ? abn.join('; ') : 'nella norma con le regole attuali') + '.' + (lines.length ? ' Da notare: ' + lines.join('; ') + '.' : '') + '</p>';
   const chW = Object.keys(A.warn);
   const pops = {}; A.epochs.forEach(o => (o.popCh || []).forEach(c => pops[c] = (pops[c] || 0) + 1));
+  const srcA = C.recSource(S.rec), srcK = 'eeg.src.' + (S.fname || '') + '|' + (S.rec.startDate || '') + '|' + (S.rec.startTime || '');
+  let srcO = null; try { srcO = localStorage.getItem(srcK); } catch (e) { /* */ }
+  S.src = srcO || srcA.src; S.srcKey = srcK;
+  const srcN = { micromed: 'Micromed – terapia intensiva', galileo: 'Galileo – routine' };
+  const srcLine = '<div class="srcline" title="Riconosciuta automaticamente dall\'intestazione dell\'EDF (' + srcA.why + '). '
+    + 'Servirà ad attivare i modelli per la terapia intensiva (pattern ACNS e crisi) solo sugli EEG Micromed. Se il riconoscimento sbaglia, cambiala dal menu: la scelta resta salvata nel browser per questo file.">'
+    + '<b>Registrazione:</b> <select id="srcsel" aria-label="Origine della registrazione">'
+    + '<option value=""' + (srcO ? '' : ' selected') + '>' + srcN[srcA.src] + ' (automatico)</option>'
+    + ['micromed', 'galileo'].map(k => '<option value="' + k + '"' + (srcO === k ? ' selected' : '') + '>' + srcN[k] + '</option>').join('') + '</select></div>';
   $('summary').innerHTML = `
+    ${srcLine}
     <div class="bgline">${verdict}</div>
     <h2>Ritmo dominante posteriore</h2>
     <dl class="kv">
@@ -2276,6 +2315,9 @@ function renderSummary() {
   addSumTips();
 }
 const SUMTIPS = {"Lato (modello)": "Secondo parere sul lato del rallentamento dal modello addestrato su TUSL (rallentamento) e TUAR (artefatti): probabilità di attività lenta per derivazione in finestre di 4 s (passo 2 s). Quota = finestre in cui una derivazione sinistra è nettamente più lenta della sua omologa destra, meno il contrario, corretta per il valore tipico degli EEG normali; prevalenza di lato se ≥ 0,20 in valore assoluto. Sul totale degli esempi di referto AOPD: quando il referto indica un lato, il modello lo trova nel 59% dei casi (con il lato giusto nel 51%); segnala un lato anche nel 39% degli EEG senza lato nel referto (32% dei normali). Le linee guida non danno soglie per l'asimmetria del rallentamento (IFCN 2017 p. 171: soglie solo per il ritmo dominante posteriore). Da verificare sul tracciato.", "Organizzazione": "Stessa regola del referto (formula AOPD \"tracciato globalmente … organizzato\"). Fondo lento = RPD < 8 Hz oppure indice di rallentamento globale ≥ 0,10. Scarsamente organizzato: fondo lento e picco posteriore < 3 volte il fondo dello spettro (prominenza media O1-P3/O2-P4). Discretamente: fondo lento con picco posteriore ≥ 3 volte il fondo. Ben organizzato: fondo non lento. Soglie tarate su esempi di referto AOPD. Le linee guida (glossario IFCN 2017 p. 179, SCORE-2 Tab. 4) definiscono l'organizzazione sul ritmo dominante posteriore, senza criteri numerici; forma, topografia e simmetria non sono ancora usate.", "Stabilità": "Tratti a occhi chiusi (primi 20 s dopo ogni O.C.; se non bastano, tutto il periodo a occhi chiusi fino alla riapertura), finestre di 2 s (passo 1 s), O1-P3 e O2-P4; con ritmo dominante sotto 8 Hz si segue l'attività dominante (RPD ± 1,5 Hz) invece dell'alfa; escluse le finestre con artefatti e quelle in sonnolenza (theta > alfa sia in sede posteriore sia in C3-P3/C4-P4). Persistenza = quota di finestre con alfa ≥ 35% della potenza 2–30 Hz. Instabile se le sequenze consecutive di alfa durano in media meno di circa 3 s (2,1 finestre); un po' instabile tra 2,1 e 2,5 finestre (≈ 3,1-3,5 s, zona colorata sulla scala); stabile oltre. Soglie tarate su esempi di referto AOPD. Nessuna linea guida definisce la stabilità.", "Frequenza": "75° percentile dei picchi alfa (5–13,5 Hz) delle singole finestre a occhi chiusi (dal 2° secondo dopo ogni O.C., fino a 20 s), derivazioni O1-P3 e O2-P4; arrotondato a 0,5 Hz (ACNS 2021). 'Media' = picco dello spettro medio di tutte le finestre. 'Non chiaro' se il picco non è netto o non si attenua all'apertura degli occhi (< 10%).", "Voltaggio (ACNS)": "Ampiezza picco-picco (massimo − minimo in finestre di 1 s, filtro 1–30 Hz) sulle derivazioni bipolari longitudinali, epoche pulite; mediana per derivazione e poi tra derivazioni. ACNS 2021: basso < 20 µV, alto ≥ 150 µV, soppresso < 10 µV (soglie per l'area critica).", "Sinistra / destra": "Picco alfa dello spettro medio a occhi chiusi per ciascun lato; 'non definito' se il picco è meno di 2 volte il livello di fondo 1/f (media 3,5–5 e 14–16 Hz). L'asimmetria di frequenza si calcola solo se entrambi i picchi sono netti.", "Derivazioni": "Coppie usate per il ritmo posteriore: O1-P3 e O2-P4, oppure O1-T5 e O2-T6 se un elettrodo è escluso.", "Calcolato su": "Numero di tratti a occhi chiusi annotati dal tecnico (O.C.) usati per il ritmo posteriore; senza annotazioni si usa l'intero tracciato.", "Reattività (O.A.)": "1 − (potenza alfa a occhi aperti / potenza alfa a occhi chiusi), finestre dopo O.A. (da 0,5 a 10 s) e dopo O.C. ACNS 2021 la definisce solo come presente o assente, senza percentuali: sotto 10% = non reattivo; sotto 35% = scarsamente reagente (soglia calibrata su esempi di referto AOPD, la stessa nel referto).", "Gradiente A-P alfa": "Potenza alfa (8–13 Hz) media posteriore (O1, O2, P3, P4) diviso anteriore (Fp1, Fp2, F3, F4), epoche pulite non a occhi aperti. Sotto 1 = gradiente antero-posteriore non mantenuto.", "Esito": "Trascinamento se in almeno 8 finestre di 4 s (passo 2 s) durante la SLI compare un picco posteriore (O1-P3, O2-P4) almeno 6 volte la potenza basale (log10 > 0,8), a frequenze diverse dal ritmo di fondo.", "Frequenze di trascinamento": "Frequenze (Hz, arrotondate) dei picchi sopra soglia nelle finestre della SLI.", "Finestre con trascinamento": "Finestre della SLI con picco sopra soglia / finestre totali della SLI.", "delta 1–2 Hz": "Quota della potenza 1–2 Hz sul totale 1–30 Hz, media sulle derivazioni bipolari longitudinali senza Fp e sulle epoche pulite, escluse quelle con delta solo frontopolare. Raccoglie soprattutto artefatti lenti (occhi, sudore, deriva).", "delta 2–4 Hz": "Quota della potenza 2–4 Hz sul totale 1–30 Hz (stesse derivazioni ed epoche della riga precedente).", "theta": "Quota della potenza 4–8 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "alfa": "Quota della potenza 8–13 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "beta": "Quota della potenza 13–30 Hz sul totale 1–30 Hz (derivazioni bipolari senza Fp, epoche pulite).", "Durata": "Durata del file. Epoche pulite = epoche di 4 s senza tratti a zero, senza artefatto (picco-picco > 350 µV su almeno 3 canali) e non annotate come artefatto.", "Elettrodi esclusi": "Elettrodi piatti, scollegati o con rumore persistente: esclusi da tutte le analisi (motivo indicato a fianco).", "Artefatti transitori": "Numero di epoche in cui l'elettrodo ha un picco-picco oltre 5 volte la mediana degli altri e oltre 150 µV (elettrodo che 'salta'); in quelle epoche l'elettrodo è ignorato.", "Rete 50 Hz": "Canali con interferenza di rete a 50 Hz elevata rispetto all'attività EEG.", "Tratti a zero": "Pause dell'esportazione riempite con zero (opzione Fill Pause with zero): escluse dalle analisi.", "Indice globale (mediana)": "Indice di rallentamento = log10(potenza 2–8 Hz / potenza 8–30 Hz), media delle derivazioni bipolari longitudinali senza Fp; mediana sulle epoche pulite. ≥ 0,40 = rallentamento diffuso (soglia calibrata su esempi di referto AOPD).", "90° perc. temporale": "90° percentile dell'indice di rallentamento nelle derivazioni temporali (F7-T3, T3-T5, F8-T4, T4-T6). ≥ 0,45 = rallentamento intermittente (soglia calibrata su esempi di referto AOPD).", "90° perc. fronto-centrale": "90° percentile dell'indice di rallentamento in F3-C3, F4-C4, Fz-Cz. ≥ 0,15 = 'da verificare'.", "90° perc. posteriore": "90° percentile dell'indice di rallentamento nelle derivazioni posteriori (P3-O1, P4-O2, T5-O1, T6-O2, C3-P3, C4-P4). Solo informativo.", "Lateralizzazione": "Differenza sx − dx dell'indice di rallentamento per regione (mediana sulle epoche), corretta per lo scarto medio della regione; lateralizzato se ≥ 0,35 in almeno 2 regioni nello stesso verso (calibrato su esempi di referto AOPD).", "Iperpnea": "Quota di epoche nei 180 s dopo l'inizio dell'iperpnea più lente del 90° percentile basale; attivazione se ≥ 15% (o ≥ 20% di epoche con artefatto)."};
+document.addEventListener('change', ev => { if (ev.target && ev.target.id === 'srcsel' && S.rec) {
+  try { ev.target.value ? localStorage.setItem(S.srcKey, ev.target.value) : localStorage.removeItem(S.srcKey); } catch (e) { /* */ }
+  renderSummary(); } });
 function addSumTips() { $('summary').querySelectorAll('dt').forEach(dt => { const k = dt.textContent.trim(); const t = SUMTIPS[k] || (/^\u00a0/.test(dt.textContent) ? "Differenza sx − dx dell'indice di rallentamento in questa regione (positivo = più lento a sinistra), mediana sulle epoche, corretta per lo scarto medio della regione." : null); if (t) dt.title = t; }); }
 function renderRef() {
   if (!S.labels) return; document.body.classList.add('haslabels');
