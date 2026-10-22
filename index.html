@@ -1202,7 +1202,7 @@ function rppDesc(q) { const f = q.freq != null ? q.freq.toFixed(1).replace('.', 
     + (q.kind === 'PD' ? ' · trovato come ≥ 6 deflessioni ripetute a intervallo regolare (ciclo che varia < 50%), stessa morfologia e polarità, non legate al QRS'
       : ' · trovato come picco spettrale 1–4 Hz stretto, onde regolari (il segnale spostato di uno e di due periodi si sovrappone a sé stesso: autocorrelazione ≥ 0,5 e ≥ 0,3), ≥ 20 µV e ≥ 1,5 volte il fondo, non alla frequenza cardiaca'); }
 function rppText(A) {
-  const names = { LPD: 'scariche periodiche lateralizzate (LPD)', GPD: 'scariche periodiche generalizzate (GPD)', LRDA: 'attività delta ritmica lateralizzata (LRDA)', GRDA: 'attività delta ritmica generalizzata (GRDA)' };
+  const names = { LPD: 'scariche periodiche lateralizzate (LPD)', GPD: 'scariche periodiche generalizzate (GPD)', LRDA: 'attività delta ritmica lateralizzata (LRDA)', GRDA: 'attività delta ritmica generalizzata (GRDA)', 'GRDA frontale': 'attività delta ritmica generalizzata a predominanza frontale (GRDA frontale, già FIRDA)' };
   const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary) : [], f = r => (names[r.name] || r.name) + (r.side === 'G' ? '' : ' a ' + (r.side === 'sx' ? 'sinistra' : 'destra')) + ', ' + (/PD$/.test(r.name) ? prevQ(r.pct) : r.prevalence) + ' (' + Math.round(r.pct) + '% della registrazione), ' + (r.freq != null ? hz05(r.freq) : '?') + ' Hz';
   return { present: rp.filter(r => r.pct >= 10).map(f), possible: rp.filter(r => r.pct >= 1 && r.pct < 10).map(f) };
 }
@@ -1489,12 +1489,16 @@ function rhythmicPeriodic(rec, A) {
     let hr = null; if (R) { const rr = []; for (let q = 1; q < R.length; q++) if (R[q] >= t && R[q] <= t + W) rr.push(R[q] - R[q - 1]); if (rr.length >= 3) hr = 1 / median(rr); }
     const f0w = kind ? median((kind === 'G' ? ps.concat(pd) : kind === 'sx' ? ps : pd).map(r => r.f0)) : 0;
     if (kind && hr && [1, 2].some(h => Math.abs(f0w - h * hr) <= 0.2)) kind = null; // ritmo alla frequenza cardiaca: artefatto ECG o da polso
-    if (kind) rwin.push({ t, kind, f0: f0w, d: (kind === 'G' ? ps.concat(pd) : kind === 'sx' ? ps : pd).map(r => r.d) });
+    // GRDA a predominanza frontale (ACNS 2021: il vecchio termine FIRDA): ampiezza alla frequenza del ritmo sulle derivazioni anteriori / posteriori
+    let fr = null; if (kind === 'G') { const all = res.sx.concat(res.dx), mA = ds => { const v = all.filter(r => ds.includes(r.d)).map(r => r.amp); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN; };
+      fr = mA(['F7-T3', 'F3-C3', 'F8-T4', 'F4-C4']) / mA(['T5-O1', 'P3-O1', 'T6-O2', 'P4-O2']); }
+    if (kind) rwin.push({ t, kind, f0: f0w, fr, d: (kind === 'G' ? ps.concat(pd) : kind === 'sx' ? ps : pd).map(r => r.d) });
   }
   const rda = []; for (const w of rwin) { const last = rda[rda.length - 1];
-    if (last && last.side === w.kind && w.t <= last.t1 - W + step + 0.01) { last.t1 = w.t + W; last.f.push(w.f0); last.d.push(...w.d); } else rda.push({ side: w.kind, t0: w.t, t1: w.t + W, f: [w.f0], d: w.d.slice() }); }
+    if (last && last.side === w.kind && w.t <= last.t1 - W + step + 0.01) { last.t1 = w.t + W; last.f.push(w.f0); last.d.push(...w.d); if (w.fr != null) last.fr.push(w.fr); } else rda.push({ side: w.kind, t0: w.t, t1: w.t + W, f: [w.f0], d: w.d.slice(), fr: w.fr != null ? [w.fr] : [] }); }
   for (const r of rda) { const dc = {}; r.d.forEach(x => dc[x] = (dc[x] || 0) + 1);
-    patterns.push({ kind: 'RDA', name: r.side === 'G' ? 'GRDA' : 'LRDA', side: r.side, t0: r.t0, t1: r.t1, freq: median(r.f), n: Math.round((r.t1 - r.t0) * median(r.f)), channels: Object.entries(dc).sort((a, b) => b[1] - a[1]).slice(0, 4).map(x => x[0]) }); }
+    const frontal = r.side === 'G' && r.fr.length && median(r.fr) >= 1.5;   // anteriori ≥ 1,5 volte le posteriori
+    patterns.push({ kind: 'RDA', name: r.side === 'G' ? (frontal ? 'GRDA frontale' : 'GRDA') : 'LRDA', frontal, side: r.side, t0: r.t0, t1: r.t1, freq: median(r.f), n: Math.round((r.t1 - r.t0) * median(r.f)), channels: Object.entries(dc).sort((a, b) => b[1] - a[1]).slice(0, 4).map(x => x[0]) }); }
   patterns.sort((p, q) => p.t0 - q.t0);
   // prevalenza per tipo: frazione del tracciato utilizzabile coperta dal pattern
   const usableSec = A.epochs.filter(o => !o.zero && !o.artifact).length * A.epoch, summary = {};
@@ -3036,7 +3040,7 @@ function icuCons(R, A) { if (R._c) return R._c; const d = icuD(R), pats = (A && 
     const ru = pats.find(q => tc >= q.t0 - 1 && tc <= q.t1 + 1), rn = ru ? ru.name + (ru.side === 'G' ? '' : ' ' + ru.side) : null, sl = ICU_PAT[sp];
     let lab, n;
     if (sp === 1 || st) { lab = 'Crisi'; n = (sp === 1 ? 1 : 0) + (st ? 1 : 0); }
-    else if (ru && sl) { lab = ru.name === sl ? rn : rn + ' / ' + sl; n = 2; }
+    else if (ru && sl) { lab = ru.name.split(' ')[0] === sl ? rn : rn + ' / ' + sl; n = 2; }
     else if (ru) { lab = rn; n = 1; } else if (sl) { lab = sl; n = 1; } else continue;
     let l = ev[ev.length - 1];
     if (!(l && l.lab === lab && a - l.b <= 2)) ev.push(l = { lab, a, b, k: [0, 0], sp: [0, 0, 0, 0, 0, 0], ns: 0, st: 0, ru: new Set() });
