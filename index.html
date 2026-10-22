@@ -1138,6 +1138,10 @@ function generateReport(A, rec, d, ied, format) {
   const brx = U.by('var').filter(x => x.ev === 'ritmo di breccia'), vrx = U.by('var').filter(x => x.ev !== 'ritmo di breccia');
   if (brx.length) out.push('Attività di breccia ' + brx.map(x => x.where || '').join(' e ') + ' (indicata dal medico).');
   if (vrx.length) out.push('Varianti normali: ' + vrx.map(x => x.ev + (x.where ? ' ' + x.where : '') + ' (' + x.n + ')').join('; ') + '.');
+  if (A.icuConf && A.icuConf.length) { const mm = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0'), g = {};   // tabella modelli / ACNS: reperti confermati in revisione
+    const nm = l => l === 'Crisi' ? 'crisi elettrografiche' : l.replace(/ sx$/, ' a sinistra').replace(/ dx$/, ' a destra');
+    A.icuConf.forEach(e => (g[nm(e.lab)] = g[nm(e.lab)] || []).push(mm(e.a) + '–' + mm(e.b)));
+    out.push('Si osservano ' + Object.entries(g).map(([l, ts]) => l + ' (' + ts.join(', ') + ')').join('; ') + '.'); concl.push(Object.keys(g).join('; ')); }
   const rpx = rppText(A); if (rpx.confirmed.length) { out.push('Si osservano ' + rpx.confirmed.join('; ') + '.'); concl.push(rpx.confirmed.map(x => x.replace(/ \(\d+ tratti\)$/, '')).join('; ')); }   // confermati in revisione
   if (rpx.present.length) out.push('Si osservano ' + rpx.present.join('; ') + ' (rilevamento automatico secondo la terminologia ACNS, da verificare' + (A.rpp && A.rpp.reduced ? '; montaggio ridotto a ' + A.rpp.reduced + ' elettrodi' : '') + ').');
   // iperpnea
@@ -1150,7 +1154,7 @@ function generateReport(A, rec, d, ied, format) {
   else out.push('La SLI non modifica significativamente il tracciato.');
   // conclusione
   let c;
-  if (!d.abnormal && !U.abn && !rpx.confirmed.length) c = 'tracciato privo di anomalie significative.' + (d.possible && d.possible.length ? ' Da verificare sul tracciato: ' + d.possible.join('; ') + '.' : '');
+  if (!d.abnormal && !U.abn && !rpx.confirmed.length && !(A.icuConf && A.icuConf.length)) c = 'tracciato privo di anomalie significative.' + (d.possible && d.possible.length ? ' Da verificare sul tracciato: ' + d.possible.join('; ') + '.' : '');
   else { c = concl.length ? concl.join('; ') : d.labels.join(', ').toLowerCase(); if (org === 'scarsamente organizzato' && !/contesto/.test(c)) c += ', nel contesto di un tracciato scarsamente organizzato'; if (brx.length && !/breccia/.test(c)) c += ', nel contesto di attività di breccia ' + brx.map(x => x.where || '').join(' e '); c = c.charAt(0).toLowerCase() + c.slice(1) + '.';
     const iedFlag = d.possible && d.possible.some(x => /candidati IED/.test(x));
     if (!(ied && ied.confirmed && ied.confirmed.length) && !U.epi.length) c += iedFlag ? ' Frequenti candidati IED da rivedere prima di escludere anomalie epilettiformi.' : ' Non anomalie epilettiformi.';
@@ -3084,15 +3088,17 @@ function renderICU() { const sec = $('icusec'); if (!sec) return; const on = icu
       + (R.interp && R.interp.length ? '<p>Elettrodi mancanti o esclusi (' + R.interp.join(', ') + ') ricostruiti dai vicini solo come ingresso dei modelli.</p>' : '') + '</details>');
     if (E.length) {
       const row = e => { const ic1 = e.spk ? ICU_CL[e.spk] + ' ' + Math.round(100 * e.sp[e.spk] / e.ns) + '%' : '–', ic2 = !R.Q ? '…' : e.st ? 'crisi ' + 2 * e.st + ' s' : '–';
-        return '<tr data-it="' + e.a + '"' + (e.strong ? '' : ' class="w"') + '><td>' + fmtT(e.a) + '–' + fmtT(e.b) + '</td><td>' + (e.ru.size ? [...e.ru].join(', ') : '–') + '</td><td>' + ic1 + '</td><td>' + ic2 + '</td><td' + (e.strong ? ' class="ok"' : '') + '>' + e.lab + ' ' + icuVote(e) + '</td></tr>'; };
+        return '<tr data-it="' + e.a + '"' + (e.strong ? '' : ' class="w"') + '><td>' + fmtT(e.a) + '–' + fmtT(e.b) + '</td><td>' + (e.ru.size ? [...e.ru].join(', ') : '–') + '</td><td>' + ic1 + '</td><td>' + ic2 + '</td><td' + (e.strong ? ' class="ok"' : '') + '>' + e.lab + ' ' + icuVote(e) + '</td><td>' + icuJBtn(e) + '</td></tr>'; };
       H.push('<div class="icuwrap"><table class="icutab"><thead><tr><th>Tempo</th>'
         + '<th title="Regole dell\'app secondo la terminologia ACNS 2021 (LPD, GPD, LRDA, GRDA; non cercano crisi)">ACNS</th>'
         + '<th title="Modello ICU 1: SPaRCNet (Jing et al., Neurology 2023), rifinito su HMS e TUH. Classe più frequente nel tratto (crisi, LPD, GPD, LRDA, GRDA) e % delle finestre di 10 s">ICU 1</th>'
         + '<th title="Modello ICU 2: SeizureTransformer (Wu et al. 2025), rifinito su HMS e TUH. Secondi con probabilità di crisi &gt; 0,8">ICU 2</th>'
-        + '<th title="Metodi d\'accordo sul reperto, tra i due che possono riconoscerlo: crisi = ICU 1 e ICU 2; pattern = ACNS e ICU 1. 2/2 = d\'accordo per almeno 4 s. In grigio i reperti di un solo metodo.">Concordanza</th></tr></thead><tbody>'
+        + '<th title="Metodi d\'accordo sul reperto, tra i due che possono riconoscerlo: crisi = ICU 1 e ICU 2; pattern = ACNS e ICU 1. 2/2 = d\'accordo per almeno 4 s. In grigio i reperti di un solo metodo.">Concordanza</th><th title="Revisione: sì = il reperto entra nel referto">Rev.</th></tr></thead><tbody>'
         + E.slice(0, 80).map(row).join('') + '</tbody></table></div>' + (E.length > 80 ? '<p>… altri ' + (E.length - 80) + ' tratti</p>' : '')); } }
   box.innerHTML = H.join('');
-  box.querySelectorAll('[data-it]').forEach(a => a.onclick = ev => { ev.preventDefault(); eyeOn('ICU'); goTo(+a.dataset.it - 2); });
+  box.querySelectorAll('[data-it]').forEach(a => a.onclick = ev => { ev.preventDefault(); const b = ev.target.closest('.jbtn button');
+    if (b) { const k = b.parentElement.dataset.k; if (S.review[k] === b.dataset.v) delete S.review[k]; else S.review[k] = b.dataset.v; saveReview(); renderICU(); renderScore(); return; }   // revisione come per IED e ACNS
+    eyeOn('ICU'); goTo(+a.dataset.it - 2); });
   const rr = $('icuretry'); if (rr) rr.onclick = () => { S.icu = null; icuStart(); };
   icuMarkRpp(); }
 /* sezione ACNS: pattern delle regole che cadono in una crisi concordante (modelli ICU 1 e 2) */
@@ -3747,6 +3753,9 @@ function buildEvents() {
 }
 const evKey = ev => (Math.round(ev.tp * 2) / 2).toFixed(1);
 function storeKey() { return 'ied-review:' + (S.fname || ''); }
+const icuKey = e => 'icu|' + e.lab + '|' + e.a;   // giudizio di un tratto della tabella di confronto modelli / ACNS
+function icuJBtn(e) { const k = icuKey(e), j = S.review[k]; return '<span class="jbtn" data-k="' + k + '">' + ['si', 'no', 'dubbio'].map(v => `<button data-v="${v}" aria-pressed="${j === v}" title="${v === 'si' ? 'sì: nel referto' : v === 'no' ? 'no' : 'dubbio'}">${v === 'si' ? 'sì' : v === 'no' ? 'no' : '?'}</button>`).join('') + '</span>'; }
+function icuConfirmed() { if (!S.icu || !S.icu.P || !icuOn()) return []; return icuCons(S.icu, S.A).filter(e => S.review[icuKey(e)] === 'si').map(e => ({ lab: e.lab, a: e.a, b: e.b, crisi: e.crisi })); }
 const rppKey = p => 'rpp|' + p.name + '|' + p.side + '|' + p.t0.toFixed(1);   // giudizio di un tratto di pattern ACNS
 function loadReview() { try { return JSON.parse(localStorage.getItem(storeKey()) || '{}') || {}; } catch (e) { return {}; } }
 function saveReview() { try { localStorage.setItem(storeKey(), JSON.stringify(S.review)); } catch (e) { /* archiviazione non disponibile */ } }
@@ -3844,7 +3853,7 @@ function renderReport(force) {
   if (!S.A) return;
   if (repDirty && !force) { $('repstate').textContent = 'modificato a mano: premi Rigenera per aggiornare'; return; }
   S.A.uann = uaForCore();
-  ((S.A.rpp && S.A.rpp.patterns) || []).forEach(p => { p.judge = S.review[rppKey(p)] || null; });
+  ((S.A.rpp && S.A.rpp.patterns) || []).forEach(p => { p.judge = S.review[rppKey(p)] || null; }); S.A.icuConf = icuConfirmed();
   const r = C.generateReport(S.A, S.rec, S.decision || C.scoreDecision(S.A, iedSummary()), iedSummary(), $('repfmt').value);
   $('reptext').value = evoAppend(r.text, sIdx()); repDirty = false; $('repstate').textContent = '';
 }
