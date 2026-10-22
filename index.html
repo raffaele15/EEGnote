@@ -3503,7 +3503,7 @@ function snapSide(i) { // genera il pannello dell'EEG i e ne restituisce una cop
   $('iedprog').hidden = IEDOWNER !== S.fname; iedLiveUI();
   setTimeout(() => { $('reptext').value = keepRep; repDirty = keepDirty; }, 0);
   return { html, rep, cv }; }
-function dualOff() { const side = $('side'); side.querySelectorAll(':scope > .cmpstick').forEach(x => x.remove()); side.querySelectorAll(':scope > .cmprow').forEach(r => { const live = r.querySelector(':scope > .cmpL > .sec'); if (live) side.insertBefore(live, r); r.remove(); }); side.classList.remove('dual'); }
+function dualOff() { const side = $('side'); side.querySelectorAll(':scope > .cmpstick').forEach(x => x.remove()); side.querySelectorAll(':scope > .cmprow').forEach(r => { const live = r.querySelector(':scope > .cmpLive > .sec'); if (live) side.insertBefore(live, r); r.remove(); });   /* la colonna viva può essere a destra (colonne invertite) */ side.classList.remove('dual'); }
 function renderSide2() { if (!CMPCOL) return; const others = SESS.map((x, i) => i).filter(i => i !== SCUR); if (!others.length) return setCmpCol(false);
   if (!others.includes(CMPI)) CMPI = others[0];
   dualOff();
