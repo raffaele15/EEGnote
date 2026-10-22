@@ -2325,6 +2325,10 @@ function slowText(o) { const lm = o.latMax, pct = isFinite(o.slowAbs) ? Math.rou
   if (lm && Math.pow(10, Math.abs(lm.v)) >= 1.6 && !(o.slowCat && /destra|sinistra/.test(o.slowCat))) asym += ' — non contata come lateralizzata: quel lato non è più lento del suo solito nel tracciato';
   const bu = (S.A && S.A.bursts || []).filter(b => (b.ok || b.verify) && b.t1 > o.t && b.t0 < o.t + S.A.epoch).map(b => C.burstLabel(b));
   return (bu.length ? bu.join(' | ') + ' · ' : '') + (o.drowsy && !bu.length ? 'sonnolenza' + (o.drowsy === 'stimata' ? ' (stimata)' : '') + ' · ' : '') + (o.slowCat ? 'rallentamento ' + o.slowCat + (o.flagReg && o.slowCat !== 'diffuso' ? ' (' + o.flagReg + ')' : '') + ' · ' : '') + (pct != null ? 'attività lenta ' + pct + '%' : '') + (asym ? ' · ' + asym : ''); }
+/* tooltip breve della riga Lenti: banda prevalente, attività lenta %, lato */
+function slowShort(o) { let d = 0, th = 0; for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; d += o.bip[k].d1 + o.bip[k].d2; th += o.bip[k].t1 + o.bip[k].t2; }
+  const pct = isFinite(o.slowAbs) ? Math.round(100 * Math.pow(10, o.slowAbs) / (1 + Math.pow(10, o.slowAbs))) + '%' : '', sd = !o.slowCat ? '' : /sinistra/.test(o.slowCat) ? 'sinistra' : /destra/.test(o.slowCat) ? 'destra' : 'diffuso';
+  return [d + th > 0 ? (d >= th ? 'delta' : 'theta') : '', pct, sd].filter(Boolean).join(' · '); }
 const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'Terapia intensiva', 'IED (modello)', 'Modelli'];
 const TLLAB = { 'Rallentamenti': 'Lenti', 'Pattern ACNS': 'ACNS', 'IED (modello)': 'IED', 'Terapia intensiva': 'ICU', 'Modelli': 'Tratto' }, TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
@@ -2395,7 +2399,7 @@ function tlHit(e) { // cosa c'è sotto il mouse nella linea del tempo
   else if (row === 'Terapia intensiva') { const x = icuAt(t); if (x) { hit.go = t - pageLen() / 2; hit.txt = fmtT(t) + ' · ' + x; } }
   else if (o && !o.zero) { const ts = fmtT(o.t) + ' · ';
     if (row === 'Artefatti') hit.txt = ts + (o.artifact ? 'artefatto: ampiezza > 350 µV su ≥ 3 canali' : o.annArt ? 'artefatto annotato dal tecnico' : o.popCh && o.popCh.length ? 'elettrodo instabile: ' + o.popCh.join(', ') : o.eyeDelta ? 'delta solo frontopolare (probabile movimento oculare)' : 'nessun artefatto');
-    if (row === 'Rallentamenti') hit.txt = ts + slowText(o); }
+    if (row === 'Rallentamenti') hit.txt = ts + slowShort(o); }
   return hit;
 }
 tl.addEventListener('mousemove', e => { const h = tlHit(e), tip = $('tltip'); if (!h || !h.txt) { tip.style.display = 'none'; return; }
