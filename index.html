@@ -2487,7 +2487,7 @@ function traceTip(e) {
   if (o && !o.zero && EYEON.has('Artefatti') && (S.artZ || []).some(z => z.o === o && t >= z.t0 && t <= z.t1)) { const x = epText('Artefatti', o); if (x) L.push(['Artefatti', x]); }
   // rallentamenti: tooltip solo dove è disegnato qualcosa (rettangolo di un burst o fascia di 4 s), con lo stesso criterio del disegno
   if (o && !o.zero && EYEON.has('Rallentamenti')) { const bu = (A.bursts || []).find(b => (b.ok || b.verify) && !b.likeBg && t >= b.t0 && t <= b.t1);
-    if (bu) L.push(['Rallentamenti', C.burstLabel(bu)]); else if (o.slowCat && belowBg(o)) L.push(['Rallentamenti', slowText(o)]); }
+    if (bu) { const pc = epPct(A.epochs.filter(q => !q.zero && q.t + A.epoch > bu.t0 && q.t < bu.t1)); L.push(['Rallentamenti', C.burstLabel(bu) + (pc ? ' · attività lenta ' + pc : '')]); } else if (o.slowCat && belowBg(o)) L.push(['Rallentamenti', slowText(o)]); }
   if (EYEON.has('Pattern ACNS') && A.rpp && A.rpp.patterns) A.rpp.patterns.filter(q => t >= q.t0 && t <= q.t1).forEach(q => L.push(['Pattern ACNS', C.rppDesc(q)]));
   if (EYEON.has('ICU')) { const x = icuAt(t); if (x) L.push(['ICU', x]); }
   if (S.ied && EYEON.has('IED')) S.ied.events.forEach(ev => { if (t < ev.t0 || t > ev.t1) return; const Q = ev.loc && ev.loc.found ? ev.loc : null, j = S.review[evKey(ev)];
