@@ -1016,8 +1016,10 @@ function lobesText(regions) {
 }
 function chLobe(ch) { const c = (ch || '').toUpperCase(); const l = /^FP|^F/.test(c) ? 'F' : /^C/.test(c) ? 'C' : /^P/.test(c) ? 'P' : /^T/.test(c) ? 'T' : /^O/.test(c) ? 'O' : null;
   const side = /Z$/.test(c) ? 'linea mediana' : /[13579]$/.test(c) ? 'sinistra' : 'destra'; return { l, side }; }
-function bandOf(A, derivs) { // banda prevalente delle onde lente (2-4 vs 4-8 Hz) nelle epoche pulite
-  const r = []; for (const o of A.epochs) { if (o.zero || o.artifact || o.annArt || !o.bip || o.hv) continue;
+function bandOf(A, derivs, over = false) { // banda prevalente delle onde lente (2-4 vs 4-8 Hz) nelle epoche pulite
+  // over: solo le epoche con onde lente oltre il fondo, se ce ne sono (banda delle anomalie, non del fondo)
+  const ov = over && A.epochs.some(o => o.overBg && o.slowCat);
+  const r = []; for (const o of A.epochs) { if (o.zero || o.artifact || o.annArt || !o.bip || o.hv || (ov && !(o.overBg && o.slowCat))) continue;
     let d = 0, t = 0; for (const k of derivs) if (o.bip[k]) { d += o.bip[k].d2; t += o.bip[k].t1 + o.bip[k].t2; } if (t > 0) r.push(d / t); }
   const m = median(r); return m > 1 ? 'delta' : m > 0.6 ? 'theta-delta' : 'theta';
 }
@@ -1083,7 +1085,7 @@ function generateReport(A, rec, d, ied, format) {
   const rk = x => ['theta', 'theta-delta', 'delta'].indexOf(x); // patch burst: caratteristiche dei burst (burstSum) solo se più lenti del fondo
   if (diff) { const b = bandOf(A, SALL), bg = burstSum(A, x => x.side === 'G'); parts.push('globalmente rallentato in prevalente banda ' + b + (bg && rk(bg.band) > rk(b) ? ', con sovrapposte anomalie lente diffuse ' + bg.core + bg.tail : '')); concl.push('anomalie lente diffuse' + (slowBg ? ' nel contesto di un ritmo di fondo rallentato' : '')); }
   if (s.side && !(s.pdrSlow && s.prev && !s.prev.side)) { const q = s.prev ? prevQ(s.prev.side) : 'occasionali';   // fondo lento: lato citato solo se ha onde più lente del fondo
-    const two = lobesText(s.latRegions.slice(0, 2)), lob = two.split('-').length > 3 ? lobesText(s.latRegions.slice(0, 1)) : two, lato = s.side === 'sx' ? 'sinistra' : 'destra', b = bandOf(A, latDer);
+    const two = lobesText(s.latRegions.slice(0, 2)), lob = two.split('-').length > 3 ? lobesText(s.latRegions.slice(0, 1)) : two, lato = s.side === 'sx' ? 'sinistra' : 'destra', b = bandOf(A, latDer, true);
     const bs = burstSum(A, x => x.side === s.side);
     if (diff) { // banda del lato citata solo se più lenta di quella diffusa (es. delta focale su fondo theta)
       parts.push(bs && rk(bs.band) > rk(bandOf(A, SALL)) ? 'con anomalie lente ' + bs.core + ' più evidenti sulle regioni ' + lob + ' di ' + lato + bs.tail
@@ -1092,7 +1094,7 @@ function generateReport(A, rec, d, ied, format) {
       parts.push('con evidenza di ' + q + ' anomalie lente ' + bs.core + (bil ? ' bilaterali, con prevalenza sulle regioni ' : ' sulle regioni ') + lob + ' di ' + lato + bs.tail); }
     else parts.push('con evidenza di ' + q + ' anomalie lente ' + (/occasional|rar/.test(q) ? '' : 'polimorfe ') + 'in banda ' + b + ' sulle regioni ' + lob + ' di ' + lato);
     concl.push('anomalie lente sulle regioni ' + lob + ' di ' + lato); }
-  else if (s.intermittent && !diff) { const q = s.prev ? prevQ(s.prev.intermittent) : 'occasionali', b = bandOf(A, SGRP.temporale);
+  else if (s.intermittent && !diff) { const q = s.prev ? prevQ(s.prev.intermittent) : 'occasionali', b = bandOf(A, SGRP.temporale, true);
     const bt = burstSum(A, x => /tempor/.test(x.region), 'm'), pw = s.sideWeak ? ', con una certa prevalenza a ' + (s.sideWeak === 'sx' ? 'sinistra' : 'destra') : '';
     const qm = ({ continue: 'continui', rare: 'rari' })[q] || q;   // "rallentamenti" è maschile
     parts.push(bt ? 'con evidenza di ' + qm + ' rallentamenti ' + bt.core + ' bitemporali' + pw + bt.tail
