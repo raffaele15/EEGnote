@@ -1735,7 +1735,7 @@ const sec05 = v => (Math.round(v * 2) / 2).toLocaleString('it-IT');
 /* etichetta di un burst sul tracciato */
 function burstLabel(b) {
   const sd = b.side === 'G' ? 'diffuso' : b.side, reg = b.side === 'G' ? 'diffuso' : (b.region || '') + ' ' + sd;
-  return b.band + ' ' + fmtHz(b.fLo, b.fHi) + ' · ' + b.morph + ' · voltaggio ' + b.volt + ' (' + Math.round(b.uv) + ' µV) · ' + sec05(b.dur) + ' s · ' + reg + ' (' + b.max + ')'
+  return b.band + ' ' + fmtHz(b.fLo, b.fHi) + (b.morph === 'monomorfo' ? ' · monomorfo' : '') + ' · voltaggio ' + b.volt + ' (' + Math.round(b.uv) + ' µV) · ' + sec05(b.dur) + ' s · ' + reg + ' (' + b.max + ')'
     + (b.drowsy ? ' · sonnolenza' + (b.drowsy === 'stimata' ? ' (stimata)' : '') : '') + (b.hv ? ' · iperpnea' : '') + (b.likeBg ? ' · come il fondo' : '') + (b.verify ? ' · da verificare (< 2 Hz)' : ''); }
 /* sintesi dei burst per il referto: g = 'f' (anomalie lente) o 'm' (rallentamenti). Esclusi iperpnea, < 2 Hz non confermati e theta come il fondo. */
 function burstSum(A, pred, g = 'f') {
@@ -2353,7 +2353,7 @@ function slowTagText(os) { const o = os.find(q => q.flagReg && /sinistra|destra/
   return [epBand(os), epPct(os), o ? o.flagReg + ' ' + sd : ''].filter(Boolean).join(' · '); }
 function burstTag(b) { const os = S.A.epochs.filter(o => o.t + S.A.epoch > b.t0 && o.t < b.t1);
   const h = v => (Math.round(v * 2) / 2).toLocaleString('it-IT'), lo = h(b.fLo), hi = h(b.fHi);
-  return [b.band + ' ' + (lo === hi ? lo : lo + '-' + hi) + ' Hz', epPct(os), b.morph, b.side === 'G' ? '' : ((b.region || '') + ' ' + b.side).trim()].filter(Boolean).join(' · '); }
+  return [b.band + ' ' + (lo === hi ? lo : lo + '-' + hi) + ' Hz', epPct(os), b.morph === 'monomorfo' ? 'monomorfo' : '', b.side === 'G' ? '' : ((b.region || '') + ' ' + b.side).trim()].filter(Boolean).join(' · '); }
 const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'Terapia intensiva', 'IED (modello)', 'Modelli'];
 const TLLAB = { 'Rallentamenti': 'Lenti', 'Pattern ACNS': 'ACNS', 'IED (modello)': 'IED', 'Terapia intensiva': 'ICU', 'Modelli': 'Tratto' }, TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
