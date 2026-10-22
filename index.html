@@ -2248,7 +2248,8 @@ function slowTag(r, lab, sec, plotW) { const x0 = lab + Math.max(0, r.t0 - S.t) 
   tctx.save(); tctx.beginPath(); tctx.rect(x, y, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, x + 23, y + 11); tctx.restore(); }
 function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTimeout(rulerRender, 0);
   const r = tc.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  tc.width = r.width * dpr; tc.height = r.height * dpr; tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const bw = Math.round(r.width * dpr), bh = Math.round(r.height * dpr); if (tc.width !== bw) tc.width = bw; if (tc.height !== bh) tc.height = bh;   // pixel interi: il browser non riscala (sfoca) il canvas
+  tctx.setTransform(bw / r.width, 0, 0, bh / r.height, 0, 0);
   const W = r.width, H = r.height; tctx.clearRect(0, 0, W, H);
   if (!S.A) return;
   const { A } = S, fs = A.fs, P = getPageData(), sec = pageLen();
@@ -2257,8 +2258,9 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
   const rows = P.rows, nRows = rows.length, rowH = (H - 20) / nRows;
   S.geo = { lab, plotW, rowH, sec, H, labels: rows.map(r => r && !r.ecg ? r.label : null) };
   // griglia: secondi
-  tctx.lineWidth = 1;
-  for (let s = 0; s <= sec; s++) { const x = lab + s / sec * plotW; tctx.strokeStyle = css('--grid2'); tctx.beginPath(); tctx.moveTo(x + .5, 0); tctx.lineTo(x + .5, H - 18); tctx.stroke();
+  const dp = Math.max(1, Math.round(dpr)), snap = x => (Math.round(x * dpr) + (dp % 2 ? .5 : 0)) / dpr;   // righe sui pixel del dispositivo: tutte ugualmente nitide
+  tctx.lineWidth = dp / dpr;
+  for (let s = 0; s <= sec; s++) { const x = lab + s / sec * plotW, xs = snap(x); tctx.strokeStyle = css('--grid2'); tctx.beginPath(); tctx.moveTo(xs, 0); tctx.lineTo(xs, H - 18); tctx.stroke();
     tctx.fillStyle = css('--muted'); tctx.font = '11px IBM Plex Sans, system-ui'; tctx.fillText(fmtT(S.t + s), x + 2, H - 5); }
   // tratti a zero
   for (const [a, b] of A.zeros) if (b > S.t && a < S.t + sec) { tctx.fillStyle = css('--grid'); const x0 = lab + Math.max(0, a - S.t) / sec * plotW, x1 = lab + Math.min(sec, b - S.t) / sec * plotW; tctx.fillRect(x0, 0, x1 - x0, H - 18); }
@@ -2299,11 +2301,12 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
     if (row.missing) return;
     tctx.strokeStyle = row.ecg ? css('--ecg') : row.bad ? css('--flag') : css('--trace'); tctx.lineWidth = 1; tctx.beginPath();
     const g = row.ecg ? pxPerUv / 12 : pxPerUv, n = Math.floor(fs * sec);
-    for (let i = 0; i < n; i += step) {
-      const v = row.data[P.off + i]; if (v === undefined) break;
-      const x = lab + i / (fs * sec) * plotW, y = y0 - v * g;
-      i ? tctx.lineTo(x, y) : tctx.moveTo(x, y);
-    }
+    const d = row.data, o0 = P.off, kx = plotW / (fs * sec);
+    if (step <= 1) { for (let i = 0; i < n; i++) { const v = d[o0 + i]; if (v === undefined) break; const x = lab + i * kx, y = y0 - v * g; i ? tctx.lineTo(x, y) : tctx.moveTo(x, y); } }
+    else for (let i = 0; i < n; i += step) { // gruppo di campioni: minimo e massimo nell'ordine in cui compaiono (le punte restano visibili)
+      let lo = Infinity, hi = -Infinity, il = i, ih = i; for (let j = i; j < Math.min(n, i + step); j++) { const v = d[o0 + j]; if (v === undefined) break; if (v < lo) { lo = v; il = j; } if (v > hi) { hi = v; ih = j; } }
+      if (lo === Infinity) break; const a = il <= ih ? [il, lo, ih, hi] : [ih, hi, il, lo];
+      const x1 = lab + a[0] * kx, y1 = y0 - a[1] * g, x2 = lab + a[2] * kx, y2 = y0 - a[3] * g; i ? tctx.lineTo(x1, y1) : tctx.moveTo(x1, y1); tctx.lineTo(x2, y2); }
     tctx.stroke();
   });
   // candidati IED: banda colorata sulla finestra di 4 s del picco
@@ -2357,7 +2360,8 @@ const EYEON = new Set(); // reperti mostrati anche sul tracciato
 function tlRows() { const A = S.A; const r = TLROWS.filter(n => !TLOFF.has(n) && (n === 'Pattern ACNS' ? !!(A && A.rpp && A.rpp.patterns && A.rpp.patterns.length) : n === 'IED (modello)' ? !!S.ied : n === 'Modelli' ? !!(S.multi || S.anaSel) : n === 'Terapia intensiva' ? !!(S.icu && S.icu.P && S.src === 'micromed') : true)); return r.length ? r : ['Annotazioni']; }
 function drawTimeline() {
   const r = tl.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  tl.width = r.width * dpr; tl.height = r.height * dpr; lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const bw = Math.round(r.width * dpr), bh = Math.round(r.height * dpr); if (tl.width !== bw) tl.width = bw; if (tl.height !== bh) tl.height = bh;
+  lctx.setTransform(bw / r.width, 0, 0, bh / r.height, 0, 0);
   const W = r.width, H = r.height; lctx.clearRect(0, 0, W, H);
   if (!S.A) return;
   const rows = tlRows(), RI = n => rows.indexOf(n);
@@ -3804,6 +3808,7 @@ function refCompare(e) {
 }
 
 new ResizeObserver(() => { drawAll(); drawTopo(); drawSpec(); }).observe(document.body);
+new ResizeObserver(() => drawTrace()).observe($('traceWrap'));   // schermo intero e pannelli: il canvas segue subito la nuova dimensione
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { drawAll(); drawTopo(); drawSpec(); });
 /* ---- tema: automatico (segue il sistema), chiaro (bianco/nero), scuro; scelta ricordata nel browser ---- */
 const MOON = '<svg viewBox="1.13 1.73 13.15 13.15" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 10.2A6 6 0 0 1 5.8 2.5a6 6 0 1 0 7.7 7.7z"/></svg>',
