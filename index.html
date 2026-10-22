@@ -35,9 +35,9 @@
 button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto auto auto 1fr;height:100%} .app>header{grid-row:1} .app>main{grid-row:4}
 #rulerlayer{position:absolute;inset:0;display:none;cursor:crosshair;z-index:6} #rulerlayer.on{display:block}
-.rulbox{position:absolute;border:1.5px dashed var(--yes);background:color-mix(in srgb,var(--yes) 12%,transparent);pointer-events:none} #rulerbtn[aria-pressed=true]{background:var(--yes);border-color:var(--yes);color:#fff}
-.rulpp{position:absolute;pointer-events:auto;background:var(--panel);color:var(--ink);border:1px solid var(--yes);border-radius:3px;padding:0 .25rem;font-size:.72rem;line-height:16px;font-variant-numeric:tabular-nums}
-.rullab{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--yes);border-radius:4px;padding:.15rem .4rem;font-size:.78rem;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.rulbox{position:absolute;border:1.5px dashed var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);pointer-events:none} #rulerbtn[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.rulpp{position:absolute;pointer-events:auto;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:3px;padding:0 .25rem;font-size:.72rem;line-height:16px;font-variant-numeric:tabular-nums}
+.rullab{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:4px;padding:.15rem .4rem;font-size:.78rem;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 #fullbtn{position:absolute;top:4px;right:6px;z-index:7;opacity:.75;background:var(--panel)} #fullbtn:hover{opacity:1} #drop[style*="flex"]~#fullbtn{display:none}
 .modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.38);display:grid;place-items:center} .modal[hidden]{display:none}
 .mbox{width:min(980px,94vw);height:88vh;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;padding:.6rem .8rem;gap:.5rem}
