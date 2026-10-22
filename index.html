@@ -205,7 +205,10 @@ footer{font-size:.75rem;color:var(--muted);padding:.3rem 1rem;border-top:1px sol
 #modmenu{position:absolute;top:calc(100% + 4px);left:0;z-index:60;width:300px;max-width:90vw;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column;gap:4px}
 #modmenu[hidden]{display:none} .mitem{display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;padding:.4rem .5rem;border-radius:4px;border:1px solid var(--line);background:var(--paper);color:inherit;font:inherit;cursor:pointer}
 .mitem:hover{border-color:var(--accent)} .mitem[aria-checked=true]{border-color:var(--accent);background:var(--accentSoft)} .mitem small{display:block;color:var(--muted);font-size:.75rem}
-.mplay{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff} .mplay svg{display:block;margin-left:2px} .mgo{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent)} .mgo svg{display:block} .mitem>span:first-child{flex:1;min-width:0} .mitem .mst{flex:none;margin-left:auto;display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;color:var(--muted);white-space:nowrap} #modsrc{border-top:1px solid var(--line);padding:.4rem .2rem 0;font-size:.8rem} #modsrc .srcline{margin:0}
+.mplay{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff} .mplay svg{display:block;margin-left:2px}
+.mplaybox{display:flex;justify-content:center;padding:.6rem 0} .mplaybig{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)} .mplaybig:hover{filter:brightness(1.1)} .mplaybig:disabled{opacity:.4;cursor:default} .mplaybig svg{margin-left:3px}
+#iedbox[data-st=idle]>:not(#iedplaybox):not(#anares){display:none!important} #iedbox:not([data-st=idle]) #iedplaybox{display:none}
+#iedbox[data-st=dl]>:not(#iedstatus):not(#iedprog):not(#anares),#iedbox[data-st=run]>:not(#iedstatus):not(#iedprog):not(#anares){display:none!important} .mgo{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent)} .mgo svg{display:block} .mitem>span:first-child{flex:1;min-width:0} .mitem .mst{flex:none;margin-left:auto;display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;color:var(--muted);white-space:nowrap} #modsrc{border-top:1px solid var(--line);padding:.4rem .2rem 0;font-size:.8rem} #modsrc .srcline{margin:0}
 .tlhead{gap:.5rem;align-items:center} .tlhead .chips{flex:1 1 auto;min-width:0;flex-wrap:nowrap;gap:.3rem;overflow:hidden}
 .tlhead .cg,.tlhead .cg.allbtns{border-radius:4px;flex:1 1 0;min-width:0;align-items:stretch;overflow:hidden}
 .tlhead .chip{border-radius:0;justify-content:center;text-align:center;flex:1 1 auto;min-width:0;margin:0;padding:.12rem .3rem;font-size:var(--chipfs,.74rem);white-space:nowrap}
@@ -295,12 +298,13 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
    <section class="sec" data-sec="acns">
     <h2 title="Rilevamento automatico: LPD/GPD con ≥ 6 scariche a intervallo regolare, LRDA/GRDA 1–4 Hz; esclusi ECG e ammiccamenti">Pattern ritmici e periodici (ACNS 2021) <span class="cnt" id="rppcnt"></span></h2><div id="rppbox" class="small">Apri un file.</div>
    </section>
-   <section class="sec" data-sec="icu" id="icusec" hidden>
+   <section class="sec" data-sec="icu" id="icusec">
     <h2 title="Concordanza tra le regole ACNS dell'app, il modello ICU 1 (SPaRCNet, Jing et al., Neurology 2023; ODC-By) e il modello ICU 2 (SeizureTransformer, Wu et al. 2025; MIT), entrambi rifiniti su HMS (BDSP) e TUH (NEDC) con i loro permessi; solo uso didattico e di ricerca non commerciale.">Pattern ritmici e periodici (modelli ICU) <span class="cnt" id="icucnt"></span></h2><div id="icubox" class="small"></div>
    </section>
    <section class="sec" data-sec="ied">
     <h2>Anomalie IED sospette <button class="helpq" id="iedhelpbtn" aria-expanded="false" title="Come funziona e come si usa">?</button></h2><div id="iedhelp" class="helpbox small" hidden><p><b>Modelli.</b> <b>Modello IED 1</b> = CBraMod v3 (nostro, pubblicato con il permesso di NEDC e BDSP): analizza tutto il tracciato. <b>Modello IED 2</b> = SpikeNet2 (Li et al., NEJM AI 2025; permesso BDSP): rivaluta le finestre con probabilità del modello IED 1 ≥ 0,10; punteggio = media dei due. Validato su esempi di referti: AUROC 0,90 (IED franche contro il resto), 0,94 (franche contro assenti), 0,83 (franche e non franche contro assenti). Solo uso didattico e di ricerca non commerciale.</p><p><b>Modello dei rallentamenti.</b> Al termine gira in serie un terzo modello, CBraMod rifinito su TUSL (rallentamenti) e TUAR (artefatti) del TUH EEG Corpus (permesso NEDC): stima la probabilità di attività lenta per derivazione e dà il lato del rallentamento nella Sintesi (Lato (modello)). CV per paziente: AUROC 0,88.</p><p><b>Cosa cerca.</b> Anomalie rilevabili dai modelli IED 1 e 2: anomalie epilettiformi intercritiche (IED) — punte, onde aguzze, complessi punta-onda e polipunta-onda, focali o generalizzati. Possono comparire anche scariche periodiche (LPD/GPD) e onde aguzze non epilettiformi (trifasiche, varianti benigne) da valutare in revisione. Non rileva crisi, rallentamenti o attività ritmica delta (cercati a regole in altre sezioni).</p><p><b>Come si usa.</b> Ogni candidato è localizzato sul transiente più aguzzo (linea; tratteggiata se incerta o probabile artefatto) dentro la zona indicata dal modello; il passaggio del mouse sulla riga mostra durata, ampiezza e campo. Giudizio: tasti 1 = sì, 2 = no, 3 = dubbio sul candidato selezionato. Il giudizio resta in questo browser e si esporta in CSV/JSON; trascinando il JSON esportato lo si ricarica.</p><p><b>Tasti.</b> N/P anomalia successiva/precedente, 1/2/3 giudizio sì/no/dubbio.</p></div>
-    <div id="iedbox">
+    <div id="iedbox" data-st="idle">
+      <div class="mplaybox" id="iedplaybox"><button class="mplaybig" id="iedplay" title="Avvia l'analisi IED (anomalie epilettiformi e rallentamenti)" aria-label="Avvia l'analisi IED"><svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true"><path d="M5 3.2v9.6L12.8 8z" fill="currentColor"/></svg></button></div>
       <div class="small" id="iedstatus">Modello non caricato.</div>
       <div class="prog" id="iedprog" hidden><i></i></div>
       <div class="iedbar"><select id="iedmodel" hidden><option value="casc">cascata</option></select>
@@ -358,7 +362,7 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
     <button class="rb" data-sec="score" title="Livello decisionale (regole SCORE)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v12M4 14h8M3 4h10M3 4l-2 5h4zM13 4l-2 5h4z"/></svg></button>
     <button class="rb" data-sec="ilae" title="Requisiti minimi ILAE-IFCN" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="2.5" width="10" height="12" rx="1"/><path d="M6 2.5h4v2H6zM5.5 9.5l2 2 3-4"/></svg></button>
     <button class="rb" data-sec="acns" title="Pattern ritmici e periodici (ACNS 2021)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 4v9M1.5 10.5h13V13"/><path d="M5.5 10.5V8h9v2.5"/><circle cx="3.6" cy="8.3" r="1.2"/></svg></button>
-    <button class="rb" data-sec="icu" title="Pattern ritmici e periodici (modelli ICU)" aria-pressed="false" hidden><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg></button>
+    <button class="rb" data-sec="icu" title="Pattern ritmici e periodici (modelli ICU)" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg></button>
     <button class="rb" data-sec="ied" title="Anomalie IED sospette" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg></button>
     <button class="rb" data-sec="rep" title="Referto automatico" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5.5L12 4v10.5H4z"/><path d="M6 7h4M6 9.5h4M6 12h3"/></svg></button>
     <button class="rb" data-sec="sum" title="Sintesi automatica" aria-pressed="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 14h12M4 12V8M8 12V4M12 12V6"/></svg></button>
@@ -2946,7 +2950,7 @@ function iedKind() { return $('iedmodel').value; }
 async function readProg(r, onp) { const tot = +(r.headers.get('content-length') || 0); if (!r.body || !r.body.getReader) { const b = await r.arrayBuffer(); onp(b.byteLength, tot); return new Uint8Array(b); }
   const rd = r.body.getReader(), ch = []; let n = 0; for (;;) { const { done, value } = await rd.read(); if (done) break; ch.push(value); n += value.length; onp(n, tot); }
   const u = new Uint8Array(n); let o = 0; for (const c of ch) { u.set(c, o); o += c.length; } return u; }
-async function fetchOnnx(k, onp0 = () => { }) { const m = OX.MODELS[k], onp = (b, t, part) => { DLB[k] = b; onp0(b, t, part); };
+async function fetchOnnx(k, onp0 = () => { }) { const m = OX.MODELS[k], onp = (b, t, part) => { DLB[k] = b; onp0(Math.min(b, t || Infinity), t && MSZ[k] ? Math.max(t, MSZ[k]) : t, part); };   // file compressi dal server: la lunghezza dichiarata è minore dei byte ricevuti
   for (const dir of ['modelli/', 'modelli_locali/']) {
     try { const r = await fetch(dir + m.file); if (r.ok) { const u = await readProg(r, onp); return { buf: u.buffer, name: dir + m.file }; }
       const parts = []; let base = 0; for (let i = 0; i < 20; i++) { const q = await fetch(dir + m.file + '.part' + String(i).padStart(2, '0')); if (!q.ok) break; const u = await readProg(q, (b, t) => onp(base + b, 0, i + 1)); base += u.length; parts.push(u); }
@@ -2966,7 +2970,7 @@ async function selectModel(k) {
   setThrFor(k); OPOOL.forEach(w => w.terminate()); OPOOL = []; S.ied = null; renderIED(); drawAll();
   { const need = needOf(k).concat(SLOWTRIED ? [] : ['slow']); SLOWTRIED = true; for (const [q, j] of need.entries()) { if (ONNXBUF[j]) continue; const nm = j === 'slow' ? 'modello dei rallentamenti' : 'modello ' + (q + 1), pre = 'Caricamento dei modelli (' + (q + 1) + '/' + need.length + ', ' + nm + ')… ';
       if (WANT.ied) $('iedstatus').textContent = pre; $('iedstatus').title = OX.MODELS[j].file; let last = 0;
-      const r = await fetchOnnx(j, (b, t, part) => { const now = performance.now(); if (now - last < 150) return; last = now; if (WANT.ied) $('iedstatus').textContent = pre + (t ? Math.round(100 * b / t) + '%' : (b / 1048576).toFixed(0) + ' MB' + (part ? ' (parte ' + part + ')' : '')); });
+      const r = await fetchOnnx(j, (b, t, part) => { const now = performance.now(); if (now - last < 150) return; last = now; if (WANT.ied) $('iedstatus').textContent = pre + (t ? Math.min(100, Math.round(100 * b / t)) + '%' : (b / 1048576).toFixed(0) + ' MB' + (part ? ' (parte ' + part + ')' : '')); });
       if (r) ONNXBUF[j] = r; } }
   const miss = needOf(k).filter(j => !ONNXBUF[j]);
   if (miss.length) { $('iedrun').disabled = true;
@@ -2990,10 +2994,10 @@ function icuPreload() { if (ICUW || ICUPRE || ICUBUSY) return ICUPRE;
 async function icuEnsure(msg) {
   if (ICUW) return;
   if (ICUPRE) { ICUP = 0; msg('Caricamento dei modelli ICU…'); let last = 0;
-    ICUDL = (q, k, b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; ICUP = t ? 100 * b / t : Math.min(99, 100 * b / (k === 'st' ? 164e6 : 4.4e6)); msg('Caricamento del modello ICU ' + (q + 1) + '… ' + Math.round(ICUP) + '%'); };
+    ICUDL = (q, k, b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; ICUP = t ? Math.min(100, 100 * b / t) : Math.min(99, 100 * b / (k === 'st' ? 164e6 : 4.4e6)); msg('Caricamento del modello ICU ' + (q + 1) + '… ' + Math.round(ICUP) + '%'); };
     try { await ICUPRE; } finally { ICUDL = null; } }
   for (const [q, k] of ['sparc', 'st'].entries()) { if (ONNXBUF[k] && ONNXBUF[k].buf) continue; let last = 0; ICUP = 0; msg('Caricamento del modello ICU ' + (q + 1) + '…');
-    const r = await fetchOnnx(k, (b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; ICUP = t ? 100 * b / t : Math.min(99, 100 * b / (k === 'st' ? 164e6 : 4.4e6)); msg('Caricamento del modello ICU ' + (q + 1) + '… ' + Math.round(ICUP) + '%'); });
+    const r = await fetchOnnx(k, (b, t) => { const now = performance.now(); if (now - last < 200) return; last = now; ICUP = t ? Math.min(100, 100 * b / t) : Math.min(99, 100 * b / (k === 'st' ? 164e6 : 4.4e6)); msg('Caricamento del modello ICU ' + (q + 1) + '… ' + Math.round(ICUP) + '%'); });
     if (!r) throw new Error('file ' + OX.MODELS[k].file + ' non trovato in modelli/ (o trascinalo nella pagina)'); ONNXBUF[k] = r; }
   ICUP = 0; msg('Avvio dei modelli ICU…');
   const src = document.getElementById('iedsrc').textContent + '\n' + document.getElementById('onnxsrc').textContent + `
@@ -3070,10 +3074,11 @@ function icuTraceDraw(band, lab, sec, plotW, H) { if (!EYEON.has('ICU') || !icuO
     tctx.font = '600 11px IBM Plex Sans, system-ui'; const tw = tctx.measureText(tx).width + 10;
     if (x1 - x0 >= tw) { tctx.fillStyle = col; tctx.globalAlpha = e.strong ? 1 : .6; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x0 + 3, 41, tw, 16, 4); else tctx.rect(x0 + 3, 41, tw, 16); tctx.fill(); tctx.globalAlpha = 1; tctx.fillStyle = '#fff'; tctx.fillText(tx, x0 + 8, 53); } } }
 const ACNS_H2 = 'Pattern ritmici e periodici (ACNS 2021) ';
-function renderICU() { const sec = $('icusec'); if (!sec) return; const on = icuOn(), rb = document.querySelector('#rail .rb[data-sec="icu"]'); sec.hidden = !on; if (rb) rb.hidden = !on;
+function renderICU() { const sec = $('icusec'); if (!sec) return; const on = icuOn();
   const h2 = document.querySelector('.sec[data-sec="acns"] h2'); if (h2 && h2.firstChild && h2.firstChild.nodeType === 3) h2.firstChild.nodeValue = ACNS_H2;
-  if (!on) { icuMarkRpp(); return; }
   const R = S.icu, box = $('icubox'), busy = ICUBUSY === S.fname, H = [], cnt = $('icucnt');
+  if (!on || (!busy && !(R && (R.P || R.err)))) { cnt.textContent = ''; box.innerHTML = '<div class="mplaybox"><button class="mplaybig" id="icuplay" title="Avvia l\'analisi con i modelli ICU (crisi e pattern ritmici e periodici)" aria-label="Avvia l\'analisi ICU"' + (S.A ? '' : ' disabled') + '><svg viewBox="0 0 16 16" width="22" height="22" aria-hidden="true"><path d="M5 3.2v9.6L12.8 8z" fill="currentColor"/></svg></button></div>';
+    $('icuplay').onclick = icuPlay; icuMarkRpp(); return; }   // solo play finché non ci sono risultati
   const spin = t => '<p>' + t + '</p>';
   if (R && R.err) { H.push('<p class="warnline">Analisi non riuscita: ' + R.err + '</p><p><button class="btn" id="icuretry">Riprova</button></p>'); cnt.textContent = '· errore'; }
   else if (!R || !R.P) { H.push(busy ? spin(ICUMSG || 'Avvio…') : ICUBUSY ? '<p>In coda.</p>' : '<p>Premi play nel menu Modelli per avviare l\'analisi.</p>'); cnt.textContent = busy ? '· ' + Math.round(ICUP) + '%' : ICUBUSY ? '· in coda' : ''; }
@@ -3145,21 +3150,24 @@ function modState(m) {
   if (ICUBUSY && (ICUBUSY === S.fname || ICUBUSY === 'tratto')) return !ld ? { st: 'dl', p: dlPct(ks) } : { st: 'run', p: ICUW ? ICUP : 0 };
   if (ICUBUSY) return { st: 'queue' };
   return { st: !icuOn() ? 'idle' : S.icu && S.icu.err ? 'err' : S.icu && S.icu.Q ? 'done' : 'idle' }; }
-const modHtml = o => o.st === 'dl' ? MIC.dl + Math.round(o.p) + '%' : o.st === 'run' ? MIC.spin + Math.round(o.p) + '%' : '';
+const modHtml = o => (o.st === 'dl' ? MIC.dl : o.st === 'run' ? MIC.spin : '') + (o.st === 'dl' || o.st === 'run' ? Math.min(100, Math.round(o.p)) + '%' : '');
 function renderMod() { const b = $('modbtn'); if (!b) return; const mi = modState('ied'), mc = modState('icu'), act = [mc, mi].find(o => o.st === 'dl' || o.st === 'run');
   $('modspin').hidden = true; b.classList.remove('mrun'); const ph = act ? modHtml(act) : ''; if ($('modpct').innerHTML !== ph) $('modpct').innerHTML = ph;
   const tt = act ? (act.st === 'dl' ? 'Scaricamento del modello ' : 'Analisi in corso: ') + (act === mc ? 'ICU' : 'IED') : 'Modelli: IED (anomalie epilettiformi) o ICU (crisi e pattern ritmici e periodici)'; if (b.title !== tt) b.title = tt;   // titolo stabile: niente tooltip intermittente
   const mst = (id, o) => { const h = !S.A ? '' : o.st === 'done' ? MIC.go : o.st === 'err' ? 'errore ' + MIC.play : o.st === 'queue' ? 'in coda' : o.st === 'idle' ? MIC.play : modHtml(o); const e = $(id); if (e.innerHTML !== h) e.innerHTML = h; };   // aggiorna solo se cambia: la rotella non riparte
   mst('miedst', mi); mst('micust', mc);
+  const ib = $('iedbox'), ist = !S.A ? 'idle' : mi.st; if (ib.dataset.st !== ist) ib.dataset.st = ist; $('iedplay').disabled = !S.A;   // sezione IED: solo play finché non ci sono risultati
   $('micu').setAttribute('aria-checked', String(icuOn())); }
 setInterval(() => { if (ICUBUSY || IEDBUSY || WANT.ied || WANT.icu) renderMod(); }, 400);
 $('modbtn').onclick = e => { e.stopPropagation(); const m = $('modmenu'); m.hidden = !m.hidden; $('modbtn').setAttribute('aria-expanded', String(!m.hidden)); renderMod(); };
 document.addEventListener('click', e => { const m = $('modmenu'); if (m && !m.hidden && !e.target.closest('.modwrap')) { m.hidden = true; $('modbtn').setAttribute('aria-expanded', 'false'); } });
+$('iedplay').onclick = () => { if (!S.A || S.ied || IEDBUSY) return; WANT.ied = true; renderMod(); iedStart(); };
 $('mied').onclick = () => { $('modmenu').hidden = true; if (!S.A) return; goSection('ied'); if (S.ied || IEDBUSY) return; WANT.ied = true; renderMod(); iedStart(); };
 /* play IED: se i modelli stanno ancora scaricando, prima la percentuale di caricamento poi quella dell'analisi */
 async function iedStart() { const busy = $('iedbusy');
   if (IEDLOAD || !needOf(iedKind()).every(j => ONNXBUF[j])) { busy.hidden = false; try { await (IEDLOAD || (IEDLOAD = selectModel(iedKind()).finally(() => { IEDLOAD = null; }))); } finally { busy.hidden = true; } }
   if (needOf(iedKind()).every(j => ONNXBUF[j]) && !S.ied) runIED(); else { WANT.ied = false; renderMod(); } }
+function icuPlay() { if (!S.A) return; if (!icuOn()) { try { localStorage.setItem(S.srcKey, 'micromed'); } catch (e) { /* */ } renderSummary(); } icuStart(); renderICU(); }
 $('micu').onclick = () => { $('modmenu').hidden = true; if (!S.A) return;
   if (!icuOn()) { try { localStorage.setItem(S.srcKey, 'micromed'); } catch (e) { /* */ } renderSummary(); } icuStart();
   setTimeout(() => goSection('icu'), 50); };
@@ -3259,6 +3267,7 @@ function slowLatText(A) { const m = S.ied && S.ied.slow; if (!m) return S.ied ? 
   return (m.side ? '⚠ prevalenza ' + (m.side === 'sx' ? 'sinistra' : 'destra') + ' (' + m.top.join(', ') + '), da verificare' + brT : 'nessuna prevalenza netta')
     + ' <span class="muted">(quota ' + f2(m.q) + '; attività lenta nel ' + Math.round(m.hot * 100) + '% delle finestre)</span>' + cmp; }
 var WANT = { ied: false, icu: false }, DLB = {}; const MSZ = { v3: 39.26e6, sn2: 123.15e6, slow: 20.78e6, sparc: 4.42e6, st: 163.97e6 };   // play premuto; byte scaricati per modello
+setTimeout(() => { renderICU(); renderMod(); }, 0);   // sezioni dei modelli con il play già all'apertura
 var IEDLOAD = selectModel('casc').finally(() => { IEDLOAD = null; });   // download in background all'avvio: l'analisi parte solo dal play
 let iedRun = 0;
 var IEDQ = [], IEDBUSY = false, IEDOWNER = null, IEDPCT = {}, IEDPN = {};
@@ -3759,7 +3768,7 @@ function icuConfirmed() { if (!S.icu || !S.icu.P || !icuOn()) return []; return 
 const rppKey = p => 'rpp|' + p.name + '|' + p.side + '|' + p.t0.toFixed(1);   // giudizio di un tratto di pattern ACNS
 function loadReview() { try { return JSON.parse(localStorage.getItem(storeKey()) || '{}') || {}; } catch (e) { return {}; } }
 function saveReview() { try { localStorage.setItem(storeKey(), JSON.stringify(S.review)); } catch (e) { /* archiviazione non disponibile */ } }
-function renderIED() {
+function renderIED() { if (typeof renderMod === 'function') renderMod();
   const ul = $('iedlist'); ul.innerHTML = '';
   if (S.ied && S.ied.events.length) { const h = document.createElement('li'); h.className = 'head'; h.innerHTML = '<span title="Istante della punta (o del picco della finestra)">Tempo</span><span title="Probabilità combinata: media dei modelli IED 1 e 2 (i valori singoli nel tooltip della riga)">p</span><span title="Criteri IFCN per gli IED soddisfatti (Kural et al., Neurology 2020): 1 di-/trifasica appuntita, 2 durata diversa dal fondo, 3 forma asimmetrica, 4 onda lenta successiva, 5 fondo disturbato, 6 campo cerebrale. Con ≥ 5 criteri lo studio riporta specificità 95,7% e sensibilità 81,5%. Soglie dei singoli criteri scelte dall\'app, PROVVISORIE: da tarare sulle revisioni sì/no. Dettaglio nel tooltip della cella.">IFCN</span><span title="Derivazione in cui la punta è più ampia">Deriv.</span><span title="Qualità della localizzazione, morfologia, inversione di fase, sede, durata, contesto">Reperto</span><span title="Giudizio di revisione: sì / no / dubbio (tasti 1/2/3)">Giudizio</span>'; ul.appendChild(h); }
   if (!S.ied) { $('iedcount').textContent = ''; iedLiveUI(); return; }
