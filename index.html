@@ -975,7 +975,7 @@ function scoreDecision(A, ied) {
     if (rate >= 1 && !(ied.confirmed && ied.confirmed.length)) possible.push('frequenti candidati IED (' + rate.toFixed(1).replace('.', ',') + '/min): rivederli, possibili anomalie aguzze o epilettiformi'); }
   // pattern ritmici/periodici ACNS automatici: ≥ 10% del tracciato → da verificare (non classificano da soli)
   const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary) : [];
-  rp.filter(r => r.pct >= 10).forEach(r => possible.push(r.name + (r.side === 'G' ? '' : ' ' + r.side) + ' a ' + (r.freq != null ? r.freq.toFixed(1).replace('.', ',') : '?') + ' Hz, ' + r.prevalence + ' (' + Math.round(r.pct) + '%): verificare il pattern ritmico/periodico'));
+  const RJ = rppJudged(A), rk = r => r.name + (r.side === 'G' ? '' : ' ' + r.side); rp.filter(r => r.pct >= 10 && !RJ.rej.has(rk(r)) && !RJ.conf.some(g => RJ.key(g[0]) === rk(r))).forEach(r => possible.push(r.name + (r.side === 'G' ? '' : ' ' + r.side) + ' a ' + (r.freq != null ? r.freq.toFixed(1).replace('.', ',') : '?') + ' Hz, ' + r.prevalence + ' (' + Math.round(r.pct) + '%): verificare il pattern ritmico/periodico'));
   // anomalie epilettiformi confermate in revisione
   if (ied && ied.confirmed && ied.confirmed.length) {
     const chs = ied.confirmed.map(e => e.ch).filter(Boolean), left = chs.filter(c => /[13579]$/.test(c)).length, right = chs.filter(c => /[2468]$/.test(c)).length, mid = chs.length - left - right;
@@ -1138,7 +1138,8 @@ function generateReport(A, rec, d, ied, format) {
   const brx = U.by('var').filter(x => x.ev === 'ritmo di breccia'), vrx = U.by('var').filter(x => x.ev !== 'ritmo di breccia');
   if (brx.length) out.push('Attività di breccia ' + brx.map(x => x.where || '').join(' e ') + ' (indicata dal medico).');
   if (vrx.length) out.push('Varianti normali: ' + vrx.map(x => x.ev + (x.where ? ' ' + x.where : '') + ' (' + x.n + ')').join('; ') + '.');
-  const rpx = rppText(A); if (rpx.present.length) out.push('Si osservano ' + rpx.present.join('; ') + ' (rilevamento automatico secondo la terminologia ACNS, da verificare' + (A.rpp && A.rpp.reduced ? '; montaggio ridotto a ' + A.rpp.reduced + ' elettrodi' : '') + ').');
+  const rpx = rppText(A); if (rpx.confirmed.length) { out.push('Si osservano ' + rpx.confirmed.join('; ') + '.'); concl.push(rpx.confirmed.map(x => x.replace(/ \(\d+ tratti\)$/, '')).join('; ')); }   // confermati in revisione
+  if (rpx.present.length) out.push('Si osservano ' + rpx.present.join('; ') + ' (rilevamento automatico secondo la terminologia ACNS, da verificare' + (A.rpp && A.rpp.reduced ? '; montaggio ridotto a ' + A.rpp.reduced + ' elettrodi' : '') + ').');
   // iperpnea
   if (has('HV')) { if (s.hvEvoked && s.hvEvoked.positive) { out.push('L’iperpnea evoca la comparsa di attività lenta intermittente (' + Math.round(s.hvEvoked.slowFrac * 100) + '% delle epoche più lente del basale): verificare se fisiologica.'); concl.push('anomalie lente evocate dall’iperpnea'); }
     else out.push('HPN senza modificazioni significative del tracciato.'); }
@@ -1149,7 +1150,7 @@ function generateReport(A, rec, d, ied, format) {
   else out.push('La SLI non modifica significativamente il tracciato.');
   // conclusione
   let c;
-  if (!d.abnormal && !U.abn) c = 'tracciato privo di anomalie significative.' + (d.possible && d.possible.length ? ' Da verificare sul tracciato: ' + d.possible.join('; ') + '.' : '');
+  if (!d.abnormal && !U.abn && !rpx.confirmed.length) c = 'tracciato privo di anomalie significative.' + (d.possible && d.possible.length ? ' Da verificare sul tracciato: ' + d.possible.join('; ') + '.' : '');
   else { c = concl.length ? concl.join('; ') : d.labels.join(', ').toLowerCase(); if (org === 'scarsamente organizzato' && !/contesto/.test(c)) c += ', nel contesto di un tracciato scarsamente organizzato'; if (brx.length && !/breccia/.test(c)) c += ', nel contesto di attività di breccia ' + brx.map(x => x.where || '').join(' e '); c = c.charAt(0).toLowerCase() + c.slice(1) + '.';
     const iedFlag = d.possible && d.possible.some(x => /candidati IED/.test(x));
     if (!(ied && ied.confirmed && ied.confirmed.length) && !U.epi.length) c += iedFlag ? ' Frequenti candidati IED da rivedere prima di escludere anomalie epilettiformi.' : ' Non anomalie epilettiformi.';
@@ -1201,10 +1202,17 @@ function rppDesc(q) { const f = q.freq != null ? q.freq.toFixed(1).replace('.', 
   return q.name + ' ' + side + ' · ' + (q.kind === 'PD' ? q.n + ' scariche a ' + f + ' Hz' : f + ' Hz') + ' per ' + dur + ' s' + (ch ? ' · ' + ch : '')
     + (q.kind === 'PD' ? ' · trovato come ≥ 6 deflessioni ripetute a intervallo regolare (ciclo che varia < 50%), stessa morfologia e polarità, non legate al QRS'
       : ' · trovato come picco spettrale 1–4 Hz stretto, onde regolari (il segnale spostato di uno e di due periodi si sovrappone a sé stesso: autocorrelazione ≥ 0,5 e ≥ 0,3), ≥ 20 µV e ≥ 1,5 volte il fondo, non alla frequenza cardiaca'); }
+/* revisione dei pattern: confermati (sì) e tipi tutti scartati (no) */
+function rppJudged(A) { const ps = (A.rpp && A.rpp.patterns) || [], key = p => p.name + (p.side === 'G' ? '' : ' ' + p.side), by = {};
+  ps.forEach(p => { (by[key(p)] = by[key(p)] || []).push(p); });
+  const conf = [], rej = new Set(); for (const k in by) { const g = by[k]; if (g.some(p => p.judge === 'si')) conf.push(g.filter(p => p.judge === 'si')); else if (g.every(p => p.judge === 'no')) rej.add(k); }
+  return { conf, rej, key }; }
 function rppText(A) {
   const names = { LPD: 'scariche periodiche lateralizzate (LPD)', GPD: 'scariche periodiche generalizzate (GPD)', LRDA: 'attività delta ritmica lateralizzata (LRDA)', GRDA: 'attività delta ritmica generalizzata (GRDA)', 'GRDA frontale': 'attività delta ritmica generalizzata a predominanza frontale (GRDA frontale, già FIRDA)' };
   const rp = A.rpp && A.rpp.summary ? Object.values(A.rpp.summary) : [], f = r => (names[r.name] || r.name) + (r.side === 'G' ? '' : ' a ' + (r.side === 'sx' ? 'sinistra' : 'destra')) + ', ' + (/PD$/.test(r.name) ? prevQ(r.pct) : r.prevalence) + ' (' + Math.round(r.pct) + '% della registrazione), ' + (r.freq != null ? hz05(r.freq) : '?') + ' Hz';
-  return { present: rp.filter(r => r.pct >= 10).map(f), possible: rp.filter(r => r.pct >= 1 && r.pct < 10).map(f) };
+  const J = rppJudged(A), skip = r => { const k = r.name + (r.side === 'G' ? '' : ' ' + r.side); return J.rej.has(k) || J.conf.some(g => J.key(g[0]) === k); };   // scartati o già confermati
+  const confirmed = J.conf.map(g => { const p = g[0], fq = median(g.map(x => x.freq)); return (names[p.name] || p.name) + (p.side === 'G' ? '' : ' a ' + (p.side === 'sx' ? 'sinistra' : 'destra')) + ' a ' + (fq != null && isFinite(fq) ? hz05(fq) : '?') + ' Hz' + (g.length > 1 ? ' (' + g.length + ' tratti)' : ''); });
+  return { present: rp.filter(r => r.pct >= 10 && !skip(r)).map(f), possible: rp.filter(r => r.pct >= 1 && r.pct < 10 && !skip(r)).map(f), confirmed };
 }
 /* referto strutturato SCORE / IFCN: stesse misure del referto, ordinate per sezioni */
 function generateReportSCORE(A, rec, d, ied) {
@@ -1237,7 +1245,7 @@ function generateReportSCORE(A, rec, d, ied) {
   const r = rppText(A);
   if (U.epi.length && ied && ied.confirmed && ied.confirmed.length) L.push(...U.epi.map(uL));
   if (U.by('sz').length) L.push(...U.by('sz').map(uL));
-  L.push(r.present.length || U.by('rpp').length ? r.present.map(x => '   - ' + x).concat(U.by('rpp').map(uL)).join('\n') : '   Nessun pattern con prevalenza ≥ 10%.');
+  L.push(r.confirmed.length || r.present.length || U.by('rpp').length ? r.confirmed.map(x => '   - ' + x + ' (confermato in revisione)').concat(r.present.map(x => '   - ' + x)).concat(U.by('rpp').map(uL)).join('\n') : '   Nessun pattern con prevalenza ≥ 10%.');
   if (r.possible.length) L.push('   Possibili, da verificare: ' + r.possible.join('; '));
   L.push('', '7. ATTIVAZIONI');
   L.push('   Iperpnea: ' + base.sections.find(x => /HPN|iperpnea/i.test(x)));
@@ -3739,6 +3747,7 @@ function buildEvents() {
 }
 const evKey = ev => (Math.round(ev.tp * 2) / 2).toFixed(1);
 function storeKey() { return 'ied-review:' + (S.fname || ''); }
+const rppKey = p => 'rpp|' + p.name + '|' + p.side + '|' + p.t0.toFixed(1);   // giudizio di un tratto di pattern ACNS
 function loadReview() { try { return JSON.parse(localStorage.getItem(storeKey()) || '{}') || {}; } catch (e) { return {}; } }
 function saveReview() { try { localStorage.setItem(storeKey(), JSON.stringify(S.review)); } catch (e) { /* archiviazione non disponibile */ } }
 function renderIED() {
@@ -3800,6 +3809,7 @@ function iedSummary() {
 /* ---- livello decisionale ---- */
 function renderScore() {
   if (!S.A) return;
+  ((S.A.rpp && S.A.rpp.patterns) || []).forEach(p => { p.judge = S.review[rppKey(p)] || null; });
   const d = C.scoreDecision(S.A, iedSummary()), I = iedSummary();
   S.decision = d;
   setTimeout(() => renderReport(false), 0);
@@ -3815,6 +3825,11 @@ function renderScore() {
     + (pats.length ? (!R.present.length && !R.possible.length ? '<p>Solo tratti brevi (rari, < 1% della registrazione), da verificare:</p>' : '<p>Tratti (clic per andarci):</p>') + '<ul>' + pats.slice(0, 30).map(p => `<li><a href="#" data-rt="${p.t0}" title="${C.rppDesc(p)}">${fmtT(p.t0)} ${p.name}${p.side === 'G' ? '' : ' ' + p.side}</a> <span class="small">${p.kind === 'PD' ? p.n + ' scariche, ' : ''}${Math.max(1, Math.round(p.t1 - p.t0))} s${p.channels && p.channels.length ? ', ' + p.channels.slice(0, 3).join(' ') : ''}</span></li>`).join('') + '</ul>' + (pats.length > 30 ? '<p>…</p>' : '') : '')
     + (!R.present.length && !R.possible.length && !pats.length ? '<p>Nessun pattern rilevato.</p>' : '');
   $('rppbox').querySelectorAll('a[data-rt]').forEach(a => a.onclick = ev => { ev.preventDefault(); eyeOn('Pattern ACNS'); goTo(+a.dataset.rt - 2); }); icuMarkRpp();
+  // revisione dei tratti come per le anomalie IED: sì = entra nel referto, no = escluso
+  $('rppbox').querySelectorAll('a[data-rt]').forEach((a, i) => { const p = pats[i], k = rppKey(p), j = S.review[k], sp = document.createElement('span'); sp.className = 'jbtn';
+    sp.innerHTML = ['si', 'no', 'dubbio'].map(v => `<button data-v="${v}" aria-pressed="${j === v}" title="${v === 'si' ? 'sì: nel referto' : v === 'no' ? 'no: escluso dal referto' : 'dubbio'}">${v === 'si' ? 'sì' : v === 'no' ? 'no' : '?'}</button>`).join('');
+    sp.onclick = ev => { const b = ev.target.closest('button'); if (!b) return; ev.preventDefault(); if (S.review[k] === b.dataset.v) delete S.review[k]; else S.review[k] = b.dataset.v; saveReview(); renderScore(); drawAll(); };
+    a.parentElement.appendChild(sp); });
   setTimeout(() => { const h3 = $('scorebox').querySelector('h3'); $('scorecnt').textContent = h3 ? '· ' + h3.textContent : ''; }, 0);
   $('scorebox').innerHTML = `<div class="score ${d.abnormal ? 'abn' : ''}">
     <h3>${d.abnormal ? (d.severity === 'anormale lieve' ? 'Anormale lieve' : 'Anormale') : d.possible.length ? 'Normale, con reperti da verificare' : 'Normale'}${d.labels.length ? ': ' + d.labels.join(' + ') : ''}${d.side && d.categories.includes('nonepi_focale') ? ' (' + d.side + ')' : ''}</h3>
@@ -3829,6 +3844,7 @@ function renderReport(force) {
   if (!S.A) return;
   if (repDirty && !force) { $('repstate').textContent = 'modificato a mano: premi Rigenera per aggiornare'; return; }
   S.A.uann = uaForCore();
+  ((S.A.rpp && S.A.rpp.patterns) || []).forEach(p => { p.judge = S.review[rppKey(p)] || null; });
   const r = C.generateReport(S.A, S.rec, S.decision || C.scoreDecision(S.A, iedSummary()), iedSummary(), $('repfmt').value);
   $('reptext').value = evoAppend(r.text, sIdx()); repDirty = false; $('repstate').textContent = '';
 }
