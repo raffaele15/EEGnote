@@ -2225,15 +2225,15 @@ function burstRect(b, P, rowH, sec, lab, plotW) {
   for (const [i0, i1] of sp) { const y = 6 + i0 * rowH, h = (i1 - i0 + 1) * rowH;
     tctx.fillStyle = c; tctx.globalAlpha = b.verify ? .08 : .16; tctx.fillRect(x0, y, x1 - x0, h); tctx.globalAlpha = .95;
     tctx.strokeStyle = c; tctx.lineWidth = 1.5; if (b.verify) tctx.setLineDash([5, 3]); tctx.strokeRect(x0 + .75, y + .75, x1 - x0 - 1.5, h - 1.5); tctx.setLineDash([]); tctx.globalAlpha = 1; }
-  const tx = C.burstLabel(b); tctx.font = '600 10.5px IBM Plex Sans, system-ui';
+  const tx = burstTag(b); tctx.font = '600 10.5px IBM Plex Sans, system-ui';
   const w = Math.min(tctx.measureText(tx).width + 10, Math.max(60, x1 - x0 + 220)), yT = Math.max(2, 6 + sp[0][0] * rowH - 16), xT = Math.min(x0, lab + plotW - w);
   tctx.fillStyle = c; tctx.globalAlpha = b.verify ? .7 : .92; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(xT, yT, w, 15, 4); else tctx.rect(xT, yT, w, 15); tctx.fill(); tctx.globalAlpha = 1;
   tctx.save(); tctx.beginPath(); tctx.rect(xT, yT, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, xT + 5, yT + 11); tctx.restore(); }
 function slowTag(r, lab, sec, plotW) { const x0 = lab + Math.max(0, r.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, r.t1 - S.t) / sec * plotW; if (x1 - x0 < 30) return;
-  tctx.font = '600 10.5px IBM Plex Sans, system-ui'; const tw = tctx.measureText(r.sd).width, w = Math.min(x1 - x0 - 4, tw + 30), x = x0 + 3, y = 3, c = css('--slow');
+  tctx.font = '600 10.5px IBM Plex Sans, system-ui'; const tx = slowTagText(r.os), tw = tctx.measureText(tx).width, w = Math.min(x1 - x0 - 4, tw + 30), x = x0 + 3, y = 3, c = css('--slow');
   tctx.fillStyle = c; tctx.globalAlpha = .92; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x, y, w, 15, 4); else tctx.rect(x, y, w, 15); tctx.fill(); tctx.globalAlpha = 1;
   tctx.strokeStyle = '#fff'; tctx.lineWidth = 1.4; tctx.beginPath(); for (let i = 0; i <= 14; i++) { const px = x + 5 + i, py = y + 7.5 - 3.2 * Math.sin(i / 14 * 2 * Math.PI); i ? tctx.lineTo(px, py) : tctx.moveTo(px, py); } tctx.stroke();
-  tctx.save(); tctx.beginPath(); tctx.rect(x, y, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(r.sd, x + 23, y + 11); tctx.restore(); }
+  tctx.save(); tctx.beginPath(); tctx.rect(x, y, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, x + 23, y + 11); tctx.restore(); }
 function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTimeout(rulerRender, 0);
   const r = tc.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   tc.width = r.width * dpr; tc.height = r.height * dpr; tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -2256,9 +2256,9 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
     const SR = []; for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue; const t1 = o.t + A.epoch;
       if (EYEON.has('Artefatti') && (o.artifact || o.annArt || o.eyeDelta || (o.popCh && o.popCh.length))) artZones(P, o, rowH, sec, lab, plotW, H);
       if (EYEON.has('Rallentamenti') && o.slowCat) { const sd = /sinistra/.test(o.slowCat) ? 'sinistra' : /destra/.test(o.slowCat) ? 'destra' : 'diffuso', l = SR[SR.length - 1];
-        if (l && l.sd === sd && Math.abs(l.t1 - o.t) < .01) l.t1 = t1; else SR.push({ t0: o.t, t1, sd }); }
+        if (l && l.sd === sd && Math.abs(l.t1 - o.t) < .01) { l.t1 = t1; l.os.push(o); } else SR.push({ t0: o.t, t1, sd, os: [o] }); }
       }
-    const BU = EYEON.has('Rallentamenti') && A.bursts ? A.bursts.filter(b => (b.ok || b.verify) && b.t1 > S.t && b.t0 < S.t + sec) : [];
+    const BU = EYEON.has('Rallentamenti') && A.bursts ? A.bursts.filter(b => (b.ok || b.verify) && !b.likeBg && b.t1 > S.t && b.t0 < S.t + sec) : [];
     for (const r of SR) { const cov = BU.some(b => b.ok && b.t1 > r.t0 && b.t0 < r.t1); band(r.t0, r.t1, css('--slow'), cov ? .05 : .16); if (!cov) slowTag(r, lab, sec, plotW); }
     for (const b of BU) burstRect(b, P, rowH, sec, lab, plotW);
     icuTraceDraw(band, lab, sec, plotW, H);
@@ -2325,10 +2325,18 @@ function slowText(o) { const lm = o.latMax, pct = isFinite(o.slowAbs) ? Math.rou
   if (lm && Math.pow(10, Math.abs(lm.v)) >= 1.6 && !(o.slowCat && /destra|sinistra/.test(o.slowCat))) asym += ' — non contata come lateralizzata: quel lato non è più lento del suo solito nel tracciato';
   const bu = (S.A && S.A.bursts || []).filter(b => (b.ok || b.verify) && b.t1 > o.t && b.t0 < o.t + S.A.epoch).map(b => C.burstLabel(b));
   return (bu.length ? bu.join(' | ') + ' · ' : '') + (o.drowsy && !bu.length ? 'sonnolenza' + (o.drowsy === 'stimata' ? ' (stimata)' : '') + ' · ' : '') + (o.slowCat ? 'rallentamento ' + o.slowCat + (o.flagReg && o.slowCat !== 'diffuso' ? ' (' + o.flagReg + ')' : '') + ' · ' : '') + (pct != null ? 'attività lenta ' + pct + '%' : '') + (asym ? ' · ' + asym : ''); }
-/* tooltip breve della riga Lenti: banda prevalente, attività lenta %, lato */
-function slowShort(o) { let d = 0, th = 0; for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; d += o.bip[k].d1 + o.bip[k].d2; th += o.bip[k].t1 + o.bip[k].t2; }
-  const pct = isFinite(o.slowAbs) ? Math.round(100 * Math.pow(10, o.slowAbs) / (1 + Math.pow(10, o.slowAbs))) + '%' : '', sd = !o.slowCat ? '' : /sinistra/.test(o.slowCat) ? 'sinistra' : /destra/.test(o.slowCat) ? 'destra' : 'diffuso';
-  return [d + th > 0 ? (d >= th ? 'delta' : 'theta') : '', pct, sd].filter(Boolean).join(' · '); }
+/* rallentamenti in breve: banda prevalente (delta 1-4 Hz o theta 4-8 Hz, senza frontopolari), attività lenta % (media delle epoche) */
+function epBand(os) { let d = 0, th = 0; for (const o of os) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; d += o.bip[k].d1 + o.bip[k].d2; th += o.bip[k].t1 + o.bip[k].t2; } return d + th > 0 ? (d >= th ? 'delta' : 'theta') : ''; }
+function epPct(os) { const v = os.map(o => o.slowAbs).filter(isFinite); if (!v.length) return ''; const x = v.reduce((a, b) => a + b, 0) / v.length; return Math.round(100 * Math.pow(10, x) / (1 + Math.pow(10, x))) + '%'; }
+const sideOf = c => !c ? '' : /sinistra/.test(c) ? 'sinistra' : /destra/.test(c) ? 'destra' : 'diffuso';
+/* tooltip breve della riga Lenti: banda, attività lenta %, lato */
+function slowShort(o) { return [epBand([o]), epPct([o]), sideOf(o.slowCat)].filter(Boolean).join(' · '); }
+/* etichette arancioni sul tracciato: banda, %, polimorfo, regione e lato solo se più lento del solito in quel lato */
+function slowTagText(os) { const o = os.find(q => q.flagReg && /sinistra|destra/.test(q.slowCat)), sd = o ? (/sinistra/.test(o.slowCat) ? 'sx' : 'dx') : '';
+  return [epBand(os), epPct(os), o ? o.flagReg + ' ' + sd : ''].filter(Boolean).join(' · '); }
+function burstTag(b) { const os = S.A.epochs.filter(o => o.t + S.A.epoch > b.t0 && o.t < b.t1);
+  const h = v => (Math.round(v * 2) / 2).toLocaleString('it-IT'), lo = h(b.fLo), hi = h(b.fHi);
+  return [b.band + ' ' + (lo === hi ? lo : lo + '-' + hi) + ' Hz', epPct(os), b.morph === 'polimorfo' ? 'polimorfo' : '', b.side === 'G' ? '' : ((b.region || '') + ' ' + b.side).trim()].filter(Boolean).join(' · '); }
 const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'Terapia intensiva', 'IED (modello)', 'Modelli'];
 const TLLAB = { 'Rallentamenti': 'Lenti', 'Pattern ACNS': 'ACNS', 'IED (modello)': 'IED', 'Terapia intensiva': 'ICU', 'Modelli': 'Tratto' }, TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
