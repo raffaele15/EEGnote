@@ -922,6 +922,15 @@ function slowLayer(ep, anns, pdr) {
     if (best) { const other = Math.max(...Object.values(LATREG).map(x => o.S[x[best.v > 0 ? 1 : 0]]).filter(v => v !== undefined));
       o.slowCat = (other >= SLOW.epochAbs ? 'maggiore a ' : 'solo a ') + (best.v > 0 ? 'sinistra' : 'destra'); }
     else if (gmax >= SLOW.epochAbs) o.slowCat = 'diffuso'; }
+  // onde lente oltre il fondo (stessa regola della fascia sul tracciato e della panoramica): nella sottobanda 2-4, 4-6 o 6-8 Hz con più eccesso
+  // la potenza dell'epoca è ≥ 2 volte la mediana del tracciato (somma delle derivazioni senza frontopolari) e, se il ritmo di fondo è misurato,
+  // il centro di quella sottobanda è almeno 1 Hz sotto la sua frequenza
+  { const SB = { d2: 3, t1: 5, t2: 7 }, v = {}, md = {}; for (const o of base) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; v[k] = v[k] || {}; for (const b in SB) (v[k][b] = v[k][b] || []).push(o.bip[k][b]); }
+    for (const k in v) { md[k] = {}; for (const b in SB) { const x = v[k][b].filter(isFinite).sort((p, q) => p - q); md[k][b] = x[x.length >> 1] || 1e-12; } }
+    const f = pdr && pdr.freq;
+    for (const o of ep) { o.overBg = null; if (!ok(o) || !o.bip) continue; let best = null, bv = 0;
+      for (const b in SB) { let x = 0, m = 0; for (const k in o.bip) { if (/Fp/.test(k) || !md[k]) continue; x += o.bip[k][b]; m += md[k][b]; } const r = m > 0 ? x / m : 0; if (r > bv) { bv = r; best = b; } }
+      o.overBg = !!best && bv >= 2 && (f == null || SB[best] < f - 1); } }
   const pdrSlow = pdr && pdr.freq != null && pdr.freq < SLOW.pdrSlow;
   const diffuse = g50 >= SLOW.diffuse || pdrSlow, intermittent = grp.temporale >= SLOW.intermittent;
   const weakDiffuse = !diffuse && g50 >= SLOW.weakDiffuse, weakIntermittent = !intermittent && Math.max(grp.temporale, grp['fronto-centrale']) >= SLOW.weakIntermittent;
@@ -933,7 +942,7 @@ function slowLayer(ep, anns, pdr) {
     intermittent: pctOf(o => Math.max(...SGRP.temporale.filter(k => o.S[k] !== undefined).map(k => o.S[k])) >= SLOW.intermittent),
     // epoche in cui quel lato è davvero più lento (stessa categoria della riga "Rallentamenti"): un'asimmetria di fondo stabile
     // (es. emisfero ipovoltato) non basta a rendere il rallentamento "continuo"
-    side: sd ? pctOf(o => o.slowCat && o.slowCat.endsWith(sd === 'sx' ? 'sinistra' : 'destra')) : 0 };
+    side: sd ? pctOf(o => o.slowCat && o.slowCat.endsWith(sd === 'sx' ? 'sinistra' : 'destra') && (!pdrSlow || o.overBg)) : 0 };   // con fondo lento contano solo le onde più lente del fondo
   return { g50, p90: grp, latMed, side, sideWeak: side ? null : sideWeak, latRegions, hvEvoked, diffuse, weakDiffuse, pdrSlow, intermittent, weakIntermittent, intRegion, prev, nBase: base.length };
 }
 
@@ -1073,7 +1082,7 @@ function generateReport(A, rec, d, ied, format) {
   const parts = [], concl = [];
   const rk = x => ['theta', 'theta-delta', 'delta'].indexOf(x); // patch burst: caratteristiche dei burst (burstSum) solo se più lenti del fondo
   if (diff) { const b = bandOf(A, SALL), bg = burstSum(A, x => x.side === 'G'); parts.push('globalmente rallentato in prevalente banda ' + b + (bg && rk(bg.band) > rk(b) ? ', con sovrapposte anomalie lente diffuse ' + bg.core + bg.tail : '')); concl.push('anomalie lente diffuse' + (slowBg ? ' nel contesto di un ritmo di fondo rallentato' : '')); }
-  if (s.side) { const q = s.prev ? prevQ(s.prev.side) : 'occasionali';
+  if (s.side && !(s.pdrSlow && s.prev && !s.prev.side)) { const q = s.prev ? prevQ(s.prev.side) : 'occasionali';   // fondo lento: lato citato solo se ha onde più lente del fondo
     const two = lobesText(s.latRegions.slice(0, 2)), lob = two.split('-').length > 3 ? lobesText(s.latRegions.slice(0, 1)) : two, lato = s.side === 'sx' ? 'sinistra' : 'destra', b = bandOf(A, latDer);
     const bs = burstSum(A, x => x.side === s.side);
     if (diff) { // banda del lato citata solo se più lenta di quella diffusa (es. delta focale su fondo theta)
@@ -1085,8 +1094,9 @@ function generateReport(A, rec, d, ied, format) {
     concl.push('anomalie lente sulle regioni ' + lob + ' di ' + lato); }
   else if (s.intermittent && !diff) { const q = s.prev ? prevQ(s.prev.intermittent) : 'occasionali', b = bandOf(A, SGRP.temporale);
     const bt = burstSum(A, x => /tempor/.test(x.region), 'm'), pw = s.sideWeak ? ', con una certa prevalenza a ' + (s.sideWeak === 'sx' ? 'sinistra' : 'destra') : '';
-    parts.push(bt ? 'con evidenza di ' + q + ' rallentamenti ' + bt.core + ' bitemporali' + pw + bt.tail
-      : 'con evidenza di ' + q + ' rallentamenti ' + (/occasional|rar/.test(q) ? '' : 'polimorfi ') + 'in banda ' + b + ' bitemporali' + pw);
+    const qm = ({ continue: 'continui', rare: 'rari' })[q] || q;   // "rallentamenti" è maschile
+    parts.push(bt ? 'con evidenza di ' + qm + ' rallentamenti ' + bt.core + ' bitemporali' + pw + bt.tail
+      : 'con evidenza di ' + qm + ' rallentamenti ' + (/occasional|rar/.test(q) ? '' : 'polimorfi ') + 'in banda ' + b + ' bitemporali' + pw);
     concl.push(q + ' anomalie lente bitemporali'); }
   else if (!diff && (s.weakIntermittent || s.sideWeak)) { // reperto lieve: formula descrittiva dei referti, senza modificare la conclusione
     const temp = s.intRegion === 'temporale';
@@ -1701,7 +1711,7 @@ function slowBursts(rec, A) {
     const hl = fr.map(f => 1 / f), mh = hl.reduce((p, q) => p + q, 0) / hl.length;
     const cv = Math.sqrt(hl.reduce((p, q) => p + (q - mh) ** 2, 0) / hl.length) / mh;
     let m0 = 0; for (let i = s0; i < s1; i++) m0 += y[i] * y[i]; const T = Math.round(fs / fMed); let ac = 0; for (let i = s0; i + T < s1; i++) ac += y[i] * y[i + T]; ac /= (m0 || 1e-9);
-    const morph = cv < 0.25 && ac >= 0.5 && (t1 - t0) * fMed >= 3 ? 'ritmico' : 'polimorfo';
+    const morph = cv < 0.25 && ac >= 0.5 && (t1 - t0) * fMed >= 3 ? 'monomorfo' : 'polimorfo';   // monomorfo: semionde regolari e ripetitive
     // delta < 2 Hz confermato solo se c'è anche potenza 2-4 Hz (≥ 50% di quella 1-2 Hz)
     let m12 = 0, m24 = 0; ex.forEach((v, k) => { const f = (k + kLo) * dfq, e = Math.max(0, v - 1); if (f < 2) m12 += e; else if (f < 4) m24 += e; });
     const low = fMed < 2 && m24 < 0.5 * m12;
@@ -1730,7 +1740,7 @@ function burstSum(A, pred, g = 'f') {
   const bs = (A.bursts || []).filter(b => b.ok && !b.likeBg && !b.hv && pred(b)); if (!bs.length) return null;
   const tot = bs.reduce((s, b) => s + b.dur, 0), w = f => bs.filter(f).reduce((s, b) => s + b.dur, 0) / tot;
   const fl = Math.round(pct(bs.map(b => b.fMed), 25) * 2) / 2, fh = Math.round(pct(bs.map(b => b.fMed), 75) * 2) / 2, band = fh < 4 ? 'delta' : fl >= 4 ? 'theta' : 'theta-delta';
-  const morph = w(b => b.morph === 'ritmico') >= 0.6 ? (g === 'f' ? 'ritmiche' : 'ritmici') : (g === 'f' ? 'polimorfe' : 'polimorfi');
+  const morph = w(b => b.morph === 'monomorfo') >= 0.6 ? (g === 'f' ? 'monomorfe' : 'monomorfi') : (g === 'f' ? 'polimorfe' : 'polimorfi');
   const freq = fmtHz(fl, fh), ds = bs.map(b => b.dur), dm = median(ds);
   const burst = dm >= 20 ? 'in tratti prolungati (fino a ' + Math.round(Math.max(...ds)) + ' s)' : 'in burst di ' + (bs.length === 1 ? sec05(ds[0]) : sec05(pct(ds, 10)) + '-' + sec05(pct(ds, 90))) + ' s';
   const V = uvTerm(median(bs.map(b => b.uv))), drowsy = w(b => b.drowsy) >= 0.6 ? ', prevalentemente in sonnolenza' : '';
@@ -2329,15 +2339,8 @@ function slowText(o) { const lm = o.latMax, pct = isFinite(o.slowAbs) ? Math.rou
 function epBand(os) { let d = 0, th = 0; for (const o of os) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; d += o.bip[k].d1 + o.bip[k].d2; th += o.bip[k].t1 + o.bip[k].t2; } return d + th > 0 ? (d >= th ? 'delta' : 'theta') : ''; }
 function epPct(os) { const v = os.map(o => o.slowAbs).filter(isFinite); if (!v.length) return ''; const x = v.reduce((a, b) => a + b, 0) / v.length; return Math.round(100 * Math.pow(10, x) / (1 + Math.pow(10, x))) + '%'; }
 const sideOf = c => !c ? '' : /sinistra/.test(c) ? 'sinistra' : /destra/.test(c) ? 'destra' : 'diffuso';
-/* fascia di 4 s sul tracciato solo per onde lente oltre l'attività di fondo: per ogni sottobanda lenta (2-4, 4-6, 6-8 Hz)
-   potenza dell'epoca / potenza mediana nel tracciato, sommate sulle derivazioni (senza frontopolari); serve un eccesso ≥ 2 volte nella sottobanda maggiore e, se il ritmo
-   dominante posteriore è misurato, il centro di quella sottobanda almeno 1 Hz sotto la sua frequenza */
-const SUBB = { d2: 3, t1: 5, t2: 7 };   // come l'indice di rallentamento: senza 1-2 Hz, sensibile agli artefatti
-function belowBg(o) { const A = S.A, f = A && A.pdr && A.pdr.freq; if (!A || !o.bip) return true;
-  if (!A._bmed) { A._bmed = {}; const v = {}; for (const q of A.epochs) if (!q.zero && q.bip) for (const k in q.bip) { if (/Fp/.test(k)) continue; v[k] = v[k] || {}; for (const b in SUBB) (v[k][b] = v[k][b] || []).push(q.bip[k][b]); }
-    for (const k in v) { A._bmed[k] = {}; for (const b in SUBB) { const x = v[k][b].filter(isFinite).sort((p, q) => p - q); A._bmed[k][b] = x[x.length >> 1] || 1e-12; } } }
-  let best = null, bv = 0; for (const b in SUBB) { let x = 0, m = 0; for (const k in o.bip) { if (/Fp/.test(k) || !A._bmed[k]) continue; x += o.bip[k][b]; m += A._bmed[k][b]; } const r = m > 0 ? x / m : 0; if (r > bv) { bv = r; best = b; } }
-  return !!best && bv >= 2 && (f == null || SUBB[best] < f - 1); }
+/* fascia di 4 s sul tracciato e riga Lenti solo per onde lente oltre l'attività di fondo (regola in slowLayer) */
+function belowBg(o) { return o.overBg !== false; }
 /* tooltip breve della riga Lenti: banda, attività lenta %, lato */
 function slowShort(o) { return [epBand([o]), epPct([o]), sideOf(o.slowCat)].filter(Boolean).join(' · '); }
 /* etichette arancioni sul tracciato: banda, %, polimorfo, regione e lato solo se più lento del solito in quel lato */
@@ -2345,7 +2348,7 @@ function slowTagText(os) { const o = os.find(q => q.flagReg && /sinistra|destra/
   return [epBand(os), epPct(os), o ? o.flagReg + ' ' + sd : ''].filter(Boolean).join(' · '); }
 function burstTag(b) { const os = S.A.epochs.filter(o => o.t + S.A.epoch > b.t0 && o.t < b.t1);
   const h = v => (Math.round(v * 2) / 2).toLocaleString('it-IT'), lo = h(b.fLo), hi = h(b.fHi);
-  return [b.band + ' ' + (lo === hi ? lo : lo + '-' + hi) + ' Hz', epPct(os), b.morph === 'polimorfo' ? 'polimorfo' : '', b.side === 'G' ? '' : ((b.region || '') + ' ' + b.side).trim()].filter(Boolean).join(' · '); }
+  return [b.band + ' ' + (lo === hi ? lo : lo + '-' + hi) + ' Hz', epPct(os), b.morph, b.side === 'G' ? '' : ((b.region || '') + ' ' + b.side).trim()].filter(Boolean).join(' · '); }
 const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'Terapia intensiva', 'IED (modello)', 'Modelli'];
 const TLLAB = { 'Rallentamenti': 'Lenti', 'Pattern ACNS': 'ACNS', 'IED (modello)': 'IED', 'Terapia intensiva': 'ICU', 'Modelli': 'Tratto' }, TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
