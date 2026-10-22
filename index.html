@@ -78,7 +78,7 @@ header.compact2 #anabtn span,header.compact2 #annot span{display:none}
 #annot[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff} #annbar.flash{animation:annfl .6s 2}
 @keyframes annfl{50%{background:var(--accentSoft)}}
 #trtip{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:.25rem .5rem;font-size:.76rem;line-height:1.35;box-shadow:0 2px 6px rgba(0,0,0,.18);display:none;z-index:6;max-width:360px}
-#trtip div{display:flex;gap:.35rem;align-items:baseline} #trtip i{flex:none;width:.6rem;height:.6rem;border-radius:2px;transform:translateY(1px)} #trtip b{font-weight:600;white-space:nowrap}
+#tlcur{position:absolute;width:1px;background:var(--ink);pointer-events:none;display:none;z-index:2} #trtip div{display:flex;gap:.35rem;align-items:baseline} #trtip i{flex:none;width:.6rem;height:.6rem;border-radius:2px;transform:translateY(1px)} #trtip b{font-weight:600;white-space:nowrap}
 #annlayer{position:absolute;inset:0;pointer-events:none;overflow:hidden;user-select:none;-webkit-user-select:none} #traceWrap{user-select:none;-webkit-user-select:none} #annlayer.on{pointer-events:auto;cursor:crosshair}
 .ua{position:absolute;border:1.5px solid var(--c);background:color-mix(in srgb,var(--c) 10%,transparent);border-radius:3px;pointer-events:auto;cursor:move;box-sizing:border-box}
 .ua.sel{border-width:2px;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 30%,transparent)} .ua.off{border-style:dashed}
@@ -132,7 +132,7 @@ body.notl .tl>*:not(#tltab){display:none} body.notl .tl{padding:0;min-height:8px
 .tllegend{font-size:.74rem;color:var(--muted);margin-top:.15rem} .tllegend i{display:inline-block;width:.8em;height:.6em;margin:0 .2em 0 .7em;vertical-align:baseline}
 .viewer{display:grid;grid-template-rows:1fr auto;min-height:0;border-right:1px solid var(--line)}
 #traceWrap{position:relative;min-height:0;background:var(--paper)}
-#trace{position:absolute;inset:0;width:100%;height:100%;display:block}
+#trace{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab} #trace.drag{cursor:grabbing}
 .tl{background:var(--panel);border-top:1px solid var(--line);padding:.35rem .6rem .5rem}
 .tlhead{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:.2rem}
 #timeline{width:100%;height:180px;display:block;cursor:pointer}
@@ -281,7 +281,7 @@ header .btn.ic,header.compact .btn.ic,header.compact1 .btn.ic{min-width:1.9rem;p
     </div>
     <div class="tl"><button id="tltab" title="Comprimi la panoramica" aria-label="Comprimi o espandi la panoramica">⌄</button>
       <div class="tlhead"><span class="chips"><span class="cg allbtns"><button class="chip" id="eyesall" title="Mostra sul tracciato tutti i reperti della panoramica (accende tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/></svg><span>mostra tutto</span></button><button class="chip" id="eyesnone" title="Nascondi dal tracciato tutti i reperti della panoramica (spegne tutti gli occhi)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path d="M2.5 13.5l11-11"/></svg><span>nascondi tutto</span></button></span><span class="cg"><button class="chip" data-row="Annotazioni" aria-pressed="true" title="Annotazioni del tecnico (EDF)"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M3.5 14.5V2h8l-2 3 2 3h-8"/></svg><span>Annotazioni</span></button></span><span class="cg"><button class="chip" data-row="Artefatti" aria-pressed="true" title="Artefatti: &gt; 350 µV su ≥ 3 canali o annotati"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 8h2l2-4 2 8 2-8 2 8 2-4h2"/></svg><span>Artefatti</span></button><button class="eye" data-eye="Artefatti" aria-pressed="false" title="Mostra artefatti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Rallentamenti" aria-pressed="true" title="Rallentamenti (regole spettrali): rosso sx, blu dx, marrone diffuso; più scuro = più lento"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8c2-5 4-5 7 0s5 5 7 0"/></svg><span>Lenti</span></button><button class="eye" data-eye="Rallentamenti" aria-pressed="false" title="Mostra rallentamenti sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Pattern ACNS" aria-pressed="true" title="Pattern ACNS dalle regole (LPD, GPD, LRDA, GRDA)"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 11h2l1.2-6 1.2 6H7l1.2-6 1.2 6H11l1.2-6 1.2 6H15"/></svg><span>ACNS</span></button><button class="eye" data-eye="Pattern ACNS" aria-pressed="false" title="Mostra pattern acns sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="IED (modello)" aria-pressed="true" title="Anomalie epilettiformi: probabilità e candidati"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14"><path d="M1 10h4l1.5-8 2 12 1.5-6H15"/></svg><span>IED</span></button><button class="eye" data-eye="IED" aria-pressed="false" title="Mostra i candidati IED sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span><span class="cg"><button class="chip" data-row="Terapia intensiva" aria-pressed="true" title="ICU: concordanza tra regole ACNS e modelli ICU 1 e 2 (rosso = crisi, indaco = pattern)"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8h3l1.5-4 2 8 2-6 1.5 2H15"/></svg><span>ICU</span></button><button class="eye" data-eye="ICU" aria-pressed="false" title="Mostra crisi e pattern di terapia intensiva sul tracciato"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="2"/><path class="slash" d="M2.5 13.5l11-11"/></svg></button></span></span><span title="Panoramica dell'intera registrazione: ogni cella colorata è un'epoca di 4 s; clic per andare a quel punto"><span id="tpos"></span></span></div>
-      <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div>
+      <canvas id="timeline" aria-label="Linea del tempo"></canvas><div id="tltip"></div><div id="tlcur" aria-hidden="true"></div>
     </div>
   </section>
   <aside id="side">
@@ -750,6 +750,7 @@ function analyze(rec, opts = {}) {
   const mean = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : NaN;
   const absAlpha = cs => mean(clean.filter(o => o.eyes !== 'OA').flatMap(o => cs.filter(c => o.ch[c] && !bad.has(c) && !o.popCh.includes(c)).map(c => o.ch[c].abs.alpha)));
   const apGrad = absAlpha(['O1', 'O2', 'P3', 'P4']) / absAlpha(['Fp1', 'Fp2', 'F3', 'F4']);
+  const apGradSide = { sx: absAlpha(['O1', 'P3']) / absAlpha(['Fp1', 'F3']), dx: absAlpha(['O2', 'P4']) / absAlpha(['Fp2', 'F4']) };   // per il referto quando il fondo è asimmetrico
   // asimmetria regionale delle onde lente (theta+delta), log-rapporto sx/dx
   const pairs = [['Fp1','Fp2'],['F7','F8'],['F3','F4'],['T3','T4'],['C3','C4'],['T5','T6'],['P3','P4'],['O1','O2']];
   const asym = {};
@@ -770,7 +771,7 @@ function analyze(rec, opts = {}) {
   const slow = slowLayer(ep, anns, pdr);
   const out = {
     fs, duration: dur, epoch, epochs: ep, anns, zeros, bad, badWhy, warn, chStats, cmap, present,
-    pdr, relMap, globalRel, relBip, apGrad, asym, slow,
+    pdr, relMap, globalRel, relBip, apGrad, apGradSide, asym, slow,
     counts: { epochs: ep.length, clean: clean.length, flagged: ep.filter(o => o.flag).length,
       flaggedL: ep.filter(o => o.flag === 'lento sx').length, flaggedR: ep.filter(o => o.flag === 'lento dx').length,
       flaggedD: ep.filter(o => o.flag === 'lento diffuso' || o.flag === 'lento bilaterale').length }
@@ -821,7 +822,7 @@ const STAB_THR = 2.1, STAB_THR2 = 2.5; // 2,1-2,5 finestre (≈ 3,1-3,5 s) = "un
 function alphaStability(rec, A) {
   const fs = A.fs, n = 2 * fs, short = A.pdr.ocSegs || [];
   const ok = p => !A.bad.has(p[0]) && !A.bad.has(p[1]) && A.cmap[p[0]] !== undefined && A.cmap[p[1]] !== undefined;
-  const post = [['O1', 'P3'], ['O2', 'P4']].map((p, i) => ok(p) ? p : [['O1', 'T5'], ['O2', 'T6']][i]).filter(ok), cen = [['C3', 'P3'], ['C4', 'P4']].filter(ok);
+  const post = [['O1', 'P3'], ['O2', 'P4']].map((p, i) => ok(p) ? p : [['O1', 'T5'], ['O2', 'T6']][i]).filter(ok), cen = [['C3', 'P3'], ['C4', 'P4']].filter(ok), POST = post;
   if (!post.length) return null;
   const STOP = new Set(['OA', 'PT', 'PL', 'HV', 'SLI']), long = [];
   A.anns.forEach((a, i) => { if (a.code !== 'OC') return; const nx = A.anns.slice(i + 1).find(x => STOP.has(x.code)); const t0 = a.onset + 1, t1 = Math.min(nx ? nx.onset : A.duration, A.duration); if (t1 - t0 >= 2) long.push([t0, t1]); });
@@ -829,7 +830,7 @@ function alphaStability(rec, A) {
   const f = A.pdr.freq, slow = f != null && f < 8, lo = slow ? Math.max(3.5, f - 1.5) : 8, hi = slow ? f + 1.5 : 13;
   const filt = makeFilters(fs, 1, 30, 0), badEp = t => A.epochs.some(o => (o.zero || o.artifact || o.annArt) && t + 2 > o.t && t < o.t + A.epoch);
   const bp = (P, a, b) => bandPow(P, fs, n, a, b);
-  const measure = segs => { const runs = []; let nAlert = 0, nAlpha = 0, nAll = 0;
+  const measure = (segs, post = POST) => { const runs = []; let nAlert = 0, nAlpha = 0, nAll = 0;
     for (const [t0, t1] of segs) { const i0 = Math.floor(t0 * fs), i1 = Math.floor(t1 * fs); if (i1 - i0 < n) continue; const sig = pr => filtfilt(derivation(rec, A.cmap, pr, i0, i1), filt);
       const P = post.map(sig), Cn = cen.map(sig); let r = 0;
       for (let i = 0; i + n <= i1 - i0; i += fs) { if (badEp(t0 + i / fs)) { if (r) runs.push(r); r = 0; continue; }
@@ -844,9 +845,12 @@ function alphaStability(rec, A) {
   if (M.nAlert < 10 && long.length) { M = measure(long); longUsed = true; }
   const { runs, nAlert, nAlpha, nAll } = M, band = [+lo.toFixed(1), +hi.toFixed(1)];
   if (nAlert < 10) return { nAll, nAlert, cls: null, longUsed, slow, band };
-  const runMean = runs.length ? runs.reduce((a, v) => a + v, 0) / runs.length : 0;
+  const runMean = runs.length ? runs.reduce((a, v) => a + v, 0) / runs.length : 0, clsOf = rm => rm < STAB_THR ? 'instabile' : rm < STAB_THR2 ? 'un po’ instabile' : 'stabile';
+  // stessa misura su ciascun lato (per il referto quando il fondo è asimmetrico)
+  const side = {}; post.forEach(p => { const sd = /[13579]$/.test(p[0]) ? 'sx' : 'dx', m = measure(longUsed ? long : short, [p]);
+    if (m.nAlert >= 10) side[sd] = clsOf(m.runs.length ? m.runs.reduce((a, v) => a + v, 0) / m.runs.length : 0); });
   return { nAll, nAlert, persist: nAlpha / nAlert, runMean, runSec: runMean ? runMean + 1 : 0, drowsyFrac: nAll ? 1 - nAlert / nAll : 0, longUsed, slow, band,
-    cls: runMean < STAB_THR ? 'instabile' : runMean < STAB_THR2 ? 'un po’ instabile' : 'stabile' };
+    cls: clsOf(runMean), side };
 }
 /* stimolazione luminosa intermittente: trascinamento = picchi posteriori ≥ 6× la potenza basale a frequenze diverse dal ritmo di fondo */
 function photicDriving(rec, A) {
@@ -1070,6 +1074,11 @@ function generateReport(A, rec, d, ied, format) {
   desc += asymF ? 'asincrono, asimmetrico per frequenza più lenta a ' + (p.freqDiff < 0 ? 'sinistra' : 'destra') + ', '
     : asymV ? 'asimmetrico per voltaggio minore a ' + (p.ampAsym < 0 ? 'sinistra' : 'destra') + ' (≥ 50%, da verificare sugli elettrodi), ' : 'sincrono, simmetrico, ';
   desc += stab + (m.drowsy && stab !== 'stabile' ? ' per tendenza all’assopimento' : '') + ', ' + volt + ', ' + reag + '.';
+  // fondo asimmetrico: stabilità, reattività e gradiente antero-posteriore del lato (o dei lati) dove sono alterati
+  if (asymF || asymV) { const sideTxt = sd => { const a = [], st = A.stab && A.stab.side && A.stab.side[sd], r = p.reactSide && p.reactSide[sd], g = A.apGradSide && A.apGradSide[sd];
+      if (st && st !== 'stabile') a.push(st); if (r != null && isFinite(r) && r < 0.35) a.push(r < 0.1 ? 'non reagente' : 'scarsamente reagente'); if (g != null && isFinite(g) && g < 1) a.push('gradiente antero-posteriore non mantenuto'); return a; };
+    const L = sideTxt('sx'), Rr = sideTxt('dx'), part = (x, n) => n + ' ' + x.join(', ');
+    if (L.length || Rr.length) desc += ' ' + [L.length ? part(L, 'A sinistra') : '', Rr.length ? part(Rr, (L.length ? 'a' : 'A') + ' destra') : ''].filter(Boolean).join('; ') + '.'; }
   out.push(desc);
   // organizzazione e anomalie lente
   // ritarata su 87 esempi di referti (16/10/2026): fondo lento = RPD < 8 Hz o indice globale ≥ 0,10; scarsa se lento e prominenza < 3,
@@ -1596,8 +1605,9 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
     const t0 = a.onset + 0.5, t1 = Math.min(nxt ? nxt.onset : a.onset + 10, a.onset + 10); if (t1 - t0 >= 2) oaSegs.push([t0, t1]); });
   if (segs.length && oaSegs.length && res.freq) {
     const pr = pairs.sx.concat(pairs.dx).find(([a, b]) => !bad.has(a) && !bad.has(b));
-    const ap = list => { let s = 0, n = 0; for (const [t0, t1] of list) { const x = filtfilt(derivation(rec, cmap, pr, Math.floor(t0 * fs), Math.floor(t1 * fs)), filt); const P = welch(x, fs, nfft); if (P) { s += bandPow(P, fs, nfft, res.freq - 1.5, res.freq + 1.5); n++; } } return n ? s / n : NaN; };
+    const ap = (list, q = pr) => { let s = 0, n = 0; for (const [t0, t1] of list) { const x = filtfilt(derivation(rec, cmap, q, Math.floor(t0 * fs), Math.floor(t1 * fs)), filt); const P = welch(x, fs, nfft); if (P) { s += bandPow(P, fs, nfft, res.freq - 1.5, res.freq + 1.5); n++; } } return n ? s / n : NaN; };
     res.reactivity = 1 - ap(oaSegs) / ap(segs); // frazione di attenuazione all'apertura
+    res.reactSide = {}; for (const sd of ['sx', 'dx']) { const q = pairs[sd].find(([a, b]) => !bad.has(a) && !bad.has(b)); if (q) res.reactSide[sd] = 1 - ap(oaSegs, q) / ap(segs, q); }   // per lato
   }
   // ACNS 2021 (A3): RPD presente solo se il picco è definito e si attenua all'apertura degli occhi; altrimenti "non chiaro"
   const anyDef = ['sx', 'dx'].some(sd => res[sd] && res[sd].defined), noAtt = res.reactivity != null && res.reactivity < 0.1;
@@ -2241,6 +2251,16 @@ function burstRect(b, P, rowH, sec, lab, plotW) {
   const w = Math.min(tctx.measureText(tx).width + 10, Math.max(60, x1 - x0 + 220)), yT = Math.max(2, 6 + sp[0][0] * rowH - 16), xT = Math.min(x0, lab + plotW - w);
   tctx.fillStyle = c; tctx.globalAlpha = b.verify ? .7 : .92; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(xT, yT, w, 15, 4); else tctx.rect(xT, yT, w, 15); tctx.fill(); tctx.globalAlpha = 1;
   tctx.save(); tctx.beginPath(); tctx.rect(xT, yT, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, xT + 5, yT + 11); tctx.restore(); }
+/* IED: rettangolo attorno alla scarica sulle derivazioni che contengono l'elettrodo di massimo e i primi elettrodi del campo */
+function iedRect(L, P, rowH, sec, lab, plotW, cur) {
+  const ALI = { T7: 'T3', T8: 'T4', P7: 'T5', P8: 'T6' }, els = new Set([L.ch].concat((L.field || []).slice(0, 3)));
+  const idx = P.rows.map((r, k) => r && !r.ecg && !r.missing && r.label.split('-').some(e => els.has(ALI[e] || e)) ? k : -1).filter(k => k >= 0); if (!idx.length) return;
+  const t0 = L.t - Math.max(.08, L.durMs / 1000), t1 = L.t + Math.max(.08, L.durMs / 1000) + (L.slowWave ? L.slowWave.dur / 1000 : 0);
+  const x0 = lab + Math.max(0, t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, t1 - S.t) / sec * plotW; if (x1 <= x0) return;
+  const sp = []; for (const k of idx) { const l = sp[sp.length - 1]; if (l && k - l[1] <= 1) l[1] = k; else sp.push([k, k]); }
+  tctx.strokeStyle = css('--ied'); tctx.lineWidth = cur ? 2 : 1.5; tctx.setLineDash(L.quality === 'buona' ? [] : [3, 3]);
+  for (const [i0, i1] of sp) tctx.strokeRect(x0 + .5, 6 + i0 * rowH + 1, x1 - x0 - 1, (i1 - i0 + 1) * rowH - 2);
+  tctx.setLineDash([]); tctx.lineWidth = 1; }
 function slowTag(r, lab, sec, plotW) { const x0 = lab + Math.max(0, r.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, r.t1 - S.t) / sec * plotW; if (x1 - x0 < 30) return;
   tctx.font = '600 10.5px IBM Plex Sans, system-ui'; const tx = slowTagText(r.os), tw = tctx.measureText(tx).width, w = Math.min(x1 - x0 - 4, tw + 30), x = x0 + 3, y = 3, c = css('--slow');
   tctx.fillStyle = c; tctx.globalAlpha = .92; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x, y, w, 15, 4); else tctx.rect(x, y, w, 15); tctx.fill(); tctx.globalAlpha = 1;
@@ -2261,7 +2281,7 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
   const dp = Math.max(1, Math.round(dpr)), snap = x => (Math.round(x * dpr) + (dp % 2 ? .5 : 0)) / dpr;   // righe sui pixel del dispositivo: tutte ugualmente nitide
   tctx.lineWidth = dp / dpr;
   for (let s = 0; s <= sec; s++) { const x = lab + s / sec * plotW, xs = snap(x); tctx.strokeStyle = css('--grid2'); tctx.beginPath(); tctx.moveTo(xs, 0); tctx.lineTo(xs, H - 18); tctx.stroke();
-    tctx.fillStyle = css('--muted'); tctx.font = '11px IBM Plex Sans, system-ui'; tctx.fillText(fmtT(S.t + s), x + 2, H - 5); }
+    tctx.fillStyle = css('--muted'); tctx.font = '11px IBM Plex Sans, system-ui'; const ts = S.t + s, fr = Math.abs(ts - Math.round(ts)) > .05; tctx.fillText(fr ? fmtT(ts) + ',' + Math.floor((ts % 1) * 10) : fmtT(Math.round(ts)), x + 2, H - 5); }
   // tratti a zero
   for (const [a, b] of A.zeros) if (b > S.t && a < S.t + sec) { tctx.fillStyle = css('--grid'); const x0 = lab + Math.max(0, a - S.t) / sec * plotW, x1 = lab + Math.min(sec, b - S.t) / sec * plotW; tctx.fillRect(x0, 0, x1 - x0, H - 18); }
   // reperti della panoramica mostrati sul tracciato (pulsante "occhio"): fasce colorate trasparenti per epoca di 4 s
@@ -2317,6 +2337,7 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
     if (L && L.zone) { const z0 = lab + Math.max(0, L.zone[0] - S.t) / sec * plotW, z1 = lab + Math.min(sec, L.zone[1] - S.t) / sec * plotW; if (z1 > z0) { tctx.fillStyle = css('--ied'); tctx.globalAlpha = i === S.iedCur ? .16 : .1; tctx.fillRect(z0, 16, z1 - z0, H - 34); tctx.globalAlpha = 1; } }
     if (L && L.found && L.t >= S.t && L.t <= S.t + sec) { const xl = lab + (L.t - S.t) / sec * plotW; tctx.strokeStyle = css('--ied'); tctx.lineWidth = 1.5; tctx.setLineDash(L.quality === 'buona' ? [] : [3, 3]);
       tctx.beginPath(); tctx.moveTo(xl + .5, 16); tctx.lineTo(xl + .5, H - 34); tctx.stroke(); tctx.setLineDash([]); tctx.lineWidth = 1; lx = xl + 3;
+      iedRect(L, P, rowH, sec, lab, plotW, i === S.iedCur);
       txt = (L.quality === 'artefatto' ? 'artefatto? ' : '') + L.type + ' ' + L.ch + ' ' + L.durMs + ' ms · p ' + ev.pmax.toFixed(2) + (L.quality === 'incerta' ? ' (incerta)' : ''); }
     tctx.fillStyle = css('--ied'); tctx.font = '600 11px IBM Plex Sans, system-ui'; tctx.fillText((ev.art ? 'su artefatto · ' : '') + txt + (j ? ' · ' + j : ''), Math.max(lab + 2, lx), H - 22); });
   // barra di calibrazione 50 µV
@@ -2462,8 +2483,13 @@ function traceTip(e) {
   tip.style.display = 'block'; const x = px + 14 + tip.offsetWidth > wr.width ? px - 14 - tip.offsetWidth : px + 14, y = Math.min(py + 14, wr.height - tip.offsetHeight - 4);
   tip.style.left = Math.max(4, x) + 'px'; tip.style.top = Math.max(4, y) + 'px';
 }
-$('traceWrap').addEventListener('mousemove', e => { S.mouse = { x: e.clientX, y: e.clientY }; traceTip(e); });
-$('traceWrap').addEventListener('mouseleave', () => { S.mouse = null; $('trtip').style.display = 'none'; });
+$('traceWrap').addEventListener('mousemove', e => { S.mouse = { x: e.clientX, y: e.clientY }; traceTip(e); tlCursor(e.clientX); });
+$('traceWrap').addEventListener('mouseleave', () => { S.mouse = null; $('trtip').style.display = 'none'; tlCursor(null); });
+/* panoramica: linea sottile nel punto del tracciato sotto il mouse */
+function tlCursor(cx) { const c = $('tlcur'), G = S.geo, tl = $('timeline'); if (cx == null || !S.A || !G || !tl.offsetWidth) { c.style.display = 'none'; return; }
+  const wr = $('traceWrap').getBoundingClientRect(), px = cx - wr.left; if (px < G.lab || px > G.lab + G.plotW) { c.style.display = 'none'; return; }
+  const t = S.t + (px - G.lab) / G.plotW * G.sec, pw = tl.offsetWidth - 100;   // stessa geometria della panoramica (etichette 92 px, margine 8 px)
+  c.style.left = (tl.offsetLeft + 92 + t / S.A.duration * pw) + 'px'; c.style.top = tl.offsetTop + 'px'; c.style.height = (tl.offsetHeight - 16) + 'px'; c.style.display = 'block'; }
 function refreshTip() { if (!S.mouse) return; const el = document.elementFromPoint(S.mouse.x, S.mouse.y); if (!el || !$('traceWrap').contains(el)) { $('trtip').style.display = 'none'; return; } traceTip({ clientX: S.mouse.x, clientY: S.mouse.y, target: el }); }
 
 /* ---- mappa topografica ---- */
@@ -2833,6 +2859,17 @@ function drawAll() { sizeTimeline(); drawTrace(); drawTimeline(); }
   window.__spy = spy;
 })();
 $('prev').onclick = () => goTo(S.t - pageLen()); $('next').onclick = () => goTo(S.t + pageLen());
+/* rotella: pagina successiva o precedente (una per scatto) */
+{ let acc = 0, last = 0; $('traceWrap').addEventListener('wheel', e => { if (!S.A || e.ctrlKey) return; e.preventDefault();
+    const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX, now = performance.now(); if (now - last > 400) acc = 0; acc += d;
+    if (Math.abs(acc) >= 40 && now - last > 180) { goTo(S.t + Math.sign(acc) * pageLen()); acc = 0; last = now; } }, { passive: false }); }
+/* trascinamento: il segnale scorre sotto le righe dei secondi, che restano ferme (utile per contare un pattern o allineare una punta) */
+{ let d = null, raf = 0; const tc0 = $('trace');
+  tc0.addEventListener('mousedown', e => { if (!S.A || e.button !== 0 || !S.geo) return; d = { x: e.clientX, t: S.t, moved: false }; tc0.classList.add('drag'); e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if (!d) return; const dx = e.clientX - d.x; if (Math.abs(dx) > 2) d.moved = true; if (!d.moved) return;
+    const t = Math.max(0, Math.min(S.A.duration - pageLen(), d.t - dx / S.geo.plotW * S.geo.sec)); if (t === S.t) return; S.t = t; S.cache = null;
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; drawAll(); }); });
+  window.addEventListener('mouseup', () => { if (!d) return; d = null; tc0.classList.remove('drag'); }); }
 ['montage', 'hp', 'lp', 'notch', 'sens', 'page'].forEach(id => $(id).addEventListener('change', () => { S.cache = null; drawAll(); }));
 document.addEventListener('keydown', e => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) return;
