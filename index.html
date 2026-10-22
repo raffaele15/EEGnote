@@ -1748,7 +1748,8 @@ function slowBursts(rec, A) {
     const likeBg = A.pdr && A.pdr.freq != null && A.pdr.freq < 8 && fMed >= 4 && fMed >= A.pdr.freq - 1.5;
     const ok = flagged && !low, verify = !ok && fMed < 2;
     if (!ok && !verify) continue;
-    out.push({ t0, t1, dur: t1 - t0, ders: inv.map(d => d.k), max: mx.k, side, region: DERREG[mx.k] || '', fMed, fLo, fHi, band, morph, cv, ac,
+    const smx = strength(mx) || 1, dw = {}; inv.forEach(d => { dw[d.k] = Math.min(1, strength(d) / smx); });   // intensità del colore per derivazione
+    out.push({ t0, t1, dur: t1 - t0, ders: inv.map(d => d.k), dw, max: mx.k, side, region: DERREG[mx.k] || '', fMed, fLo, fHi, band, morph, cv, ac,
       relV, volt: relV < 0.8 ? 'basso' : relV <= 1.5 ? 'medio' : 'alto', uv: median(pp), drowsy: dz.length * 2 >= eps.length ? (dz.some(o => o.drowsy === 'annotata') ? 'annotata' : 'stimata') : null,
       hv: eps.some(o => o.hv), ok, verify, likeBg });
   }
@@ -2253,12 +2254,12 @@ function burstRect(b, P, rowH, sec, lab, plotW) {
   let idx = lbl.map((l, k) => l && l.length === 2 && (dset.has(l.join('-')) || dset.has(l[1] + '-' + l[0])) ? k : -1).filter(k => k >= 0);
   if (!idx.length) idx = lbl.map((l, k) => l && l.some(e => els.has(e)) ? k : -1).filter(k => k >= 0);
   if (!idx.length) return;
-  const sp = []; for (const k of idx) { const l = sp[sp.length - 1]; if (l && k - l[1] <= 2) l[1] = k; else sp.push([k, k]); }
+  const sp = [[idx[0], idx[0]]];
   const x0 = lab + Math.max(0, b.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, b.t1 - S.t) / sec * plotW; if (x1 <= x0) return;
-  const c = css('--slow');
-  for (const [i0, i1] of sp) { const y = 6 + i0 * rowH, h = (i1 - i0 + 1) * rowH;
-    tctx.fillStyle = c; tctx.globalAlpha = b.verify ? .08 : .16; tctx.fillRect(x0, y, x1 - x0, h); tctx.globalAlpha = .95;
-    tctx.strokeStyle = c; tctx.lineWidth = 1.5; if (b.verify) tctx.setLineDash([5, 3]); tctx.strokeRect(x0 + .75, y + .75, x1 - x0 - 1.5, h - 1.5); tctx.setLineDash([]); tctx.globalAlpha = 1; }
+  const c = css('--slow'), dw = b.dw || {}, wOf = l => { const k = l.join('-'), k2 = l[1] + '-' + l[0]; if (dw[k] != null) return dw[k]; if (dw[k2] != null) return dw[k2];
+    let m = 0; for (const d in dw) if (d.split('-').some(e => l.includes(e))) m = Math.max(m, dw[d]); return m; };   // altri montaggi: peso dell'elettrodo
+  for (const k of idx) { const w = wOf(lbl[k]); if (!(w > 0)) continue; tctx.fillStyle = c; tctx.globalAlpha = (b.verify ? .5 : 1) * (.08 + .34 * w); tctx.fillRect(x0, 6 + k * rowH, x1 - x0, rowH); }
+  tctx.globalAlpha = 1;
   TAGQ.push(() => { const tx = burstTag(b); tctx.font = '600 10.5px IBM Plex Sans, system-ui';
   const w = Math.min(tctx.measureText(tx).width + 10, Math.max(60, x1 - x0 + 220)), yT = Math.max(2, 6 + sp[0][0] * rowH - 16), xT = Math.min(x0, lab + plotW - w);
   tctx.fillStyle = c; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(xT, yT, w, 15, 4); else tctx.rect(xT, yT, w, 15); tctx.fill();
@@ -2385,9 +2386,9 @@ function slowShort(o) { return [epBand([o]), epPct([o]), sideOf(o.slowCat)].filt
 /* etichette arancioni sul tracciato: banda, %, polimorfo, regione e lato solo se più lento del solito in quel lato */
 function slowTagText(os) { const o = os.find(q => q.flagReg && /sinistra|destra/.test(q.slowCat)), sd = o ? (/sinistra/.test(o.slowCat) ? 'sx' : 'dx') : '';
   return [epBand(os), epPct(os), o ? o.flagReg + ' ' + sd : ''].filter(Boolean).join(' · '); }
-function burstTag(b) { const os = S.A.epochs.filter(o => o.t + S.A.epoch > b.t0 && o.t < b.t1);
+function burstTag(b) {
   const h = v => (Math.round(v * 2) / 2).toLocaleString('it-IT'), lo = h(b.fLo), hi = h(b.fHi);
-  return [b.band + ' ' + (lo === hi ? lo : lo + '-' + hi) + ' Hz', epPct(os), b.morph === 'monomorfo' ? 'monomorfo' : '', b.side === 'G' ? '' : ((b.region || '') + ' ' + b.side).trim()].filter(Boolean).join(' · '); }
+  return [(lo === hi ? lo : lo + '-' + hi) + ' Hz', b.morph === 'monomorfo' ? 'monomorfo' : '', b.side === 'G' ? '' : b.side].filter(Boolean).join(' · '); }
 const TLROWS = ['Annotazioni', 'Artefatti', 'Rallentamenti', 'Pattern ACNS', 'Terapia intensiva', 'IED (modello)', 'Modelli'];
 const TLLAB = { 'Rallentamenti': 'Lenti', 'Pattern ACNS': 'ACNS', 'IED (modello)': 'IED', 'Terapia intensiva': 'ICU', 'Modelli': 'Tratto' }, TLOFF = new Set(); // righe nascoste dall'utente
 const EYEON = new Set(); // reperti mostrati anche sul tracciato
