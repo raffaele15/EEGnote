@@ -2312,9 +2312,9 @@ function drawTrace() { S.artZ = []; TAGQ = []; if (typeof rulerRender === 'funct
     const x = lab + (a.onset - S.t) / sec * plotW, col = css(annCol(a));
     if (a.duration > 0) { const fl = annFill(a); tctx.fillStyle = fl || col + '22'; if (fl) tctx.globalAlpha = .5; const x1 = lab + Math.min(sec, e - S.t) / sec * plotW; tctx.fillRect(Math.max(lab, x), 0, x1 - Math.max(lab, x), H - 18); tctx.globalAlpha = 1; }
     if (a.onset >= S.t) { tctx.strokeStyle = col; tctx.beginPath(); tctx.moveTo(x + .5, 0); tctx.lineTo(x + .5, H - 18); tctx.stroke(); tctx.setLineDash([]);
-      tctx.font = '11px IBM Plex Sans, system-ui'; const tw = tctx.measureText(a.label).width + 14, yb = H - 44, xb = Math.max(lab, x - tw / 2);
-      tctx.fillStyle = col; tctx.globalAlpha = .28; tctx.fillRect(xb, yb, tw, 16); tctx.globalAlpha = 1; tctx.strokeStyle = col; tctx.strokeRect(xb + .5, yb + .5, tw, 16);
-      tctx.fillStyle = css('--ink'); tctx.fillText(a.label, xb + 7, yb + 12); }
+      TAGQ.push(() => { tctx.font = '600 11px IBM Plex Sans, system-ui'; const tw = tctx.measureText(a.label).width + 14, yb = H - 44, xb = Math.max(lab, x - tw / 2);   // etichetta piena, sopra le tracce
+        tctx.fillStyle = col; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(xb, yb, tw, 16, 4); else tctx.rect(xb, yb, tw, 16); tctx.fill();
+        tctx.fillStyle = '#fff'; tctx.fillText(a.label, xb + 7, yb + 12); }); }
   }
   // IED da evidenziare sulla pagina: intorno della scarica (punta più eventuale onda lenta) e derivazioni coinvolte
   const ALI = { T7: 'T3', T8: 'T4', P7: 'T5', P8: 'T6' }, IEDHL = []; if (S.ied && EYEON.has('IED')) S.ied.events.forEach((ev, i) => { const L = ev.loc; if (!L || !L.found || L.t < S.t - 1 || L.t > S.t + sec + 1) return;
