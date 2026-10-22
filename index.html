@@ -2338,7 +2338,7 @@ function drawTrace() { S.artZ = []; TAGQ = []; if (typeof rulerRender === 'funct
     tctx.stroke();
     // IED: la stessa traccia ricolorata nell'intorno della scarica, sulle derivazioni con l'elettrodo di massimo e i primi del campo
     for (const h of IEDHL) if (row.label.split('-').some(e => h.els.has(e))) { const a = Math.max(0, Math.floor((h.t0 - S.t) * fs)), b = Math.min(n, Math.ceil((h.t1 - S.t) * fs));
-      if (b <= a) continue; tctx.strokeStyle = css('--ied'); tctx.lineWidth = h.cur ? 2 : 1.6; tctx.setLineDash(h.sure ? [] : [3, 2]); tctx.beginPath();
+      if (b <= a) continue; tctx.strokeStyle = css('--ied'); tctx.lineWidth = 1; tctx.setLineDash(h.sure ? [] : [3, 2]); tctx.beginPath();
       for (let i = a; i < b; i++) { const v = row.data[P.off + i]; if (v === undefined) break; const x = lab + i / (fs * sec) * plotW, y = y0 - v * g; i > a ? tctx.lineTo(x, y) : tctx.moveTo(x, y); }
       tctx.stroke(); tctx.setLineDash([]); tctx.lineWidth = 1; }
   });
