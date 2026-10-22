@@ -650,8 +650,7 @@ function analyze(rec, opts = {}) {
     const hiFrac = s.epochRms.filter((v, e) => v > 4 * s.rmsMed && v > 2.5 * epR[e] * s.rmsMed).length / Math.max(1, nE);
     if (s.rmsMed > 3 * gmed) { bad.add(c); badWhy[c] = 'ampiezza ×' + (s.rmsMed / gmed).toFixed(1); }
     // piatto = segnale assente (< 0,5 µV efficaci 1-30 Hz), per tutti gli elettrodi: l'ampiezza riferenziale dipende dalla distanza
-    // dal riferimento (Fpz in questi EEG), quindi un confronto con la mediana escludeva per errore Fp1/Fp2 (EEG41, EEG49). Sugli 89 EEG
-    // il minimo è 1,2 µV (Fp2, EEG2): nessun elettrodo sotto soglia
+    // dal riferimento, quindi un confronto con la mediana escluderebbe per errore Fp1/Fp2
     else if (s.rmsMed < 0.5) { bad.add(c); badWhy[c] = 'segnale piatto'; }
     else if (s.rawRms > 4 * rawMed) { bad.add(c); badWhy[c] = 'deriva lenta ×' + (s.rawRms / rawMed).toFixed(0) + ' (elettrodo instabile)'; }
     else if (hiFrac > 0.2) { bad.add(c); badWhy[c] = 'ampiezza anomala nel ' + Math.round(hiFrac * 100) + '% delle epoche'; }
@@ -811,18 +810,16 @@ function bgVoltage(rec, A) {
   const uv = median(per), hi = Math.max(...per);
   return { uv, max: hi, nDer: per.length, cat: hi < 10 ? 'soppresso' : uv < 20 ? 'basso' : uv >= 150 ? 'alto' : 'normale' };
 }
-/* stabilità del ritmo posteriore (taratura su 85 esempi di referti, 17/10/2026, VALIDAZIONE_v0.4 §4)
+/* stabilità del ritmo posteriore
    Tratti a occhi chiusi, finestre di 2 s con passo 1 s, epoche con artefatti escluse. Per finestra: quota alfa = potenza 8–13 Hz /
    potenza 2–30 Hz (media O1-P3, O2-P4); finestra "in sonnolenza" se theta (4–8 Hz) > alfa sia posteriormente sia in C3-P3/C4-P4.
    Persistenza = quota di finestre in veglia con quota alfa ≥ 0,35. Sequenza = finestre consecutive in veglia con alfa dominante;
-   durata media delle sequenze < 2,1 finestre (≈ 3 s) → instabile (11/15 "instabile" dei referti trovati, 14/70 falsi; LOO 66/85).
-   "Stabile" e "un po' instabile" dei referti non si distinguono con nessuna misura: due soli livelli. */
-const STAB_THR = 2.1, STAB_THR2 = 2.5; // 2,1-2,5 finestre (≈ 3,1-3,5 s) = "un po' instabile": concordanza a 3 livelli 53/87 contro 49/87 con due soli livelli (taratura sugli esempi di referti 17/10/2026)
-/* stabilità (ritarata 19/10/2026 su 86 esempi di referti, validazione_v0.4/stab3.js): 1) tratti O.C. brevi (20 s, come per l'RPD);
+   durata media delle sequenze < 2,1 finestre (≈ 3 s) → instabile. */
+const STAB_THR = 2.1, STAB_THR2 = 2.5; // 2,1-2,5 finestre (≈ 3,1-3,5 s) = "un po' instabile"
+/* stabilità: 1) tratti O.C. brevi (20 s, come per l'RPD);
    se restano < 10 finestre utili, tutto il periodo a occhi chiusi (dall'O.C. alla successiva O.A./P.T./P.L./iperpnea/SLI, finestre con
    artefatti escluse); 2) con RPD < 8 Hz si segue l'attività dominante (RPD ± 1,5 Hz) invece della banda alfa e non si escludono finestre
-   per "sonnolenza" (theta > alfa è il fondo stesso). Concordanza a 3 livelli 54/86 (prima 48/79), instabile sì/no 71/86 (prima 63/79);
-   non valutabili 1/89 (prima 8/89). Soglie invariate (2,1 / 2,5 finestre). */
+   per "sonnolenza" (theta > alfa è il fondo stesso). */
 function alphaStability(rec, A) {
   const fs = A.fs, n = 2 * fs, short = A.pdr.ocSegs || [];
   const ok = p => !A.bad.has(p[0]) && !A.bad.has(p[1]) && A.cmap[p[0]] !== undefined && A.cmap[p[1]] !== undefined;
@@ -876,9 +873,9 @@ function photicDriving(rec, A) {
 }
 
 
-/* ---------- anomalie lente: indici regionali bipolari, soglie calibrate su 49 esempi di referti ----------
+/* ---------- anomalie lente: indici regionali bipolari ----------
    Indice di rallentamento di una derivazione bipolare: S = log10(P[2-8 Hz] / P[8-30 Hz]) (si esclude <2 Hz, dominato da artefatti oculari e di movimento).
-   Due livelli (calibrazione v0.3 su 49 EEG, validazione leave-one-out nel rapporto):
+   Due livelli:
    - "anormale" (soglie specifiche): indice globale ≥ 0,4 o PDR < 8 Hz → diffuso; 90° percentile temporale ≥ 0,45 → intermittente;
      asimmetria sx−dx corretta ≥ 0,35 in ≥ 2 regioni → lateralizzato;
    - "possibile, da verificare" (soglie sensibili v0.2): globale ≥ 0,15; p90 temporale o fronto-centrale ≥ 0,15; asimmetria ≥ 0,2;
@@ -967,14 +964,14 @@ function scoreDecision(A, ied) {
   if (s.g50 >= SLOW.diffuse) { cat.push('nonepi_diffuso'); why.push('Onde lente diffuse/continue (indice globale ' + f2(s.g50) + ' ≥ ' + f2(SLOW.diffuse) + ')'); }
   if (s.side) { cat.push('nonepi_focale'); why.push('Onde lente lateralizzate a ' + s.side + ': ' + s.latRegions.join(', ') + ' (asimmetria ≥ ' + f2(SLOW.lat) + ' in ≥ 2 regioni)'); }
   else if (s.intermittent && !(s.g50 >= SLOW.diffuse)) { cat.push('nonepi_focale'); mild.push(1); why.push('Onde lente intermittenti temporali bilaterali (90° percentile ' + f2(s.p90.temporale) + ' ≥ ' + f2(SLOW.intermittent) + ')'); }
-  // patch62: l'iperpnea non classifica piu' come diffuso (su 183 esempi di referti: positiva in 16, diffuso nel referto in 1); solo da verificare
+  // l'iperpnea non classifica come diffuso: solo da verificare
   if (s.hvEvoked && s.hvEvoked.positive) possible.push('rallentamento durante l\'iperpnea (' + Math.round(s.hvEvoked.slowFrac * 100) + '% epoche lente, ' + Math.round(s.hvEvoked.artFrac * 100) + '% ad alta ampiezza): verificare se fisiologico');
   // reperti "possibili" (soglie sensibili): non cambiano la classificazione, vanno verificati sul tracciato
   if (s.weakDiffuse) possible.push('lieve eccesso di onde lente globale (indice ' + f2(s.g50) + ')');
   if (s.sideWeak) possible.push('lieve prevalenza di onde lente a ' + s.sideWeak + ' (' + s.latRegions.slice(0, 2).join(', ') + ')');
   if (s.weakIntermittent && !s.side && !s.intermittent) possible.push('occasionali rallentamenti theta ' + (s.intRegion === 'temporale' ? 'bitemporali' : 'anteriori bilaterali'));
   if (p.freqDiff != null && Math.abs(p.freqDiff) > 1) possible.push('asimmetria di frequenza del ritmo posteriore > 1 Hz (' + (p.freqDiff < 0 ? 'più lento a sx' : 'più lento a dx') + ')');
-  // candidati IED frequenti (≥ 1/min alla soglia di validazione): su 49 EEG 4/7 esami con IED franche e 5/42 senza (tutti con onde aguzze/trifasiche non franche)
+  // candidati IED frequenti (≥ 1/min alla soglia di validazione)
   if (ied && ied.total != null && A.duration > 60) { const rate = ied.total / (A.duration / 60);
     if (rate >= 1 && !(ied.confirmed && ied.confirmed.length)) possible.push('frequenti candidati IED (' + rate.toFixed(1).replace('.', ',') + '/min): rivederli, possibili anomalie aguzze o epilettiformi'); }
   // pattern ritmici/periodici ACNS automatici: ≥ 10% del tracciato → da verificare (non classificano da soli)
@@ -1013,7 +1010,7 @@ function parseLabel(e) {
 /* ---------- referto automatico nello stile dei referti (bozza testuale, da rivedere) ----------
    Ricalca la struttura dei referti EEG di routine: condizioni, ritmo di fondo, organizzazione e anomalie,
    anomalie epilettiformi, iperpnea, SLI, conclusione. Ogni descrittore deriva da una misura esplicita
-   (vedi `misure`); le soglie sono state confrontate con 49 referti (VALIDAZIONE_v0.3). */
+   (vedi `misure`). */
 const LOBE = { 'temporale anteriore': ['F', 'T'], 'temporale medio-posteriore': ['T'], 'temporo-occipitale': ['T', 'O'],
   'fronto-centrale': ['F', 'C'], 'centro-parietale': ['C', 'P'], 'parieto-occipitale': ['P', 'O'] };
 const LOBE_ORDER = ['F', 'C', 'P', 'T', 'O'], LOBE_PRE = { F: 'fronto', C: 'centro', P: 'parieto', T: 'temporo', O: 'occipito' }, LOBE_ADJ = { F: 'frontali', C: 'centrali', P: 'parietali', T: 'temporali', O: 'occipitali' };
@@ -1065,11 +1062,9 @@ function generateReport(A, rec, d, ied, format) {
   m.pdr = p.freq; m.prom = prom; m.react = p.reactivity; m.amp = A.amp;
   const slowBg = p.freq != null && p.freq < 8, asymF = p.freqDiff != null && Math.abs(p.freqDiff) > 1;
   const stab = A.stab && A.stab.cls ? A.stab.cls : prom >= 12 ? 'stabile' : prom >= 4 ? 'un po’ instabile' : 'instabile'; m.stab = A.stab;
-  // voltaggio: aggettivo calibrato su esempi di referti; la categoria ACNS 2021 (pensata per l'EEG in area critica) è riportata a parte,
-  // perché su 49 EEG classifica "basso" 26 tracciati refertati come medio-voltati
+  // voltaggio: aggettivo dei referti; la categoria ACNS 2021 (pensata per l'EEG in area critica) è riportata a parte
   m.volt = A.voltACNS;
-  // soglia ritarata su 87 esempi di referti (16/10/2026): i referti sono quasi sempre "medio-voltato" (73/85) e l'ampiezza alfa non separa
-  // "medio-ampio" dal resto; "medio-ipovoltato" solo sotto 5 µV (concordanza 74/85, LOO 73/85; prima 8/20 µV: 60/85)
+  // "medio-ipovoltato" solo sotto 5 µV
   const volt = A.amp == null ? 'medio-voltato' : A.amp < 5 ? 'medio-ipovoltato' : 'medio-voltato';
   const asymV = p.ampAsym != null && Math.abs(p.ampAsym) >= 2; // ACNS: asimmetria marcata di voltaggio ≥ 50% (rapporto di potenza ≥ 4)
   const reag = p.reactivity == null ? 'reattività non valutabile (mancano annotazioni O.A./O.C.)' : p.reactivity < 0.35 ? 'scarsamente reagente alla apertura ed alla chiusura degli occhi' : 'reagente alla apertura ed alla chiusura degli occhi';
@@ -1085,9 +1080,7 @@ function generateReport(A, rec, d, ied, format) {
     if (L.length || Rr.length) desc += ' ' + [L.length ? part(L, 'A sinistra') : '', Rr.length ? part(Rr, (L.length ? 'a' : 'A') + ' destra') : ''].filter(Boolean).join('; ') + '.'; }
   out.push(desc);
   // organizzazione e anomalie lente
-  // ritarata su 87 esempi di referti (16/10/2026): fondo lento = RPD < 8 Hz o indice globale ≥ 0,10; scarsa se lento e prominenza < 3,
-  // discreta se lento (concordanza 62/76, LOO 61/76; regola precedente 53/79)
-  // patch63 (20/10/2026): tolto "o prominenza < 4" -> 121/149 su 183 esempi di referti (prima 107/149; VALIDAZIONE_v0.5)
+  // fondo lento = RPD < 8 Hz o indice globale ≥ 0,10; scarsa se lento e prominenza < 3, discreta se lento
   const slowOrg = slowBg || (s.g50 != null && s.g50 >= 0.1);
   let org = (slowOrg && prom < 3) ? 'scarsamente organizzato' : slowOrg ? 'discretamente organizzato' : 'ben organizzato';
   m.org = org;
@@ -1317,7 +1310,7 @@ function localizeIED(rec, A, wins, thr, opts = {}) {
   field.sort((p, q) => q[1] - p[1]);
   // transienti distinti nella zona (≥ 150 ms di distanza) con punteggio ≥ 60% del migliore
   const sep = [], minGap = 0.15 * fs; for (const q of cand) { if (q.score < 0.6 * best.score) break; if (sep.every(s => Math.abs(s.i - q.i) >= minGap)) sep.push(q); }
-  // qualità (regole verificate a vista su 20 candidati di 15 EEG, vedi VALIDAZIONE_v0.3): artefatto probabile / incerta / buona
+  // qualità: artefatto probabile / incerta / buona
   const amp = best.amp, nf = field.length, dur = best.dur; let quality = 'buona', why = '';
   if ((amp > 500 && nf <= 4) || (amp > 300 && nf <= 2)) { quality = 'artefatto'; why = 'ampiezza ' + Math.round(amp) + ' µV' + (nf <= 2 ? ' su un solo elettrodo' : ' su pochi elettrodi'); }
   else if (amp > 200 && nf >= 15) { quality = 'artefatto'; why = 'deflessione simultanea su quasi tutti i canali'; }
@@ -1610,7 +1603,7 @@ function estimatePDR(rec, cmap, anns, fs, bad, zeros) {
   if (res.sx && res.dx && res.sx.defined && res.dx.defined && res.sx.prominence >= 3 && res.dx.prominence >= 3) res.freqDiff = res.sx.freq - res.dx.freq;
   // frequenza "migliore" (ACNS Guideline 7: best PDR nello stato di massima vigilanza): picco di ogni finestra a occhi chiusi
   // (lato con il picco più netto, prominenza ≥ 3); si prende il 75° percentile dei picchi (almeno 3 finestre), robusto alle
-  // finestre isolate con beta o artefatti. Scelto su 49 EEG: ±1 Hz dal referto 41/49 (media 39/49; massimo ripetuto 36/49).
+  // finestre isolate con beta o artefatti.
   // La media dello spettro resta in freqMean.
   res.freqMean = res.freq; const pk = [];
   if (segs.length) for (let si = 0; si < useSegs.length; si++) { let bs = null;
@@ -1998,8 +1991,7 @@ G.EEGIED = { IED_CH, IED_THR, readSafetensors, prepareModel, forward, makePrepro
 <script id="onnxsrc">/* Annotatore EEG — rilevatori IED in ONNX (onnxruntime-web 1.20.1, WASM, un thread per worker).
    - CBraMod v2 e v3: addestrati da noi (vepiset_ied.py) su vEpiSet, TUEV, TUSL, HMS (+ TUAR per v3). 18 bipolari (doppia banana
      + Fz-Cz, Cz-Pz), 0,3-75 Hz, notch 50 Hz, 200 Hz, unità 100 µV, finestre di 4 s. Uscita: logit IED + 5 logit di sede.
-   - SpikeNet2 (Li et al., NEJM AI 2025; codice CC BY-NC 4.0): pesi distribuiti con il permesso di BDSP (email del 17/10/2026),
-     solo uso didattico e di ricerca non commerciale; il permesso può essere revocato.
+   - SpikeNet2 (Li et al., NEJM AI 2025).
      19 elettrodi a 128 Hz -> 18 bipolari + 19 media comune, finestre di 1 s a passo 0,25 s, canali con picco-picco < 20 o > 2000 µV
      azzerati, normalizzazione per il 95° percentile di |x|; la rete restituisce già la probabilità. Per ogni finestra di 4 s
      dell'app si prende il massimo delle finestre di 1 s che vi cadono dentro.
@@ -3251,7 +3243,7 @@ async function runONNX(k, src) {
 /* patch64: lato del rallentamento dal modello (rallentamento/valuta.py, regola adottata il 21/10/2026).
    Per ogni finestra di 4 s: coppie omologhe sx-dx (Fp1-F7/Fp2-F8 … P3-O1/P4-O2); quota di finestre in cui almeno una coppia
    ha il lato sinistro più lento di > 1 logit, meno la stessa quota a destra, + 0,078 (correzione = mediana degli EEG normali).
-   |quota| ≥ 0,2 -> prevalenza di lato. Soglie tarate su 183 esempi di referti, non da linea guida. */
+   |quota| ≥ 0,2 -> prevalenza di lato. Soglie dell'app, non da linea guida. */
 const SLOW_NAMES = ['Fp1-F7', 'F7-T3', 'T3-T5', 'T5-O1', 'Fp2-F8', 'F8-T4', 'T4-T6', 'T6-O2', 'Fp1-F3', 'F3-C3', 'C3-P3', 'P3-O1', 'Fp2-F4', 'F4-C4', 'C4-P4', 'P4-O2', 'Fz-Cz', 'Cz-Pz'];
 const SLOW_SX = [0, 1, 2, 3, 8, 9, 10, 11], SLOW_DX = [4, 5, 6, 7, 12, 13, 14, 15], SLOW_OFF = 0.078, SLOW_TL = 1, SLOW_TQ = 0.2;
 function slowLat(t, r) { let nL = 0, nR = 0, n = 0, nHot = 0; const dm = new Float64Array(8), win = [];
