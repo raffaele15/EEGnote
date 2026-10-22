@@ -2263,16 +2263,6 @@ function burstRect(b, P, rowH, sec, lab, plotW) {
   const w = Math.min(tctx.measureText(tx).width + 10, Math.max(60, x1 - x0 + 220)), yT = Math.max(2, 6 + sp[0][0] * rowH - 16), xT = Math.min(x0, lab + plotW - w);
   tctx.fillStyle = c; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(xT, yT, w, 15, 4); else tctx.rect(xT, yT, w, 15); tctx.fill();
   tctx.save(); tctx.beginPath(); tctx.rect(xT, yT, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, xT + 5, yT + 11); tctx.restore(); }); }
-/* IED: rettangolo attorno alla scarica sulle derivazioni che contengono l'elettrodo di massimo e i primi elettrodi del campo */
-function iedRect(L, P, rowH, sec, lab, plotW, cur) {
-  const ALI = { T7: 'T3', T8: 'T4', P7: 'T5', P8: 'T6' }, els = new Set([L.ch].concat((L.field || []).slice(0, 3)));
-  const idx = P.rows.map((r, k) => r && !r.ecg && !r.missing && r.label.split('-').some(e => els.has(ALI[e] || e)) ? k : -1).filter(k => k >= 0); if (!idx.length) return;
-  const t0 = L.t - Math.max(.08, L.durMs / 1000), t1 = L.t + Math.max(.08, L.durMs / 1000) + (L.slowWave ? L.slowWave.dur / 1000 : 0);
-  const x0 = lab + Math.max(0, t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, t1 - S.t) / sec * plotW; if (x1 <= x0) return;
-  const sp = []; for (const k of idx) { const l = sp[sp.length - 1]; if (l && k - l[1] <= 1) l[1] = k; else sp.push([k, k]); }
-  tctx.strokeStyle = css('--ied'); tctx.lineWidth = cur ? 2 : 1.5; tctx.setLineDash(L.quality === 'buona' ? [] : [3, 3]);
-  for (const [i0, i1] of sp) tctx.strokeRect(x0 + .5, 6 + i0 * rowH + 1, x1 - x0 - 1, (i1 - i0 + 1) * rowH - 2);
-  tctx.setLineDash([]); tctx.lineWidth = 1; }
 function slowTag(r, lab, sec, plotW) { TAGQ.push(() => slowTag0(r, lab, sec, plotW)); }
 function slowTag0(r, lab, sec, plotW) { const x0 = lab + Math.max(0, r.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, r.t1 - S.t) / sec * plotW; if (x1 - x0 < 30) return;
   tctx.font = '600 10.5px IBM Plex Sans, system-ui'; const tx = slowTagText(r.os), tw = tctx.measureText(tx).width, w = Math.min(x1 - x0 - 4, tw + 30), x = x0 + 3, y = 3, c = css('--slow');
@@ -2326,6 +2316,10 @@ function drawTrace() { S.artZ = []; TAGQ = []; if (typeof rulerRender === 'funct
       tctx.fillStyle = col; tctx.globalAlpha = .28; tctx.fillRect(xb, yb, tw, 16); tctx.globalAlpha = 1; tctx.strokeStyle = col; tctx.strokeRect(xb + .5, yb + .5, tw, 16);
       tctx.fillStyle = css('--ink'); tctx.fillText(a.label, xb + 7, yb + 12); }
   }
+  // IED da evidenziare sulla pagina: intorno della scarica (punta più eventuale onda lenta) e derivazioni coinvolte
+  const ALI = { T7: 'T3', T8: 'T4', P7: 'T5', P8: 'T6' }, IEDHL = []; if (S.ied && EYEON.has('IED')) S.ied.events.forEach((ev, i) => { const L = ev.loc; if (!L || !L.found || L.t < S.t - 1 || L.t > S.t + sec + 1) return;
+    const els = new Set([L.ch].concat((L.field || []).slice(0, 3))); Object.keys(ALI).forEach(k => { if (els.has(ALI[k])) els.add(k); });
+    IEDHL.push({ els, t0: L.t - Math.max(.08, L.durMs / 1000), t1: L.t + Math.max(.08, L.durMs / 1000) + (L.slowWave ? L.slowWave.dur / 1000 : 0), cur: i === S.iedCur, sure: L.quality === 'buona' }); });
   // scala: sensibilità in µV/mm, 1 mm ≈ 3,78 px CSS
   const sens = +$('sens').value, pxPerUv = 3.78 / sens, step = Math.max(1, Math.floor(fs * sec / plotW / 2));
   rows.forEach((row, k) => {
@@ -2342,6 +2336,11 @@ function drawTrace() { S.artZ = []; TAGQ = []; if (typeof rulerRender === 'funct
       if (lo === Infinity) break; const a = il <= ih ? [il, lo, ih, hi] : [ih, hi, il, lo];
       const x1 = lab + a[0] * kx, y1 = y0 - a[1] * g, x2 = lab + a[2] * kx, y2 = y0 - a[3] * g; i ? tctx.lineTo(x1, y1) : tctx.moveTo(x1, y1); tctx.lineTo(x2, y2); }
     tctx.stroke();
+    // IED: la stessa traccia ricolorata nell'intorno della scarica, sulle derivazioni con l'elettrodo di massimo e i primi del campo
+    for (const h of IEDHL) if (row.label.split('-').some(e => h.els.has(e))) { const a = Math.max(0, Math.floor((h.t0 - S.t) * fs)), b = Math.min(n, Math.ceil((h.t1 - S.t) * fs));
+      if (b <= a) continue; tctx.strokeStyle = css('--ied'); tctx.lineWidth = h.cur ? 2 : 1.6; tctx.setLineDash(h.sure ? [] : [3, 2]); tctx.beginPath();
+      for (let i = a; i < b; i++) { const v = row.data[P.off + i]; if (v === undefined) break; const x = lab + i / (fs * sec) * plotW, y = y0 - v * g; i > a ? tctx.lineTo(x, y) : tctx.moveTo(x, y); }
+      tctx.stroke(); tctx.setLineDash([]); tctx.lineWidth = 1; }
   });
   TAGQ.forEach(f => f()); TAGQ = [];   // etichette arancioni piene, sopra le tracce
   // candidati IED: banda colorata sulla finestra di 4 s del picco
@@ -2351,8 +2350,7 @@ function drawTrace() { S.artZ = []; TAGQ = []; if (typeof rulerRender === 'funct
     const L = ev.loc; let lx = x0 + 3, txt = 'IED ' + ev.pmax.toFixed(2) + (ev.ch ? ' ' + ev.ch : '');
     if (L && L.zone) { const z0 = lab + Math.max(0, L.zone[0] - S.t) / sec * plotW, z1 = lab + Math.min(sec, L.zone[1] - S.t) / sec * plotW; if (z1 > z0) { tctx.fillStyle = css('--ied'); tctx.globalAlpha = i === S.iedCur ? .16 : .1; tctx.fillRect(z0, 16, z1 - z0, H - 34); tctx.globalAlpha = 1; } }
     if (L && L.found && L.t >= S.t && L.t <= S.t + sec) { const xl = lab + (L.t - S.t) / sec * plotW; tctx.strokeStyle = css('--ied'); tctx.lineWidth = 1.5; tctx.setLineDash(L.quality === 'buona' ? [] : [3, 3]);
-      tctx.beginPath(); tctx.moveTo(xl + .5, 16); tctx.lineTo(xl + .5, H - 34); tctx.stroke(); tctx.setLineDash([]); tctx.lineWidth = 1; lx = xl + 3;
-      iedRect(L, P, rowH, sec, lab, plotW, i === S.iedCur);
+      tctx.setLineDash([]); tctx.lineWidth = 1; lx = xl + 3;
       txt = (L.quality === 'artefatto' ? 'artefatto? ' : '') + L.type + ' ' + L.ch + ' ' + L.durMs + ' ms · p ' + ev.pmax.toFixed(2) + (L.quality === 'incerta' ? ' (incerta)' : ''); }
     tctx.fillStyle = css('--ied'); tctx.font = '600 11px IBM Plex Sans, system-ui'; tctx.fillText((ev.art ? 'su artefatto · ' : '') + txt + (j ? ' · ' + j : ''), Math.max(lab + 2, lx), H - 22); });
   // barra di calibrazione 50 µV
@@ -3417,6 +3415,7 @@ function setFull(on) { const main = document.querySelector('main');
   else if (!on && FULL) { const f = FULL; FULL = null; document.body.classList.remove('fulltrace');
     if (!f.side && main.classList.contains('closed')) $('railtog').click(); if (!f.tl && document.body.classList.contains('notl')) $('tltab').click();
     try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) { } }
+  $('fullbtn').querySelector('path').setAttribute('d', FULL ? 'M5.5 1.5v4h-4M14.5 5.5h-4v-4M10.5 14.5v-4h4M1.5 10.5h4v4' : 'M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4'); $('fullbtn').setAttribute('aria-label', FULL ? 'Esci dallo schermo intero' : 'Schermo intero');
   $('fullbtn').setAttribute('aria-pressed', String(!!FULL)); $('fullbtn').title = FULL ? 'Esci dallo schermo intero (F o Esc)' : 'Tracciato a schermo intero (chiude pannello laterale e panoramica; F o Esc per uscire)';
   setTimeout(drawAll, 60); }
 $('fullbtn').onclick = () => setFull(!FULL);
