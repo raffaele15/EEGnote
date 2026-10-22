@@ -2255,7 +2255,7 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
       tctx.fillStyle = col; tctx.globalAlpha = al; tctx.fillRect(x0, 0, x1 - x0, H - 18); tctx.globalAlpha = 1; };
     const SR = []; for (const o of A.epochs) { if (o.zero || o.t + A.epoch < S.t || o.t > S.t + sec) continue; const t1 = o.t + A.epoch;
       if (EYEON.has('Artefatti') && (o.artifact || o.annArt || o.eyeDelta || (o.popCh && o.popCh.length))) artZones(P, o, rowH, sec, lab, plotW, H);
-      if (EYEON.has('Rallentamenti') && o.slowCat) { const sd = /sinistra/.test(o.slowCat) ? 'sinistra' : /destra/.test(o.slowCat) ? 'destra' : 'diffuso', l = SR[SR.length - 1];
+      if (EYEON.has('Rallentamenti') && o.slowCat && belowBg(o)) { const sd = /sinistra/.test(o.slowCat) ? 'sinistra' : /destra/.test(o.slowCat) ? 'destra' : 'diffuso', l = SR[SR.length - 1];
         if (l && l.sd === sd && Math.abs(l.t1 - o.t) < .01) { l.t1 = t1; l.os.push(o); } else SR.push({ t0: o.t, t1, sd, os: [o] }); }
       }
     const BU = EYEON.has('Rallentamenti') && A.bursts ? A.bursts.filter(b => (b.ok || b.verify) && !b.likeBg && b.t1 > S.t && b.t0 < S.t + sec) : [];
@@ -2329,6 +2329,15 @@ function slowText(o) { const lm = o.latMax, pct = isFinite(o.slowAbs) ? Math.rou
 function epBand(os) { let d = 0, th = 0; for (const o of os) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; d += o.bip[k].d1 + o.bip[k].d2; th += o.bip[k].t1 + o.bip[k].t2; } return d + th > 0 ? (d >= th ? 'delta' : 'theta') : ''; }
 function epPct(os) { const v = os.map(o => o.slowAbs).filter(isFinite); if (!v.length) return ''; const x = v.reduce((a, b) => a + b, 0) / v.length; return Math.round(100 * Math.pow(10, x) / (1 + Math.pow(10, x))) + '%'; }
 const sideOf = c => !c ? '' : /sinistra/.test(c) ? 'sinistra' : /destra/.test(c) ? 'destra' : 'diffuso';
+/* fascia di 4 s sul tracciato solo per onde lente oltre l'attività di fondo: per ogni sottobanda lenta (2-4, 4-6, 6-8 Hz)
+   potenza dell'epoca / potenza mediana nel tracciato, sommate sulle derivazioni (senza frontopolari); serve un eccesso ≥ 2 volte nella sottobanda maggiore e, se il ritmo
+   dominante posteriore è misurato, il centro di quella sottobanda almeno 1 Hz sotto la sua frequenza */
+const SUBB = { d2: 3, t1: 5, t2: 7 };   // come l'indice di rallentamento: senza 1-2 Hz, sensibile agli artefatti
+function belowBg(o) { const A = S.A, f = A && A.pdr && A.pdr.freq; if (!A || !o.bip) return true;
+  if (!A._bmed) { A._bmed = {}; const v = {}; for (const q of A.epochs) if (!q.zero && q.bip) for (const k in q.bip) { if (/Fp/.test(k)) continue; v[k] = v[k] || {}; for (const b in SUBB) (v[k][b] = v[k][b] || []).push(q.bip[k][b]); }
+    for (const k in v) { A._bmed[k] = {}; for (const b in SUBB) { const x = v[k][b].filter(isFinite).sort((p, q) => p - q); A._bmed[k][b] = x[x.length >> 1] || 1e-12; } } }
+  let best = null, bv = 0; for (const b in SUBB) { let x = 0, m = 0; for (const k in o.bip) { if (/Fp/.test(k) || !A._bmed[k]) continue; x += o.bip[k][b]; m += A._bmed[k][b]; } const r = m > 0 ? x / m : 0; if (r > bv) { bv = r; best = b; } }
+  return !!best && bv >= 2 && (f == null || SUBB[best] < f - 1); }
 /* tooltip breve della riga Lenti: banda, attività lenta %, lato */
 function slowShort(o) { return [epBand([o]), epPct([o]), sideOf(o.slowCat)].filter(Boolean).join(' · '); }
 /* etichette arancioni sul tracciato: banda, %, polimorfo, regione e lato solo se più lento del solito in quel lato */
