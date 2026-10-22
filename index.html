@@ -1695,7 +1695,6 @@ function slowBursts(rec, A) {
     let kb = 0; for (let k = 1; k < ex.length; k++) if (ex[k] > ex[kb]) kb = k;
     let kl = kb, kh = kb; while (kl > 0 && ex[kl - 1] >= 0.5 * ex[kb]) kl--; while (kh < ex.length - 1 && ex[kh + 1] >= 0.5 * ex[kb]) kh++;
     const fMed = (kb + kLo) * dfq, fLo = (kl + kLo) * dfq, fHi = (kh + kLo) * dfq;
-    let md = 0, mt = 0; ex.forEach((v, k) => { const f = (k + kLo) * dfq, e = Math.max(0, v - 1); if (f < 4) md += e; else mt += e; });
     const zc = []; for (let i = s0 + 1; i < s1; i++) if ((y[i - 1] < 0) !== (y[i] < 0)) zc.push(i);
     const fr = []; for (let i = 1; i < zc.length; i++) { const f = fs / (2 * (zc[i] - zc[i - 1])); if (f >= 1 && f <= 8) fr.push(f); }
     if (fr.length < 2) continue;
@@ -1709,8 +1708,9 @@ function slowBursts(rec, A) {
     const pp = []; for (let i = s0; i < s1; i += fs) { const e = Math.min(s1, i + fs); if (e - i < fs / 2 && pp.length) break; let lo = Infinity, hi = -Infinity; for (let k = i; k < e; k++) { if (yb[k] < lo) lo = yb[k]; if (yb[k] > hi) hi = yb[k]; } pp.push(hi - lo); }
     const relV = median(Array.from(mx.et.subarray(a, b + 1))) / (mx.tRef || 1e-9);
     const eps = A.epochs.filter(o => o.t + A.epoch > t0 && o.t < t1), flagged = eps.some(o => o.slowCat), dz = eps.filter(o => o.drowsy);
-    const band = md >= 2 * mt ? 'delta' : mt >= 2 * md ? 'theta' : 'theta-delta';
-    const likeBg = A.pdr && A.pdr.freq != null && A.pdr.freq < 8 && band === 'theta' && fMed >= A.pdr.freq - 1.5;
+    // banda coerente con l'intervallo di frequenze mostrato: delta (< 4 Hz), theta (4-8 Hz) o theta-delta se l'intervallo li comprende entrambi
+    const band = fHi < 4 ? 'delta' : fLo >= 4 ? 'theta' : 'theta-delta';
+    const likeBg = A.pdr && A.pdr.freq != null && A.pdr.freq < 8 && fMed >= 4 && fMed >= A.pdr.freq - 1.5;
     const ok = flagged && !low, verify = !ok && fMed < 2;
     if (!ok && !verify) continue;
     out.push({ t0, t1, dur: t1 - t0, ders: inv.map(d => d.k), max: mx.k, side, region: DERREG[mx.k] || '', fMed, fLo, fHi, band, morph, cv, ac,
@@ -2371,7 +2371,7 @@ function drawTimeline() {
     if (o.artifact || o.annArt || (o.popCh && o.popCh.length)) { lctx.fillStyle = css('--art'); lctx.globalAlpha = o.artifact ? 1 : o.annArt ? .55 : .3; if (yR >= 0) lctx.fillRect(x, yR + 3, ew, rh - 6); lctx.globalAlpha = 1; }
     else if (o.eyeDelta && yR >= 0) { lctx.fillStyle = css('--stim'); lctx.globalAlpha = .45; lctx.fillRect(x, yR + 3, ew, rh - 6); lctx.globalAlpha = 1; }
     // rallentamenti: categoria per epoca (rosso = sinistra, blu = destra; pieno = solo da quel lato, chiaro = maggiore da quel lato; grigio = diffuso)
-    if (o.slowCat && yS >= 0) { const [c, a] = slowCol(o); lctx.fillStyle = css(c); lctx.globalAlpha = a; lctx.fillRect(x, yS + 3, ew, rh - 6); lctx.globalAlpha = 1; }
+    if (o.slowCat && yS >= 0 && belowBg(o)) { const [c, a] = slowCol(o); lctx.fillStyle = css(c); lctx.globalAlpha = a; lctx.fillRect(x, yS + 3, ew, rh - 6); lctx.globalAlpha = 1; }
   }
   const yP = RI('Pattern ACNS') * rh, yI = RI('IED (modello)') * rh;
   // pattern ritmici/periodici ACNS (rosso = sx, blu = dx, nero = generalizzato; RDA più chiari)
