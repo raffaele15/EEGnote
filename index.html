@@ -35,9 +35,9 @@
 button,select,input{font:inherit;color:inherit}
 .app{display:grid;grid-template-rows:auto auto auto 1fr;height:100%} .app>header{grid-row:1} .app>main{grid-row:4}
 #rulerlayer{position:absolute;inset:0;display:none;cursor:crosshair;z-index:6} #rulerlayer.on{display:block}
-.rulbox{position:absolute;border:1.5px dashed var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);pointer-events:none}
-.rulpp{position:absolute;pointer-events:auto;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:3px;padding:0 .25rem;font-size:.72rem;line-height:16px;font-variant-numeric:tabular-nums}
-.rullab{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:4px;padding:.15rem .4rem;font-size:.78rem;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.rulbox{position:absolute;border:1.5px dashed var(--yes);background:color-mix(in srgb,var(--yes) 12%,transparent);pointer-events:none} #rulerbtn[aria-pressed=true]{background:var(--yes);border-color:var(--yes);color:#fff}
+.rulpp{position:absolute;pointer-events:auto;background:var(--panel);color:var(--ink);border:1px solid var(--yes);border-radius:3px;padding:0 .25rem;font-size:.72rem;line-height:16px;font-variant-numeric:tabular-nums}
+.rullab{position:absolute;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--yes);border-radius:4px;padding:.15rem .4rem;font-size:.78rem;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 #fullbtn{position:absolute;top:4px;right:6px;z-index:7;opacity:.75;background:var(--panel)} #fullbtn:hover{opacity:1} #drop[style*="flex"]~#fullbtn{display:none}
 .modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.38);display:grid;place-items:center} .modal[hidden]{display:none}
 .mbox{width:min(980px,94vw);height:88vh;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;padding:.6rem .8rem;gap:.5rem}
@@ -2267,10 +2267,10 @@ function burstRect(b, P, rowH, sec, lab, plotW) {
   for (const [i0, i1] of sp) { const y = 6 + i0 * rowH, h = (i1 - i0 + 1) * rowH;
     tctx.fillStyle = c; tctx.globalAlpha = b.verify ? .08 : .16; tctx.fillRect(x0, y, x1 - x0, h); tctx.globalAlpha = .95;
     tctx.strokeStyle = c; tctx.lineWidth = 1.5; if (b.verify) tctx.setLineDash([5, 3]); tctx.strokeRect(x0 + .75, y + .75, x1 - x0 - 1.5, h - 1.5); tctx.setLineDash([]); tctx.globalAlpha = 1; }
-  const tx = burstTag(b); tctx.font = '600 10.5px IBM Plex Sans, system-ui';
+  TAGQ.push(() => { const tx = burstTag(b); tctx.font = '600 10.5px IBM Plex Sans, system-ui';
   const w = Math.min(tctx.measureText(tx).width + 10, Math.max(60, x1 - x0 + 220)), yT = Math.max(2, 6 + sp[0][0] * rowH - 16), xT = Math.min(x0, lab + plotW - w);
-  tctx.fillStyle = c; tctx.globalAlpha = b.verify ? .7 : .92; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(xT, yT, w, 15, 4); else tctx.rect(xT, yT, w, 15); tctx.fill(); tctx.globalAlpha = 1;
-  tctx.save(); tctx.beginPath(); tctx.rect(xT, yT, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, xT + 5, yT + 11); tctx.restore(); }
+  tctx.fillStyle = c; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(xT, yT, w, 15, 4); else tctx.rect(xT, yT, w, 15); tctx.fill();
+  tctx.save(); tctx.beginPath(); tctx.rect(xT, yT, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, xT + 5, yT + 11); tctx.restore(); }); }
 /* IED: rettangolo attorno alla scarica sulle derivazioni che contengono l'elettrodo di massimo e i primi elettrodi del campo */
 function iedRect(L, P, rowH, sec, lab, plotW, cur) {
   const ALI = { T7: 'T3', T8: 'T4', P7: 'T5', P8: 'T6' }, els = new Set([L.ch].concat((L.field || []).slice(0, 3)));
@@ -2281,12 +2281,14 @@ function iedRect(L, P, rowH, sec, lab, plotW, cur) {
   tctx.strokeStyle = css('--ied'); tctx.lineWidth = cur ? 2 : 1.5; tctx.setLineDash(L.quality === 'buona' ? [] : [3, 3]);
   for (const [i0, i1] of sp) tctx.strokeRect(x0 + .5, 6 + i0 * rowH + 1, x1 - x0 - 1, (i1 - i0 + 1) * rowH - 2);
   tctx.setLineDash([]); tctx.lineWidth = 1; }
-function slowTag(r, lab, sec, plotW) { const x0 = lab + Math.max(0, r.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, r.t1 - S.t) / sec * plotW; if (x1 - x0 < 30) return;
+function slowTag(r, lab, sec, plotW) { TAGQ.push(() => slowTag0(r, lab, sec, plotW)); }
+function slowTag0(r, lab, sec, plotW) { const x0 = lab + Math.max(0, r.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, r.t1 - S.t) / sec * plotW; if (x1 - x0 < 30) return;
   tctx.font = '600 10.5px IBM Plex Sans, system-ui'; const tx = slowTagText(r.os), tw = tctx.measureText(tx).width, w = Math.min(x1 - x0 - 4, tw + 30), x = x0 + 3, y = 3, c = css('--slow');
-  tctx.fillStyle = c; tctx.globalAlpha = .92; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x, y, w, 15, 4); else tctx.rect(x, y, w, 15); tctx.fill(); tctx.globalAlpha = 1;
+  tctx.fillStyle = c; tctx.beginPath(); if (tctx.roundRect) tctx.roundRect(x, y, w, 15, 4); else tctx.rect(x, y, w, 15); tctx.fill();
   tctx.strokeStyle = '#fff'; tctx.lineWidth = 1.4; tctx.beginPath(); for (let i = 0; i <= 14; i++) { const px = x + 5 + i, py = y + 7.5 - 3.2 * Math.sin(i / 14 * 2 * Math.PI); i ? tctx.lineTo(px, py) : tctx.moveTo(px, py); } tctx.stroke();
   tctx.save(); tctx.beginPath(); tctx.rect(x, y, w, 15); tctx.clip(); tctx.fillStyle = '#fff'; tctx.fillText(tx, x + 23, y + 11); tctx.restore(); }
-function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTimeout(rulerRender, 0);
+let TAGQ = [];   // etichette da disegnare sopra le tracce
+function drawTrace() { S.artZ = []; TAGQ = []; if (typeof rulerRender === 'function') setTimeout(rulerRender, 0);
   const r = tc.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   const bw = Math.round(r.width * dpr), bh = Math.round(r.height * dpr); if (tc.width !== bw) tc.width = bw; if (tc.height !== bh) tc.height = bh;   // pixel interi: il browser non riscala (sfoca) il canvas
   tctx.setTransform(bw / r.width, 0, 0, bh / r.height, 0, 0);
@@ -2327,7 +2329,7 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
     if (e < S.t || a.onset > S.t + sec) continue;
     const x = lab + (a.onset - S.t) / sec * plotW, col = css(annCol(a));
     if (a.duration > 0) { const fl = annFill(a); tctx.fillStyle = fl || col + '22'; if (fl) tctx.globalAlpha = .5; const x1 = lab + Math.min(sec, e - S.t) / sec * plotW; tctx.fillRect(Math.max(lab, x), 0, x1 - Math.max(lab, x), H - 18); tctx.globalAlpha = 1; }
-    if (a.onset >= S.t) { tctx.strokeStyle = col; tctx.setLineDash([4, 3]); tctx.beginPath(); tctx.moveTo(x + .5, 0); tctx.lineTo(x + .5, H - 18); tctx.stroke(); tctx.setLineDash([]);
+    if (a.onset >= S.t) { tctx.strokeStyle = col; tctx.beginPath(); tctx.moveTo(x + .5, 0); tctx.lineTo(x + .5, H - 18); tctx.stroke(); tctx.setLineDash([]);
       tctx.font = '11px IBM Plex Sans, system-ui'; const tw = tctx.measureText(a.label).width + 14, yb = H - 44, xb = Math.max(lab, x - tw / 2);
       tctx.fillStyle = col; tctx.globalAlpha = .28; tctx.fillRect(xb, yb, tw, 16); tctx.globalAlpha = 1; tctx.strokeStyle = col; tctx.strokeRect(xb + .5, yb + .5, tw, 16);
       tctx.fillStyle = css('--ink'); tctx.fillText(a.label, xb + 7, yb + 12); }
@@ -2349,6 +2351,7 @@ function drawTrace() { S.artZ = []; if (typeof rulerRender === 'function') setTi
       const x1 = lab + a[0] * kx, y1 = y0 - a[1] * g, x2 = lab + a[2] * kx, y2 = y0 - a[3] * g; i ? tctx.lineTo(x1, y1) : tctx.moveTo(x1, y1); tctx.lineTo(x2, y2); }
     tctx.stroke();
   });
+  TAGQ.forEach(f => f()); TAGQ = [];   // etichette arancioni piene, sopra le tracce
   // candidati IED: banda colorata sulla finestra di 4 s del picco
   if (S.ied && EYEON.has('IED')) S.ied.events.forEach((ev, i) => { if (ev.t1 < S.t || ev.t0 > S.t + sec) return;
     const x0 = lab + Math.max(0, ev.t0 - S.t) / sec * plotW, x1 = lab + Math.min(sec, ev.t1 - S.t) / sec * plotW, j = S.review[evKey(ev)];
@@ -3439,9 +3442,9 @@ function rulerRender() { const L = $('rulerlayer'); L.innerHTML = ''; if (!RULER
   const box = document.createElement('div'); box.className = 'rulbox'; Object.assign(box.style, { left: x0 + 'px', top: '0px', width: Math.max(1, x1 - x0) + 'px', height: H + 'px' }); L.appendChild(box);
   const dur = Math.abs(RUL.t1 - RUL.t0), f = v => Math.round(v).toLocaleString('it-IT'), right = x1 + 4 + 70 < (L.clientWidth || 1200);
   const head = document.createElement('div'); head.className = 'rullab'; head.style.left = Math.max(G.lab, Math.min(x0, (L.clientWidth || 800) - 330)) + 'px'; head.style.top = (H + 1) + 'px';
-  head.textContent = (dur >= 1 ? dur.toFixed(2).replace('.', ',') + ' s' : Math.round(dur * 1000) + ' ms') + (dur > 0.02 ? ' · 1/durata ≈ ' + (1 / dur).toFixed(1).replace('.', ',') + ' Hz' : '') + ' · picco-picco per derivazione (µV)'; L.appendChild(head);
+  head.textContent = 'larghezza ' + (dur >= 1 ? dur.toFixed(2).replace('.', ',') + ' s' : Math.round(dur * 1000) + ' ms') + (dur > 0.02 ? ' · 1/larghezza ≈ ' + (1 / dur).toFixed(1).replace('.', ',') + ' Hz' : '') + ' · ampiezza picco-picco per derivazione'; L.appendChild(head);
   G.labels.forEach((lb, k) => { if (!lb) return; const st = rulerStats(RUL, k); if (!st) return; const e = document.createElement('div'); e.className = 'rulpp';
-    e.textContent = f(st.pp); e.title = st.label + ': picco-picco ' + f(st.pp) + ' µV (max ' + f(st.mx) + ', min ' + f(st.mn) + ')';
+    e.textContent = f(st.pp) + ' µV'; e.title = st.label + ': picco-picco ' + f(st.pp) + ' µV (max ' + f(st.mx) + ', min ' + f(st.mn) + ')';
     e.style.top = (k * G.rowH + G.rowH / 2 - 8) + 'px'; e.style.left = (right ? x1 + 4 : Math.max(G.lab, x0 - 50)) + 'px'; L.appendChild(e); }); }
 (() => { const L = $('rulerlayer'); let drag = false;
   const at = e => { const r = L.getBoundingClientRect(), G = S.geo, px = e.clientX - r.left, py = e.clientY - r.top;
