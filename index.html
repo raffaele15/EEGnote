@@ -927,15 +927,12 @@ function slowLayer(ep, anns, pdr) {
     if (best) { const other = Math.max(...Object.values(LATREG).map(x => o.S[x[best.v > 0 ? 1 : 0]]).filter(v => v !== undefined));
       o.slowCat = (other >= SLOW.epochAbs ? 'maggiore a ' : 'solo a ') + (best.v > 0 ? 'sinistra' : 'destra'); }
     else if (gmax >= SLOW.epochAbs) o.slowCat = 'diffuso'; }
-  // onde lente oltre il fondo (stessa regola della fascia sul tracciato e della panoramica): nella sottobanda 2-4, 4-6 o 6-8 Hz con più eccesso
-  // la potenza dell'epoca è ≥ 2 volte la mediana del tracciato (somma delle derivazioni senza frontopolari) e, se il ritmo di fondo è misurato,
-  // il centro di quella sottobanda è almeno 1 Hz sotto la sua frequenza
-  { const SB = { d2: 3, t1: 5, t2: 7 }, v = {}, md = {}; for (const o of base) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; v[k] = v[k] || {}; for (const b in SB) (v[k][b] = v[k][b] || []).push(o.bip[k][b]); }
-    for (const k in v) { md[k] = {}; for (const b in SB) { const x = v[k][b].filter(isFinite).sort((p, q) => p - q); md[k][b] = x[x.length >> 1] || 1e-12; } }
-    const f = pdr && pdr.freq;
-    for (const o of ep) { o.overBg = null; if (!ok(o) || !o.bip) continue; let best = null, bv = 0;
-      for (const b in SB) { let x = 0, m = 0; for (const k in o.bip) { if (/Fp/.test(k) || !md[k]) continue; x += o.bip[k][b]; m += md[k][b]; } const r = m > 0 ? x / m : 0; if (r > bv) { bv = r; best = b; } }
-      o.overBg = !!best && bv >= 2 && (f == null || SB[best] < f - 1); } }
+  // attività lenta da mostrare sul tracciato e nella panoramica: epoca lenta con la regola assoluta (slowCat) e, se il ritmo di fondo è misurato,
+  // sottobanda lenta più potente (2-4, 4-6 o 6-8 Hz, somma delle derivazioni senza frontopolari) con centro almeno 1 Hz sotto la sua frequenza
+  { const SB = { d2: 3, t1: 5, t2: 7 }, f = pdr && pdr.freq;
+    for (const o of ep) { o.overBg = null; if (!ok(o) || !o.bip) continue; if (!o.slowCat) { o.overBg = false; continue; } let best = null, bv = -1;
+      for (const b in SB) { let x = 0; for (const k in o.bip) { if (/Fp/.test(k)) continue; x += o.bip[k][b]; } if (x > bv) { bv = x; best = b; } }
+      o.overBg = f == null || SB[best] < f - 1; } }
   const pdrSlow = pdr && pdr.freq != null && pdr.freq < SLOW.pdrSlow;
   const diffuse = g50 >= SLOW.diffuse || pdrSlow, intermittent = grp.temporale >= SLOW.intermittent;
   const weakDiffuse = !diffuse && g50 >= SLOW.weakDiffuse, weakIntermittent = !intermittent && Math.max(grp.temporale, grp['fronto-centrale']) >= SLOW.weakIntermittent;
@@ -944,10 +941,10 @@ function slowLayer(ep, anns, pdr) {
   const pctOf = f => 100 * base.filter(f).length / Math.max(1, base.length);
   const prev = {
     diffuse: pctOf(o => o.gS >= SLOW.diffuse),
-    intermittent: pctOf(o => o.overBg && Math.max(...SGRP.temporale.filter(k => o.S[k] !== undefined).map(k => o.S[k])) >= SLOW.intermittent),
+    intermittent: pctOf(o => Math.max(...SGRP.temporale.filter(k => o.S[k] !== undefined).map(k => o.S[k])) >= SLOW.intermittent),
     // epoche in cui quel lato è davvero più lento (stessa categoria della riga "Rallentamenti"): un'asimmetria di fondo stabile
     // (es. emisfero ipovoltato) non basta a rendere il rallentamento "continuo"
-    side: sd ? pctOf(o => o.slowCat && o.slowCat.endsWith(sd === 'sx' ? 'sinistra' : 'destra') && o.overBg) : 0 };   // stessa regola dell'attività lenta disegnata (onde lente oltre il fondo)
+    side: sd ? pctOf(o => o.slowCat && o.slowCat.endsWith(sd === 'sx' ? 'sinistra' : 'destra')) : 0 };   // referto: regola assoluta (il tracciato aggiunge il filtro sul ritmo di fondo)
   return { g50, p90: grp, latMed, side, sideWeak: side ? null : sideWeak, latRegions, hvEvoked, diffuse, weakDiffuse, pdrSlow, intermittent, weakIntermittent, intRegion, prev, nBase: base.length };
 }
 
@@ -1094,7 +1091,7 @@ function generateReport(A, rec, d, ied, format) {
   const inBurst = bm => { if (!bm) return ''; const pc = 100 * bm.tot / Math.max(1, (s.nBase || 1) * A.epoch), q = { continua: 'continui', abbondante: 'abbondanti', frequente: 'frequenti', occasionale: 'occasionali', rara: 'rari' }[prevalenceTerm(pc)];
     return ', che si organizzano in ' + q + ' burst ' + bm.morph + ' a ' + bm.freq + ' ' + bm.durs + (bm.V ? ',' + bm.V : '') + bm.drowsy; };
   if (diff) { const b = bandOf(A, SALL), bg = burstSum(A, x => x.side === 'G'); parts.push('globalmente rallentato in prevalente banda ' + b + (bg && rk(bg.band) > rk(b) ? ', con sovrapposte anomalie lente diffuse ' + bg.core + bg.tail : '')); concl.push('anomalie lente diffuse' + (slowBg ? ' nel contesto di un ritmo di fondo rallentato' : '')); }
-  if (s.side && !(s.pdrSlow && s.prev && !s.prev.side)) { const q = s.prev ? prevQ(s.prev.side) : 'occasionali';   // fondo lento: lato citato solo se ha onde più lente del fondo
+  if (s.side) { const q = s.prev ? prevQ(s.prev.side) : 'occasionali';
     const two = lobesText(s.latRegions.slice(0, 2)), lob = two.split('-').length > 3 ? lobesText(s.latRegions.slice(0, 1)) : two, lato = s.side === 'sx' ? 'sinistra' : 'destra', b = bandOf(A, latDer, true);
     const bs = burstSum(A, x => x.side === s.side, 'm'), bg = bandOf(A, SALL);
     if (diff) { // banda del lato citata solo se più lenta di quella diffusa (es. delta focale su fondo theta)
@@ -2384,7 +2381,7 @@ function slowText(o) { const lm = o.latMax, pct = isFinite(o.slowAbs) ? Math.rou
 function epBand(os) { let d = 0, th = 0; for (const o of os) for (const k in (o.bip || {})) { if (/Fp/.test(k)) continue; d += o.bip[k].d1 + o.bip[k].d2; th += o.bip[k].t1 + o.bip[k].t2; } return d + th > 0 ? (d >= th ? 'delta' : 'theta') : ''; }
 function epPct(os) { const v = os.map(o => o.slowAbs).filter(isFinite); if (!v.length) return ''; const x = v.reduce((a, b) => a + b, 0) / v.length; return Math.round(100 * Math.pow(10, x) / (1 + Math.pow(10, x))) + '%'; }
 const sideOf = c => !c ? '' : /sinistra/.test(c) ? 'sinistra' : /destra/.test(c) ? 'destra' : 'diffuso';
-/* fascia di 4 s sul tracciato e riga Lenti solo per onde lente oltre l'attività di fondo (regola in slowLayer) */
+/* fascia di 4 s sul tracciato e riga Lenti: epoca lenta più lenta del ritmo di fondo (regola in slowLayer, o.overBg) */
 function belowBg(o) { return o.overBg !== false; }
 /* tooltip breve della riga Lenti: banda, attività lenta %, lato */
 function slowShort(o) { return [epBand([o]), epPct([o]), sideOf(o.slowCat)].filter(Boolean).join(' · '); }
